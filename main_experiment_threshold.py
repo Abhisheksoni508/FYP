@@ -30,18 +30,8 @@ from scipy import stats
 from stable_baselines3 import DQN
 
 from src.preprocessing import load_combined_data, calculate_rul, process_data
-from src.gym_env import PdMEnvironment
+from src.gym_env import PdMEnvironment, BlindPdMEnvironment
 from src.config import *
-
-
-# ============================================================
-# 1. Blind Environment (same as ablation)
-# ============================================================
-class BlindPdMEnvironment(PdMEnvironment):
-    def _get_observation(self):
-        obs = super()._get_observation()
-        obs[1] = 0.0
-        return obs
 
 
 # ============================================================

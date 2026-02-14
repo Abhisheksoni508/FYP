@@ -29,24 +29,12 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.monitor import Monitor
 
 from src.preprocessing import load_combined_data, calculate_rul, process_data
-from src.gym_env import PdMEnvironment
+from src.gym_env import PdMEnvironment, BlindPdMEnvironment, safety_override
 from src.config import *
 
 
 # ============================================================
-# 1. Blind Environment
-# ============================================================
-
-class BlindPdMEnvironment(PdMEnvironment):
-    """Identical to PdMEnvironment but sigma is always 0."""
-    def _get_observation(self):
-        obs = super()._get_observation()
-        obs[1] = 0.0
-        return obs
-
-
-# ============================================================
-# 2. Evaluation Functions
+# 1. Evaluation Functions
 # ============================================================
 
 def evaluate_raw(env, model, num_episodes=200):
@@ -95,8 +83,8 @@ def evaluate_with_safety(env, model, num_episodes=200):
             action, _ = model.predict(obs, deterministic=True)
 
             # Layer 3: Safety Supervisor Override
-            if action == 0 and obs[0] < CRITICAL_RUL_NORM:
-                action = 1
+            action, was_overridden = safety_override(action, obs)
+            if was_overridden:
                 overrides += 1
 
             obs, reward, done, _, _ = env.step(action)

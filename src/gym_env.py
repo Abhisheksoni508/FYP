@@ -135,3 +135,41 @@ class PdMEnvironment(gym.Env):
                 reward = 1       # Survived
                 
         return self._get_observation(), reward, terminated, truncated, {}
+
+
+# ============================================================
+# Blind Environment (for ablation studies)
+# ============================================================
+
+class BlindPdMEnvironment(PdMEnvironment):
+    """
+    Identical to PdMEnvironment but the uncertainty signal (sigma)
+    is always zero. Used in ablation studies to test whether
+    uncertainty awareness improves decision-making.
+    """
+    def _get_observation(self):
+        obs = super()._get_observation()
+        obs[1] = 0.0  # Zero out uncertainty
+        return obs
+
+
+# ============================================================
+# Safety Supervisor (Layer 3)
+# ============================================================
+
+def safety_override(action, obs):
+    """
+    Layer 3 Safety Supervisor: overrides the DQN agent's decision
+    when predicted RUL falls below a critical threshold.
+
+    Args:
+        action (int): DQN's chosen action (0=WAIT, 1=MAINTAIN)
+        obs (np.array): Observation [mean_rul_norm, sigma_norm, trend]
+
+    Returns:
+        final_action (int): Possibly overridden action
+        was_overridden (bool): True if safety supervisor intervened
+    """
+    if action == 0 and obs[0] < CRITICAL_RUL_NORM:
+        return 1, True
+    return action, False

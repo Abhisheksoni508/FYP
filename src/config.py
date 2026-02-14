@@ -1,3 +1,11 @@
+import os
+import warnings
+
+# Suppress noisy warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'           # Hide TensorFlow/oneDNN messages
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'           # Disable oneDNN custom operations
+warnings.filterwarnings('ignore', category=FutureWarning)  # Hide PyTorch weights_only warning
+
 import torch
 
 # ============================================================
@@ -46,7 +54,7 @@ RL_GAMMA = 0.99
 # ============================================================
 # During training, this fraction of episodes have sensor noise injected.
 # This teaches the UA agent what high uncertainty MEANS.
-NOISE_PROB = 0.15        # 15% of training episodes are noisy
+NOISE_PROB = 0.5        # 50% of training episodes are noisy
 NOISE_LEVEL = 0.15      # Gaussian noise std when active
 
 # Uncertainty scaling: raw ensemble std (~0.01-0.10) is too narrow
@@ -56,7 +64,6 @@ UNCERTAINTY_SCALE = 5.0
 # ============================================================
 # SAFETY SUPERVISOR (Layer 3)
 # ============================================================
-BURN_IN_CYCLES = 183
 CRITICAL_RUL_NORM = 0.12  # 15 cycles / 125
 
 # ============================================================

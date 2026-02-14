@@ -17,7 +17,7 @@ from scipy import stats
 from stable_baselines3 import DQN
 
 from src.preprocessing import load_combined_data, calculate_rul, process_data
-from src.gym_env import PdMEnvironment
+from src.gym_env import PdMEnvironment, safety_override
 from src.config import *
 
 
@@ -33,11 +33,10 @@ def evaluate_agent(env, model, num_episodes=200, use_safety=True):
             action, _ = model.predict(obs, deterministic=True)
             
             # --- LAYER 3: Safety Supervisor Override ---
-            # If agent says WAIT but predicted RUL is critically low,
-            # force maintenance to prevent catastrophic failure.
-            if use_safety and action == 0 and obs[0] < CRITICAL_RUL_NORM:
-                action = 1
-                safety_overrides += 1
+            if use_safety:
+                action, was_overridden = safety_override(action, obs)
+                if was_overridden:
+                    safety_overrides += 1
             
             obs, reward, done, _, _ = env.step(action)
             ep_reward += reward

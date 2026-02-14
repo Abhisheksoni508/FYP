@@ -17,6 +17,7 @@ from stable_baselines3 import DQN
 
 from src.preprocessing import load_combined_data, calculate_rul, process_data
 from src.lstm_model import RUL_LSTM
+from src.gym_env import safety_override
 from src.config import *
 
 
@@ -83,16 +84,16 @@ def simulate_engine(unit_id, df, df_clean, lstm_models, agent):
             q_maintain_history.append(0.0)
         
         # Layer 3: Safety supervisor
-        safety_override = False
+        safety_flag = False
         final_action = dqn_action
-        if not repaired and dqn_action == 0 and mean_pred < CRITICAL_RUL_NORM:
-            safety_override = True
-            final_action = 1
+        if not repaired:
+            final_action, safety_flag = safety_override(dqn_action, 
+                np.array([mean_pred, norm_std, np.mean(seq[0, -1, :])], dtype=np.float32))
         
         if not repaired and final_action == 1:
             repaired = True
             trigger_true_rul = unit_df.iloc[t]['RUL']
-            trigger_type = 'safety' if safety_override else 'dqn'
+            trigger_type = 'safety' if safety_flag else 'dqn'
             trigger_idx = len(true_ruls)
         
         true_ruls.append(unit_df.iloc[t]['RUL'])
@@ -103,7 +104,7 @@ def simulate_engine(unit_id, df, df_clean, lstm_models, agent):
         # Record what happened at this timestep
         if final_action == 1 and trigger_idx == len(true_ruls) - 1:
             dqn_actions.append(dqn_action)
-            safety_flags.append(safety_override)
+            safety_flags.append(safety_flag)
             final_actions.append(1)
         else:
             dqn_actions.append(0)
