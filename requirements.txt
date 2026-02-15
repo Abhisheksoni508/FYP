@@ -7,3 +7,5 @@ stable-baselines3
 matplotlib
 scipy 
 joblib 
+streamlit
+plotly
