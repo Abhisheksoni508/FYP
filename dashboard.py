@@ -719,7 +719,7 @@ def render_dashboard(history, events, outcome,
         # True RUL (black dashed)
         fig.add_trace(go.Scatter(
             x=cycles, y=true_ruls, mode='lines',
-            line=dict(color='black', width=2, dash='dash'),
+            line=dict(color='White', width=2, dash='dash'),
             name='True RUL (Ground Truth)'
         ), row=1, col=1)
 
