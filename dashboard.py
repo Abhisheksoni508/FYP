@@ -232,10 +232,10 @@ def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
 
     return {
         'true_rul': true_rul,
-        'pred_rul': mean_pred * 125.0,          # Convert back to cycles
+        'pred_rul': max(0, mean_pred * 125.0),          # Convert back to cycles
         'uncertainty': std_pred * 125.0,          # In cycles
         'norm_std': norm_std,                     # Normalised (for display)
-        'individual_preds': [p * 125.0 for p in individual_preds],
+        'individual_preds': [max(0, p * 125.0) for p in individual_preds],
         'sensor_trend': sensor_trend,
         'dqn_action': dqn_action,                 # 0=WAIT, 1=MAINTAIN
         'final_action': final_action,             # After safety supervisor
