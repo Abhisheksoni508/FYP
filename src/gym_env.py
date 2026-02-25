@@ -25,7 +25,7 @@ class PdMEnvironment(gym.Env):
         noise_level: Std of Gaussian noise when active
     """
     
-    def __init__(self, df, models_dir, noise_prob=0.0, noise_level=0.15):
+    def __init__(self, df, models_dir, noise_prob=0.0, noise_level=0.15, variable_noise=False):
         super().__init__()
         
         self.df = df
@@ -34,17 +34,20 @@ class PdMEnvironment(gym.Env):
         
         # Noise settings
         self.noise_prob = noise_prob
-        self.noise_level = noise_level
+        self.noise_level = noise_level            # Max noise std
+        self.variable_noise = variable_noise      # Option 2: sample per episode
         self.episode_noisy = False
+        self.episode_noise_level = noise_level    # Set each episode in reset()
         
-        # Spaces
+        # Spaces — 4D obs: [mean_rul, sigma_now, sigma_rolling_avg, sensor_trend]
         self.action_space = spaces.Discrete(2)
-        self.observation_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=0, high=1, shape=(4,), dtype=np.float32)
         
         # State
         self.current_unit = None
         self.current_time = 0
         self.max_time = 0
+        self.sigma_history = [0.0, 0.0, 0.0]     # Option 3: rolling sigma window
         
     def _load_ensemble(self, models_dir):
         models = []
@@ -68,8 +71,17 @@ class PdMEnvironment(gym.Env):
             self.current_time = np.random.randint(WINDOW_SIZE, max_len - 10)
         self.max_time = max_len
         
+        # Reset sigma history at start of each new episode
+        self.sigma_history = [0.0, 0.0, 0.0]
+
         # Decide noise for this entire episode
         self.episode_noisy = (np.random.random() < self.noise_prob)
+
+        # Option 2: Sample noise level per episode so agent learns all intensities
+        if self.episode_noisy and self.variable_noise:
+            self.episode_noise_level = np.random.uniform(NOISE_LEVEL_MIN, self.noise_level)
+        else:
+            self.episode_noise_level = self.noise_level
         
         return self._get_observation(), {}
 
@@ -82,9 +94,9 @@ class PdMEnvironment(gym.Env):
         features = [c for c in unit_data.columns if c not in ['unit', 'time', 'RUL']]
         seq = unit_data.iloc[start_idx:end_idx][features].values.copy()
         
-        # Noise injection (if this episode is noisy)
+        # Noise injection — uses per-episode level (Option 2: variable noise)
         if self.episode_noisy:
-            noise = np.random.normal(0, self.noise_level, seq.shape)
+            noise = np.random.normal(0, self.episode_noise_level, seq.shape)
             seq = np.clip(seq + noise, 0, 1)
         
         # Ensemble inference
@@ -97,12 +109,17 @@ class PdMEnvironment(gym.Env):
         mean_pred = np.mean(preds)
         std_pred = np.std(preds)
         
-        # Build observation
+        # Build 4D observation: [mean_rul, sigma_now, sigma_rolling_avg, sensor_trend]
         norm_mean = np.clip(mean_pred, 0, 1)
         norm_std = np.clip(std_pred * UNCERTAINTY_SCALE, 0, 1)
         sensor_trend = np.clip(np.mean(seq[-1, :]), 0, 1)
-        
-        return np.array([norm_mean, norm_std, sensor_trend], dtype=np.float32)
+
+        # Option 3: Rolling sigma average (last 3 steps)
+        self.sigma_history.pop(0)
+        self.sigma_history.append(float(norm_std))
+        rolling_sigma = float(np.mean(self.sigma_history))
+
+        return np.array([norm_mean, norm_std, rolling_sigma, sensor_trend], dtype=np.float32)
 
     def step(self, action):
         terminated = False
@@ -149,7 +166,8 @@ class BlindPdMEnvironment(PdMEnvironment):
     """
     def _get_observation(self):
         obs = super()._get_observation()
-        obs[1] = 0.0  # Zero out uncertainty
+        obs[1] = 0.0  # Zero out current sigma
+        obs[2] = 0.0  # Zero out rolling sigma avg — blind agent sees neither
         return obs
 
 

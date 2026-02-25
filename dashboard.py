@@ -162,7 +162,8 @@ def get_q_values(agent, obs):
 # =================================================================
 
 def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
-                  inject_noise=False, noise_level=0.15, use_safety=True):
+                  inject_noise=False, noise_level=0.15, use_safety=True,
+                  sigma_history=None):
     """
     Run ONE cycle of the full 3-layer pipeline.
     
@@ -204,12 +205,18 @@ def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
     seq_tensor = torch.FloatTensor(seq).unsqueeze(0).to(DEVICE)
     mean_pred, std_pred, individual_preds = predict_ensemble(lstm_models, seq_tensor)
 
-    # ── Build observation vector ──
-    # Same as gym_env.py lines 101-105
+    # ── Build 4D observation vector ──
+    # Matches the new gym_env 4D obs: [mean_rul, sigma_now, sigma_rolling_avg, trend]
     norm_mean = np.clip(mean_pred, 0, 1)
     norm_std = np.clip(std_pred * UNCERTAINTY_SCALE, 0, 1)
     sensor_trend = np.clip(np.mean(seq[-1, :]), 0, 1)
-    obs = np.array([norm_mean, norm_std, sensor_trend], dtype=np.float32)
+
+    # Option 3: Rolling sigma average from history passed by caller
+    if sigma_history is None:
+        sigma_history = [0.0, 0.0, 0.0]
+    rolling_sigma = float(np.mean(sigma_history))
+
+    obs = np.array([norm_mean, norm_std, rolling_sigma, sensor_trend], dtype=np.float32)
 
     # ── Layer 2: DQN Decision ──
     # Same as main_visualize.py line 74
@@ -219,6 +226,15 @@ def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
     # ── Extract Q-values (for visualisation) ──
     # Same as main_visualize.py lines 77-79
     q_wait, q_maintain = get_q_values(agent, obs)
+
+    # ── Option 1: Uncertainty Gate ──
+    # Only fires for UA agent (blind agent always has norm_std=0, so gate never triggers).
+    # If DQN says MAINTAIN but sigma is very high and RUL isn't critically low,
+    # suppress the decision — "the prediction is too unreliable to act on right now."
+    was_uncertainty_gated = False
+    if dqn_action == 1 and norm_std > 0.35 and norm_mean > CRITICAL_RUL_NORM:
+        dqn_action = 0
+        was_uncertainty_gated = True
 
     # ── Layer 3: Safety Supervisor ──
     # Imported from gym_env.py safety_override()
@@ -240,6 +256,7 @@ def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
         'dqn_action': dqn_action,                 # 0=WAIT, 1=MAINTAIN
         'final_action': final_action,             # After safety supervisor
         'was_overridden': was_overridden,
+        'was_uncertainty_gated': was_uncertainty_gated,  # Option 1 gate fired
         'q_wait': q_wait,
         'q_maintain': q_maintain,
         'obs': obs,
@@ -388,9 +405,9 @@ def main():
     )
     noise_level = st.sidebar.slider(
         "Noise Level (σ)",
-        0.01, 0.30, 0.15, 0.01,
+        0.01, 0.10, 0.05, 0.01,
         disabled=not inject_noise,
-        help="Same range as ablation experiments (0.03 to 0.15)"
+        help="Low (0.03–0.06): UA advantage visible. High (0.09–0.10): both agents struggle."
     )
 
     st.sidebar.divider()
@@ -426,6 +443,8 @@ def main():
         st.session_state.outcome = None
     if 'current_engine' not in st.session_state:
         st.session_state.current_engine = None
+    if 'sigma_history' not in st.session_state:
+        st.session_state.sigma_history = [0.0, 0.0, 0.0]   # Option 3: rolling sigma
 
     # Reset if engine changed
     if st.session_state.current_engine != engine_id:
@@ -434,6 +453,7 @@ def main():
         st.session_state.outcome = None
         st.session_state.running = False
         st.session_state.current_engine = engine_id
+        st.session_state.sigma_history = [0.0, 0.0, 0.0]
 
     # ── Control Buttons ──
     col_btn1, col_btn2, col_btn3 = st.columns(3)
@@ -453,6 +473,7 @@ def main():
         st.session_state.events = []
         st.session_state.outcome = None
         st.session_state.running = False
+        st.session_state.sigma_history = [0.0, 0.0, 0.0]
         st.rerun()
 
     # =============================================================
@@ -493,13 +514,24 @@ def main():
                 lstm_models, active_agent,
                 inject_noise=inject_noise,
                 noise_level=noise_level,
-                use_safety=use_safety
+                use_safety=use_safety,
+                sigma_history=list(st.session_state.sigma_history)
             )
+            # Update sigma history for next cycle (Option 3)
+            st.session_state.sigma_history.pop(0)
+            st.session_state.sigma_history.append(result['norm_std'])
             st.session_state.history.append(result)
 
             # ── Log events ──
             cycle_num = cycle_idx - WINDOW_SIZE + 1
             true_rul = result['true_rul']
+
+            # Log non-terminating uncertainty gate event
+            if result.get('was_uncertainty_gated'):
+                st.session_state.events.append(
+                    f"🛡️ Cycle {cycle_num}: UNCERTAINTY GATE — Suppressed premature MAINTAIN "
+                    f"(σ={result['norm_std']:.2f}, pred={result['pred_rul']:.0f})"
+                )
 
             if result['was_overridden']:
                 st.session_state.events.append(

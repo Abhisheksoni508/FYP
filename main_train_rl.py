@@ -29,8 +29,9 @@ def train_rl_agent():
     print(f"  Timesteps:      {RL_TIMESTEPS:,}")
     print(f"  Network:        {RL_NET_ARCH}")
     print(f"  Noise Prob:     {NOISE_PROB} ({int(NOISE_PROB*100)}% of episodes)")
-    print(f"  Noise Level:    {NOISE_LEVEL}")
+    print(f"  Noise Range:    {NOISE_LEVEL_MIN} – {NOISE_LEVEL} (sampled per episode)")
     print(f"  Uncertainty 5x: {UNCERTAINTY_SCALE}")
+    print(f"  Obs Space:      4D [mean_rul, sigma_now, sigma_rolling, trend]")
     
     # 1. Load Data
     print("\n--- Loading Data ---")
@@ -41,12 +42,13 @@ def train_rl_agent():
     # 2. Create Environment WITH noise augmentation
     # This is the key: 50% of episodes inject noise into sensors,
     # causing ensemble sigma to spike. The agent learns to detect this.
-    print(f"\n--- Creating Environment (noise_prob={NOISE_PROB}) ---")
+    print(f"\n--- Creating Environment (noise_prob={NOISE_PROB}, variable_noise=True) ---")
     env = Monitor(PdMEnvironment(
         df_clean, 
         models_dir='models',
-        noise_prob=NOISE_PROB,       # FROM CONFIG
-        noise_level=NOISE_LEVEL      # FROM CONFIG
+        noise_prob=NOISE_PROB,       # FROM CONFIG (now 0.7)
+        noise_level=NOISE_LEVEL,     # FROM CONFIG (max 0.15)
+        variable_noise=True          # Option 2: sample noise level per episode
     ))
     
     # 3. Create DQN

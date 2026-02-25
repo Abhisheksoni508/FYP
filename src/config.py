@@ -54,8 +54,9 @@ RL_GAMMA = 0.99
 # ============================================================
 # During training, this fraction of episodes have sensor noise injected.
 # This teaches the UA agent what high uncertainty MEANS.
-NOISE_PROB = 0.5        # 50% of training episodes are noisy
-NOISE_LEVEL = 0.15      # Gaussian noise std when active
+NOISE_PROB = 0.7        # 70% of training episodes are noisy (was 0.5)
+NOISE_LEVEL = 0.15      # Max Gaussian noise std
+NOISE_LEVEL_MIN = 0.03  # Min Gaussian noise std — sampled per episode during training
 
 # Uncertainty scaling: raw ensemble std (~0.01-0.10) is too narrow
 # for DQN to learn from. We scale by this factor to fill [0,1].
