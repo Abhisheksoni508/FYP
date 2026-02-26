@@ -37,7 +37,7 @@ BOOTSTRAP_RATIO = 0.8
 # ============================================================
 # RL AGENT (DQN)
 # ============================================================
-RL_TIMESTEPS = 300000
+RL_TIMESTEPS = 500000   # was 300k — more steps needed for end-of-life timing
 RL_NET_ARCH = [128, 128]
 RL_LR = 0.0003
 RL_BATCH = 128
@@ -65,7 +65,31 @@ UNCERTAINTY_SCALE = 5.0
 # ============================================================
 # SAFETY SUPERVISOR (Layer 3)
 # ============================================================
-CRITICAL_RUL_NORM = 0.12  # 15 cycles / 125
+CRITICAL_RUL_NORM = 0.12      # 15 cycles / 125
+
+# Supervisor only fires when rolling sigma is BELOW this threshold.
+# This is what makes the supervisor uncertainty-aware:
+#   - Blind agent: rolling sigma is always 0.0 → always below threshold
+#     → supervisor fires on every low prediction (same as before, many false alarms)
+#   - UA agent: rolling sigma reflects real ensemble disagreement
+#     → supervisor only fires when predictions are trustworthy (low uncertainty)
+#     → ignores noisy dips, fires only on genuinely confident low predictions
+SUPERVISOR_SIGMA_THRESHOLD = 0.25
+
+# ============================================================
+# RL TRAINING — END-OF-LIFE BIAS
+# ============================================================
+# The DQN was learning "always WAIT" because only 13% of random
+# episode starts land in the critical end-of-life zone.
+# Fix: force 50% of episodes to start in the last EOL_WINDOW cycles
+# so the agent sees many more maintenance timing decisions.
+EOL_EPISODE_PROB = 0.5   # fraction of episodes that start near end of life
+EOL_WINDOW       = 40    # how many cycles from the end counts as "end of life"
+
+# Crash penalty raised so it dominates even with heavy discounting.
+# Old: -100. At gamma=0.99 and 160 steps out → present value = -20 (trivial).
+# New: -500. Present value at 160 steps → -100 (agent actually cares).
+CRASH_PENALTY = -500
 
 # ============================================================
 # DEVICE

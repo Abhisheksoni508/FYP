@@ -68,7 +68,16 @@ class PdMEnvironment(gym.Env):
         if max_len <= WINDOW_SIZE + 10:
             self.current_time = WINDOW_SIZE
         else:
-            self.current_time = np.random.randint(WINDOW_SIZE, max_len - 10)
+            # End-of-life bias: EOL_EPISODE_PROB fraction of episodes start
+            # in the last EOL_WINDOW cycles so the agent sees many more
+            # maintenance timing decisions during training.
+            # Without this, only ~13% of starts land in the critical zone
+            # and the agent learns "always WAIT" as the dominant strategy.
+            if np.random.random() < EOL_EPISODE_PROB:
+                start_min = max(WINDOW_SIZE, max_len - EOL_WINDOW)
+                self.current_time = np.random.randint(start_min, max_len - 5)
+            else:
+                self.current_time = np.random.randint(WINDOW_SIZE, max_len - 10)
         self.max_time = max_len
         
         # Reset sigma history at start of each new episode
@@ -146,7 +155,7 @@ class PdMEnvironment(gym.Env):
         else:  # WAIT
             self.current_time += 1
             if self.current_time >= self.max_time:
-                reward = -100    # Crash
+                reward = CRASH_PENALTY   # was -100, now -500 from config
                 terminated = True
             else:
                 reward = 1       # Survived
@@ -178,16 +187,29 @@ class BlindPdMEnvironment(PdMEnvironment):
 def safety_override(action, obs):
     """
     Layer 3 Safety Supervisor: overrides the DQN agent's decision
-    when predicted RUL falls below a critical threshold.
+    when predicted RUL falls below a critical threshold AND the
+    ensemble is confident in that prediction (low rolling sigma).
+
+    This is what separates UA from Blind at the supervisor level:
+      - Blind agent: obs[2] (rolling sigma) is always 0.0
+        → is_confident is always True
+        → supervisor fires on ANY low prediction, even noisy false alarms
+      - UA agent: obs[2] reflects true ensemble disagreement
+        → supervisor only fires when the prediction is trustworthy
+        → ignores noise-driven dips, waits for a genuinely confident signal
 
     Args:
         action (int): DQN's chosen action (0=WAIT, 1=MAINTAIN)
-        obs (np.array): Observation [mean_rul_norm, sigma_norm, trend]
+        obs (np.array): [mean_rul_norm, sigma_now, rolling_sigma, sensor_trend]
 
     Returns:
         final_action (int): Possibly overridden action
         was_overridden (bool): True if safety supervisor intervened
     """
-    if action == 0 and obs[0] < CRITICAL_RUL_NORM:
+    # rolling_sigma (obs[2]) is the 3-cycle average of sigma —
+    # more stable than single-cycle sigma, harder to fool with one noise spike
+    is_confident = obs[2] < SUPERVISOR_SIGMA_THRESHOLD
+
+    if action == 0 and obs[0] < CRITICAL_RUL_NORM and is_confident:
         return 1, True
     return action, False

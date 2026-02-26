@@ -391,7 +391,7 @@ def main():
     use_safety = st.sidebar.checkbox(
         "Layer 3: Safety Supervisor",
         value=True,
-        help="When ON, forces maintenance if predicted RUL < 15 cycles"
+        help="When ON, forces maintenance if predicted RUL < 15 cycles AND ensemble is confident (rolling σ < 0.25). UA agent: supervisor ignores noisy false alarms. Blind agent: rolling σ is always 0, so supervisor fires on every low prediction."
     )
 
     st.sidebar.divider()
