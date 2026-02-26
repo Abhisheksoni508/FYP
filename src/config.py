@@ -91,6 +91,17 @@ EOL_WINDOW       = 40    # how many cycles from the end counts as "end of life"
 # New: -500. Present value at 160 steps → -100 (agent actually cares).
 CRASH_PENALTY = -500
 
+# Time-pressure shaping: WAIT reward decays linearly once true RUL drops
+# below this threshold. This forces the DQN to MAINTAIN near end-of-life
+# even when sigma is persistently high (noisy sensors), because waiting
+# becomes increasingly costly rather than always giving +1.
+#
+# True RUL > 30:  reward = +1   (normal, wait freely)
+# True RUL = 20:  reward =  0   (neutral, should be thinking about acting)
+# True RUL = 10:  reward = -1   (costly to keep waiting)
+# True RUL =  0:  reward = -2   (very costly — then crash fires at -500)
+TIME_PRESSURE_START = 30   # cycles from end where WAIT reward starts decaying
+
 # ============================================================
 # DEVICE
 # ============================================================

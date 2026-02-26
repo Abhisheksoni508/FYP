@@ -155,10 +155,16 @@ class PdMEnvironment(gym.Env):
         else:  # WAIT
             self.current_time += 1
             if self.current_time >= self.max_time:
-                reward = CRASH_PENALTY   # was -100, now -500 from config
+                reward = CRASH_PENALTY
                 terminated = True
             else:
-                reward = 1       # Survived
+                # Time-pressure shaping: WAIT reward decays as engine nears end of life.
+                # Above TIME_PRESSURE_START cycles remaining → full +1 reward.
+                # Below that → reward drops linearly, going negative near failure.
+                # This teaches the DQN to trigger maintenance even under persistent
+                # noise/uncertainty — "I've been uncertain long enough, I must act."
+                time_pressure_penalty = max(0.0, (TIME_PRESSURE_START - current_true_rul) / 10.0)
+                reward = 1.0 - time_pressure_penalty
                 
         return self._get_observation(), reward, terminated, truncated, {}
 
