@@ -100,7 +100,7 @@ CRASH_PENALTY = -500
 # True RUL = 20:  reward =  0   (neutral, should be thinking about acting)
 # True RUL = 10:  reward = -1   (costly to keep waiting)
 # True RUL =  0:  reward = -2   (very costly — then crash fires at -500)
-TIME_PRESSURE_START = 30   # cycles from end where WAIT reward starts decaying
+TIME_PRESSURE_START = 25   # cycles from end where WAIT reward starts decaying
 
 # ============================================================
 # DEVICE
