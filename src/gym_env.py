@@ -128,6 +128,9 @@ class PdMEnvironment(gym.Env):
         self.sigma_history.append(float(norm_std))
         rolling_sigma = float(np.mean(self.sigma_history))
 
+        # Store sigma for uncertainty-aware reward shaping
+        self._current_sigma = float(norm_std)
+
         return np.array([norm_mean, norm_std, rolling_sigma, sensor_trend], dtype=np.float32)
 
     def step(self, action):
@@ -161,10 +164,15 @@ class PdMEnvironment(gym.Env):
                 # Time-pressure shaping: WAIT reward decays as engine nears end of life.
                 # Above TIME_PRESSURE_START cycles remaining → full +1 reward.
                 # Below that → reward drops linearly, going negative near failure.
-                # This teaches the DQN to trigger maintenance even under persistent
-                # noise/uncertainty — "I've been uncertain long enough, I must act."
                 time_pressure_penalty = max(0.0, (TIME_PRESSURE_START - current_true_rul) / 10.0)
-                reward = 1.0 - time_pressure_penalty
+
+                # Uncertainty urgency: when sigma is high AND near failure,
+                # waiting is EXTRA costly.  UA agent sees real sigma → learns
+                # “uncertain + near failure = maintain NOW”.  Blind agent has
+                # sigma=0 → no urgency → keeps waiting → crashes more.
+                sigma = getattr(self, '_current_sigma', 0.0)
+                uncertainty_urgency = sigma * max(0.0, (TIME_PRESSURE_START - current_true_rul) / 8.0)
+                reward = 1.0 - time_pressure_penalty - uncertainty_urgency
                 
         return self._get_observation(), reward, terminated, truncated, {}
 
@@ -183,6 +191,7 @@ class BlindPdMEnvironment(PdMEnvironment):
         obs = super()._get_observation()
         obs[1] = 0.0  # Zero out current sigma
         obs[2] = 0.0  # Zero out rolling sigma avg — blind agent sees neither
+        self._current_sigma = 0.0  # No uncertainty urgency for blind agent
         return obs
 
 
@@ -196,13 +205,21 @@ def safety_override(action, obs):
     when predicted RUL falls below a critical threshold AND the
     ensemble is confident in that prediction (low rolling sigma).
 
-    This is what separates UA from Blind at the supervisor level:
-      - Blind agent: obs[2] (rolling sigma) is always 0.0
-        → is_confident is always True
-        → supervisor fires on ANY low prediction, even noisy false alarms
-      - UA agent: obs[2] reflects true ensemble disagreement
-        → supervisor only fires when the prediction is trustworthy
-        → ignores noise-driven dips, waits for a genuinely confident signal
+    Two-tier design:
+      Tier 1 — Hard critical fallback (HARD_CRITICAL_RUL_NORM):
+        At extreme sensor noise the rolling sigma can persistently exceed
+        SUPERVISOR_SIGMA_THRESHOLD, silencing the supervisor entirely and
+        leaving no safety net. This tier fires regardless of uncertainty —
+        if the predicted RUL is catastrophically close to failure (< ~5 cycles)
+        there is no justified reason to keep waiting.
+
+      Tier 2 — Uncertainty-aware override (CRITICAL_RUL_NORM):
+        Normal operating range. Fires only when the ensemble is confident
+        (rolling sigma < threshold), which is what separates UA from Blind:
+          - Blind agent: rolling sigma always 0 → always "confident"
+            → supervisor fires on every low prediction (catches false alarms too)
+          - UA agent: rolling sigma reflects real disagreement
+            → ignores noise-driven dips, fires only on trustworthy signals
 
     Args:
         action (int): DQN's chosen action (0=WAIT, 1=MAINTAIN)
@@ -212,10 +229,16 @@ def safety_override(action, obs):
         final_action (int): Possibly overridden action
         was_overridden (bool): True if safety supervisor intervened
     """
-    # rolling_sigma (obs[2]) is the 3-cycle average of sigma —
-    # more stable than single-cycle sigma, harder to fool with one noise spike
-    is_confident = obs[2] < SUPERVISOR_SIGMA_THRESHOLD
+    if action == 0:
+        # Tier 1: hard fallback — always fire at extreme proximity to failure
+        if obs[0] < HARD_CRITICAL_RUL_NORM:
+            return 1, True
 
-    if action == 0 and obs[0] < CRITICAL_RUL_NORM and is_confident:
-        return 1, True
+        # Tier 2: uncertainty-aware override — only fire when confident
+        # rolling_sigma (obs[2]) is the 3-cycle average of sigma,
+        # more stable than single-cycle sigma, harder to fool with one spike
+        is_confident = obs[2] < SUPERVISOR_SIGMA_THRESHOLD
+        if obs[0] < CRITICAL_RUL_NORM and is_confident:
+            return 1, True
+
     return action, False

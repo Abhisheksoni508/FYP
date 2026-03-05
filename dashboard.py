@@ -40,7 +40,6 @@ import streamlit as st
 import numpy as np
 import torch
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import time
 import os
 
@@ -219,13 +218,20 @@ def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
     obs = np.array([norm_mean, norm_std, rolling_sigma, sensor_trend], dtype=np.float32)
 
     # ── Layer 2: DQN Decision ──
-    # Same as main_visualize.py line 74
-    dqn_action, _ = agent.predict(obs, deterministic=True)
+    # Old blind agent was trained on 3D obs [mean_rul, 0.0, sensor_trend].
+    # UA agent uses full 4D [mean_rul, sigma_now, rolling_sigma, sensor_trend].
+    # Detect which format the loaded model expects and pass accordingly.
+    if agent.observation_space.shape == (3,):
+        obs_for_agent = np.array([norm_mean, 0.0, sensor_trend], dtype=np.float32)
+    else:
+        obs_for_agent = obs
+
+    dqn_action, _ = agent.predict(obs_for_agent, deterministic=True)
     dqn_action = int(dqn_action)
 
     # ── Extract Q-values (for visualisation) ──
     # Same as main_visualize.py lines 77-79
-    q_wait, q_maintain = get_q_values(agent, obs)
+    q_wait, q_maintain = get_q_values(agent, obs_for_agent)
 
     # ── Option 1: Uncertainty Gate ──
     # Only fires for UA agent (blind agent always has norm_std=0, so gate never triggers).
@@ -280,60 +286,64 @@ def main():
     <style>
         /* Main title styling */
         .main-title {
-            font-size: 3.2rem;
-            font-weight: 1700;
+            font-size: 2.6rem;
+            font-weight: 800;
             color: #a0a0de;
             margin-bottom: 0;
         }
         .sub-title {
-            font-size: 1.0rem;
-            color: #a0a0de;
-            margin-top: -10px;
+            font-size: 0.95rem;
+            color: #8888aa;
+            margin-top: -8px;
             margin-bottom: 20px;
         }
-        
+
         /* Status cards */
         .status-card {
-            padding: 15px;
-            border-radius: 10px;
+            padding: 16px 10px;
+            border-radius: 12px;
             text-align: center;
             margin-bottom: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
         }
-        .status-safe { background: linear-gradient(135deg, #d4edda, #c3e6cb); border: 2px solid #28a745; }
-        .status-warning { background: linear-gradient(135deg, #fff3cd, #ffeaa7); border: 2px solid #ffc107; }
-        .status-danger { background: linear-gradient(135deg, #f8d7da, #f5c6cb); border: 2px solid #dc3545; }
-        .status-override { background: linear-gradient(135deg, #e8daef, #d2b4de); border: 2px solid #8e44ad; }
-        .status-maintained { background: linear-gradient(135deg, #d1ecf1, #bee5eb); border: 2px solid #17a2b8; }
-        
-        .status-label { font-size: 0.85rem; color: #000000; font-weight: 600; }
-        .status-value { font-size: 1.8rem; color: #000000; font-weight: 700; margin: 5px 0; }
-        .status-sub { font-size: 0.75rem; color: #000000; }
-        
+        .status-safe     { background: linear-gradient(135deg, #d4edda, #b8dfc5); border: 2px solid #28a745; }
+        .status-warning  { background: linear-gradient(135deg, #fff3cd, #ffe58a); border: 2px solid #ffc107; }
+        .status-danger   { background: linear-gradient(135deg, #f8d7da, #f0b8bc); border: 2px solid #dc3545; }
+        .status-override { background: linear-gradient(135deg, #e8daef, #c9a8e0); border: 2px solid #8e44ad; }
+        .status-maintained { background: linear-gradient(135deg, #d1ecf1, #a8d8e4); border: 2px solid #17a2b8; }
+
+        .status-label { font-size: 0.75rem; color: #222; font-weight: 700;
+                        text-transform: uppercase; letter-spacing: 0.6px; }
+        .status-value { font-size: 1.9rem; color: #111; font-weight: 800; margin: 6px 0; }
+        .status-sub   { font-size: 0.72rem; color: #444; }
+
         /* Event log */
         .event-log {
-            background: #1a1a2e;
-            color: #00ff88;
+            background: #0d0d1e;
+            color: #00e676;
             font-family: 'Courier New', monospace;
-            padding: 15px;
-            border-radius: 8px;
-            max-height: 200px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid #1e1e3a;
+            max-height: 210px;
             overflow-y: auto;
-            font-size: 0.8rem;
-            line-height: 1.6;
+            font-size: 0.78rem;
+            line-height: 1.7;
         }
-        
+
         /* Layer indicator badges */
         .layer-badge {
             display: inline-block;
-            padding: 3px 10px;
-            border-radius: 15px;
+            padding: 4px 12px;
+            border-radius: 16px;
             font-size: 0.75rem;
-            font-weight: 600;
-            margin: 2px;
+            font-weight: 700;
+            margin: 2px 4px;
+            letter-spacing: 0.3px;
         }
-        .layer-1 { background: #3498db; color: white; }
+        .layer-1 { background: #2980b9; color: white; }
         .layer-2 { background: #27ae60; color: white; }
-        .layer-3 { background: #e74c3c; color: white; }
+        .layer-3 { background: #c0392b; color: white; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -500,6 +510,7 @@ def main():
     engine_raw = df_raw[df_raw['unit'] == engine_id].reset_index(drop=True)
     max_cycles = len(engine_data)
 
+    rendered_in_loop = False
     if st.session_state.running and st.session_state.outcome is None:
         # Start from where we left off (or from WINDOW_SIZE)
         start_idx = WINDOW_SIZE + len(st.session_state.history)
@@ -573,14 +584,15 @@ def main():
                 use_safety,
                 inject_noise
             )
+            rendered_in_loop = True
 
             if not st.session_state.running:
                 break
 
             time.sleep(speed)
 
-    # Render current state (for when simulation is paused or not started)
-    if st.session_state.history:
+    # Render current state (for when simulation is paused/stopped but not just run)
+    if st.session_state.history and not rendered_in_loop:
         render_dashboard(
             st.session_state.history,
             st.session_state.events,
@@ -592,8 +604,8 @@ def main():
             use_safety,
             inject_noise
         )
-    else:
-        # Show empty state
+    elif not st.session_state.history:
+        # Only show the "not started" message when no simulation has run yet
         metric_placeholder.info(
             f"🔧 Engine {engine_id} loaded ({max_cycles} cycles). "
             f"Press **Start Simulation** to begin."
@@ -712,100 +724,120 @@ def render_dashboard(history, events, outcome,
 
     # ── ROW 2: Live Charts ──
     with chart_ph.container():
-        fig = make_subplots(
-            rows=2, cols=1,
-            row_heights=[0.65, 0.35],
-            subplot_titles=("RUL Prediction with Uncertainty Band", "DQN Q-Values (Agent Reasoning)"),
-            vertical_spacing=0.12
-        )
-
-        cycles = list(range(1, n + 1))
-        true_ruls = [h['true_rul'] for h in history]
-        pred_ruls = [h['pred_rul'] for h in history]
+        cycles        = list(range(1, n + 1))
+        true_ruls     = [h['true_rul']    for h in history]
+        pred_ruls     = [h['pred_rul']    for h in history]
         uncertainties = [h['uncertainty'] for h in history]
 
-        # ── Panel 1: RUL Prediction ──
-
-        # Uncertainty band (±2σ)
+        # ── Chart 1: RUL Prediction ──
         upper = [p + 2 * u for p, u in zip(pred_ruls, uncertainties)]
         lower = [max(0, p - 2 * u) for p, u in zip(pred_ruls, uncertainties)]
 
-        fig.add_trace(go.Scatter(
+        fig1 = go.Figure()
+
+        # Uncertainty band (±2σ) — fill between upper and lower
+        fig1.add_trace(go.Scatter(
             x=cycles, y=upper, mode='lines', line=dict(width=0),
             showlegend=False, hoverinfo='skip'
-        ), row=1, col=1)
-
-        fig.add_trace(go.Scatter(
+        ))
+        fig1.add_trace(go.Scatter(
             x=cycles, y=lower, mode='lines', line=dict(width=0),
-            fill='tonexty', fillcolor='rgba(52, 152, 219, 0.15)',
+            fill='tonexty', fillcolor='rgba(52,152,219,0.18)',
             name='±2σ Uncertainty', hoverinfo='skip'
-        ), row=1, col=1)
+        ))
 
-        # Predicted RUL (blue line)
-        fig.add_trace(go.Scatter(
+        # Predicted RUL
+        fig1.add_trace(go.Scatter(
             x=cycles, y=pred_ruls, mode='lines',
-            line=dict(color='#3498db', width=2.5),
+            line=dict(color='#5dade2', width=2.5),
             name='Predicted RUL (Layer 1)'
-        ), row=1, col=1)
+        ))
 
-        # True RUL (black dashed)
-        fig.add_trace(go.Scatter(
+        # True RUL
+        fig1.add_trace(go.Scatter(
             x=cycles, y=true_ruls, mode='lines',
-            line=dict(color='White', width=2, dash='dash'),
+            line=dict(color='#ecf0f1', width=2, dash='dash'),
             name='True RUL (Ground Truth)'
-        ), row=1, col=1)
+        ))
 
-        # Jackpot zone (RUL < 20)
-        fig.add_hrect(y0=0, y1=20, fillcolor="rgba(231,76,60,0.08)",
-                       line_width=0, row=1, col=1)
-        fig.add_hline(y=20, line_dash="dot", line_color="red",
-                       annotation_text="Jackpot Zone (RUL<20)", row=1, col=1)
-
-        # Safety threshold
-        fig.add_hline(y=15, line_dash="dash", line_color="purple",
-                       annotation_text="Safety Threshold (15)", row=1, col=1)
-
-        # Mark maintenance trigger point
+        # Maintenance trigger marker
         if outcome is not None and outcome != 'crash':
-            trigger_cycle = n
-            trigger_rul = pred_ruls[-1]
-            marker_color = '#8e44ad' if outcome == 'safety_override' else '#27ae60'
-            fig.add_trace(go.Scatter(
-                x=[trigger_cycle], y=[trigger_rul],
-                mode='markers', marker=dict(size=15, color=marker_color,
-                                            symbol='star', line=dict(width=2, color='black')),
-                name='Maintenance Triggered',
-                showlegend=True
-            ), row=1, col=1)
+            marker_color = '#9b59b6' if outcome == 'safety_override' else '#2ecc71'
+            fig1.add_trace(go.Scatter(
+                x=[n], y=[pred_ruls[-1]], mode='markers',
+                marker=dict(size=14, color=marker_color, symbol='star',
+                            line=dict(width=2, color='white')),
+                name='Maintenance Triggered'
+            ))
 
-        # ── Panel 2: Q-Values ──
-        q_waits = [h['q_wait'] for h in history]
+        # Reference zones (no built-in annotation — use add_annotation to avoid overlap)
+        fig1.add_hrect(y0=0, y1=20, fillcolor="rgba(231,76,60,0.07)", line_width=0)
+        fig1.add_hline(y=20, line_dash="dot",  line_color="rgba(231,76,60,0.75)",  line_width=1.5)
+        fig1.add_hline(y=15, line_dash="dash", line_color="rgba(155,89,182,0.75)", line_width=1.5)
+
+        # Staggered annotations so they don't collide
+        fig1.add_annotation(
+            xref="paper", x=0.99, y=21, yref="y",
+            text="Jackpot Zone (RUL < 20)", showarrow=False,
+            xanchor="right", yanchor="bottom",
+            font=dict(size=10, color="rgba(231,76,60,0.9)")
+        )
+        fig1.add_annotation(
+            xref="paper", x=0.99, y=14, yref="y",
+            text="Safety Threshold (15)", showarrow=False,
+            xanchor="right", yanchor="top",
+            font=dict(size=10, color="rgba(155,89,182,0.9)")
+        )
+
+        fig1.update_layout(
+            title=dict(text="RUL Prediction with Uncertainty Band",
+                       x=0.5, xanchor="center", font=dict(size=15)),
+            height=430,
+            template="plotly_dark",
+            legend=dict(
+                orientation="h", x=0.5, xanchor="center",
+                y=-0.18, yanchor="top",
+                bgcolor="rgba(0,0,0,0)", font=dict(size=12)
+            ),
+            margin=dict(l=60, r=20, t=55, b=70),
+            xaxis=dict(title="Cycle", showgrid=True, gridcolor="rgba(255,255,255,0.06)"),
+            yaxis=dict(title="RUL (cycles)", showgrid=True, gridcolor="rgba(255,255,255,0.06)"),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+        )
+        st.plotly_chart(fig1, use_container_width=True)
+
+        # ── Chart 2: Q-Values ──
+        q_waits    = [h['q_wait']    for h in history]
         q_maintains = [h['q_maintain'] for h in history]
         q_diff = [m - w for w, m in zip(q_waits, q_maintains)]
 
-        # Q-value difference: positive = favours MAINTAIN
-        fig.add_trace(go.Scatter(
+        fig2 = go.Figure()
+        fig2.add_trace(go.Scatter(
             x=cycles, y=q_diff, mode='lines',
             line=dict(color='#e74c3c', width=2),
-            name='Q(MAINTAIN) - Q(WAIT)',
-            fill='tozeroy',
-            fillcolor='rgba(231, 76, 60, 0.1)'
-        ), row=2, col=1)
+            name='Q(MAINTAIN) − Q(WAIT)',
+            fill='tozeroy', fillcolor='rgba(231,76,60,0.12)'
+        ))
+        fig2.add_hline(y=0, line_color="rgba(255,255,255,0.25)", line_dash="solid")
 
-        fig.add_hline(y=0, line_color="gray", line_dash="solid", row=2, col=1)
-
-        # Layout
-        fig.update_layout(
-            height=550,
-            template="plotly_white",
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
-            margin=dict(l=60, r=30, t=50, b=30),
+        fig2.update_layout(
+            title=dict(text="DQN Q-Values — Agent Reasoning  (positive = prefers MAINTAIN)",
+                       x=0.5, xanchor="center", font=dict(size=13)),
+            height=230,
+            template="plotly_dark",
+            legend=dict(
+                orientation="h", x=0.5, xanchor="center",
+                y=-0.35, yanchor="top",
+                bgcolor="rgba(0,0,0,0)", font=dict(size=12)
+            ),
+            margin=dict(l=60, r=20, t=45, b=60),
+            xaxis=dict(title="Cycle", showgrid=True, gridcolor="rgba(255,255,255,0.06)"),
+            yaxis=dict(title="Q-Value Diff", showgrid=True, gridcolor="rgba(255,255,255,0.06)"),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
         )
-        fig.update_yaxes(title_text="RUL (cycles)", row=1, col=1)
-        fig.update_yaxes(title_text="Q-Value Difference", row=2, col=1)
-        fig.update_xaxes(title_text="Cycle", row=2, col=1)
-
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig2, use_container_width=True)
 
     # ── ROW 3: Event Log + Info ──
     with bottom_ph.container():

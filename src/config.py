@@ -37,8 +37,8 @@ BOOTSTRAP_RATIO = 0.8
 # ============================================================
 # RL AGENT (DQN)
 # ============================================================
-RL_TIMESTEPS = 500000   # was 300k — more steps needed for end-of-life timing
-RL_NET_ARCH = [128, 128]
+RL_TIMESTEPS = 1_500_000  # 2× longer training — UA needs more steps to learn sigma-conditional policy
+RL_NET_ARCH = [256, 256]   # Larger network — more capacity for nuanced uncertainty-conditional decisions
 RL_LR = 0.0003
 RL_BATCH = 128
 RL_BUFFER = 150000
@@ -55,17 +55,24 @@ RL_GAMMA = 0.99
 # During training, this fraction of episodes have sensor noise injected.
 # This teaches the UA agent what high uncertainty MEANS.
 NOISE_PROB = 0.7        # 70% of training episodes are noisy (was 0.5)
-NOISE_LEVEL = 0.15      # Max Gaussian noise std
-NOISE_LEVEL_MIN = 0.03  # Min Gaussian noise std — sampled per episode during training
+NOISE_LEVEL = 0.20      # Max Gaussian noise std (raised from 0.15 so σ=0.15 eval is mid-range)
+NOISE_LEVEL_MIN = 0.02  # Min Gaussian noise std — sampled per episode during training
 
 # Uncertainty scaling: raw ensemble std (~0.01-0.10) is too narrow
 # for DQN to learn from. We scale by this factor to fill [0,1].
-UNCERTAINTY_SCALE = 5.0
+# Scale 10 gives good gradation: clean→0.2, low noise→0.4, high noise→0.8+
+UNCERTAINTY_SCALE = 10.0
 
 # ============================================================
 # SAFETY SUPERVISOR (Layer 3)
 # ============================================================
 CRITICAL_RUL_NORM = 0.12      # 15 cycles / 125
+
+# Hard-critical fallback: at extreme noise the rolling sigma can exceed the
+# confidence threshold, silencing the supervisor entirely. This secondary
+# threshold fires regardless of uncertainty — it's the final safety net.
+# At RUL < 5 cycles there is no justification for waiting, even if noisy.
+HARD_CRITICAL_RUL_NORM = 0.04   # ~5 cycles / 125 — always fire regardless of sigma
 
 # Supervisor only fires when rolling sigma is BELOW this threshold.
 # This is what makes the supervisor uncertainty-aware:
@@ -74,7 +81,10 @@ CRITICAL_RUL_NORM = 0.12      # 15 cycles / 125
 #   - UA agent: rolling sigma reflects real ensemble disagreement
 #     → supervisor only fires when predictions are trustworthy (low uncertainty)
 #     → ignores noisy dips, fires only on genuinely confident low predictions
-SUPERVISOR_SIGMA_THRESHOLD = 0.25
+# Adjusted for UNCERTAINTY_SCALE=10: raw_std 0.055 → scaled 0.55
+# Below 0.55 = supervisor fires (confident predictions)
+# Above 0.55 = supervisor backs off (uncertain — trust the UA agent)
+SUPERVISOR_SIGMA_THRESHOLD = 0.55
 
 # ============================================================
 # RL TRAINING — END-OF-LIFE BIAS
@@ -83,8 +93,8 @@ SUPERVISOR_SIGMA_THRESHOLD = 0.25
 # episode starts land in the critical end-of-life zone.
 # Fix: force 50% of episodes to start in the last EOL_WINDOW cycles
 # so the agent sees many more maintenance timing decisions.
-EOL_EPISODE_PROB = 0.5   # fraction of episodes that start near end of life
-EOL_WINDOW       = 40    # how many cycles from the end counts as "end of life"
+EOL_EPISODE_PROB = 0.6   # fraction of episodes that start near end of life (raised from 0.5)
+EOL_WINDOW       = 50    # how many cycles from the end counts as "end of life" (raised from 40)
 
 # Crash penalty raised so it dominates even with heavy discounting.
 # Old: -100. At gamma=0.99 and 160 steps out → present value = -20 (trivial).
