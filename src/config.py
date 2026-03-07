@@ -38,7 +38,7 @@ BOOTSTRAP_RATIO = 0.8
 # RL AGENT (DQN)
 # ============================================================
 RL_TIMESTEPS = 1_500_000  # 2× longer training — UA needs more steps to learn sigma-conditional policy
-RL_NET_ARCH = [256, 256]   # Larger network — more capacity for nuanced uncertainty-conditional decisions
+RL_NET_ARCH = [256, 256, 128]   # Deeper network — 3 layers for better sigma-conditional learning
 RL_LR = 0.0003
 RL_BATCH = 128
 RL_BUFFER = 150000
@@ -60,8 +60,8 @@ NOISE_LEVEL_MIN = 0.02  # Min Gaussian noise std — sampled per episode during 
 
 # Uncertainty scaling: raw ensemble std (~0.01-0.10) is too narrow
 # for DQN to learn from. We scale by this factor to fill [0,1].
-# Scale 10 gives good gradation: clean→0.2, low noise→0.4, high noise→0.8+
-UNCERTAINTY_SCALE = 10.0
+# Scale 15 gives stronger gradation: clean→0.15-0.3, medium→0.6, high→0.9+
+UNCERTAINTY_SCALE = 15.0
 
 # ============================================================
 # SAFETY SUPERVISOR (Layer 3)

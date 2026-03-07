@@ -147,12 +147,21 @@ class PdMEnvironment(gym.Env):
         NORM_BUFFER = 50 / 125.0    # Acceptable window
 
         if action == 1:  # MAINTAIN
+            # Proactive maintenance bonus: if sigma is high (uncertainty > 0.5)
+            # AND we're in the buffer zone, give a small bonus to reward
+            # risk-aware decision-making. This teaches UA to maintain under
+            # uncertainty rather than gambling on waiting.
+            sigma = getattr(self, '_current_sigma', 0.0)
+            proactive_bonus = 0
+            if sigma > 0.5 and current_norm_rul < NORM_BUFFER:
+                proactive_bonus = 30  # Bonus for being cautious under uncertainty
+            
             if current_norm_rul < NORM_REPAIR:
-                reward = 500     # Jackpot
+                reward = 500 + proactive_bonus     # Jackpot (bonus doesn't matter here)
             elif current_norm_rul < NORM_BUFFER:
-                reward = 10      # Acceptable
+                reward = 10 + proactive_bonus      # Acceptable, possibly with uncertainty bonus
             else:
-                reward = -20     # Wasteful
+                reward = -20     # Wasteful (still penalize too early)
             terminated = True
             
         else:  # WAIT
@@ -170,8 +179,10 @@ class PdMEnvironment(gym.Env):
                 # waiting is EXTRA costly.  UA agent sees real sigma → learns
                 # “uncertain + near failure = maintain NOW”.  Blind agent has
                 # sigma=0 → no urgency → keeps waiting → crashes more.
+                # STRENGTHENED: multiplier increased from /8.0 to /3.0, making
+                # uncertainty avoidance 2.7x stronger to force risk-averse behavior
                 sigma = getattr(self, '_current_sigma', 0.0)
-                uncertainty_urgency = sigma * max(0.0, (TIME_PRESSURE_START - current_true_rul) / 8.0)
+                uncertainty_urgency = sigma * max(0.0, (TIME_PRESSURE_START - current_true_rul) / 3.0)
                 reward = 1.0 - time_pressure_penalty - uncertainty_urgency
                 
         return self._get_observation(), reward, terminated, truncated, {}
