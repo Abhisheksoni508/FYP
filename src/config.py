@@ -81,7 +81,7 @@ HARD_CRITICAL_RUL_NORM = 0.04   # ~5 cycles / 125 — always fire regardless of 
 #   - UA agent: rolling sigma reflects real ensemble disagreement
 #     → supervisor only fires when predictions are trustworthy (low uncertainty)
 #     → ignores noisy dips, fires only on genuinely confident low predictions
-# Adjusted for UNCERTAINTY_SCALE=10: raw_std 0.055 → scaled 0.55
+# Adjusted for UNCERTAINTY_SCALE=15: raw_std ~0.037 → scaled 0.55
 # Below 0.55 = supervisor fires (confident predictions)
 # Above 0.55 = supervisor backs off (uncertain — trust the UA agent)
 SUPERVISOR_SIGMA_THRESHOLD = 0.55
