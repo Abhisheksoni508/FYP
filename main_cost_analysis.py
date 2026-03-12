@@ -59,6 +59,15 @@ COST_SAFE     =  35_000   # Acceptable but early
 COST_WASTEFUL =  52_000   # Unnecessarily early, wasted engine life
 COST_CRASH    = 275_000   # Unplanned failure — AOG, emergency, compensation
 
+# Supervisor override premium: when the safety supervisor forces maintenance,
+# it is an UNPLANNED intervention — parts are not pre-ordered, hangar slots
+# are not reserved, and the maintenance occurs under time pressure close to
+# failure.  In real aviation, unplanned-but-avoided-failure events cost
+# significantly more than agent-initiated planned maintenance, even if the
+# timing is technically correct.  Industry estimates place urgent/reactive
+# shop visits 40-60% above planned equivalents (IATA MCC reference).
+OVERRIDE_PREMIUM = 12_000   # £12k surcharge per supervisor-forced action
+
 # Fleet scenario
 FLEET_SIZE         = 50    # Number of turbofan engines
 DECISIONS_PER_ENGINE = 4   # Maintenance decision cycles per engine per year
@@ -98,36 +107,47 @@ ACCENT_AMBER = '#f39c12'
 def evaluate_outcomes(env, model, num_episodes, use_safety=True):
     """
     Run episodes and return per-episode outcome categories + costs.
+    Tracks supervisor overrides and applies the override premium.
     Returns dict with counts, cost arrays, and summary stats.
     """
     outcomes = []  # list of 'jackpot', 'safe', 'wasteful', 'crash'
     costs = []
+    n_overrides = 0
 
     for _ in range(num_episodes):
         obs, _ = env.reset()
         done = False
+        episode_overridden = False
         while not done:
             action, _ = model.predict(obs, deterministic=True)
             if use_safety:
-                action, _ = safety_override(action, obs)
+                action, was_overridden = safety_override(action, obs)
+                if was_overridden:
+                    episode_overridden = True
             obs, reward, done, _, _ = env.step(action)
             if done:
                 if reward <= -100:
                     outcomes.append('crash')
                     costs.append(COST_CRASH)
-                elif reward == 500:
+                elif reward >= 500:
+                    # Jackpot: reward is 500 or 530 (with proactive bonus)
                     outcomes.append('jackpot')
-                    costs.append(COST_JACKPOT)
-                elif reward == 10:
+                    base = COST_JACKPOT
+                    costs.append(base + OVERRIDE_PREMIUM if episode_overridden else base)
+                elif reward >= 10 and reward < 100:
+                    # Safe/acceptable: reward is 10 or 40 (with proactive bonus)
                     outcomes.append('safe')
-                    costs.append(COST_SAFE)
+                    base = COST_SAFE
+                    costs.append(base + OVERRIDE_PREMIUM if episode_overridden else base)
                 elif reward == -20:
                     outcomes.append('wasteful')
                     costs.append(COST_WASTEFUL)
                 else:
-                    # Edge case — treat as safe
                     outcomes.append('safe')
-                    costs.append(COST_SAFE)
+                    base = COST_SAFE
+                    costs.append(base + OVERRIDE_PREMIUM if episode_overridden else base)
+                if episode_overridden:
+                    n_overrides += 1
 
     n = len(outcomes)
     costs = np.array(costs)
@@ -146,6 +166,8 @@ def evaluate_outcomes(env, model, num_episodes, use_safety=True):
         'n_crash': outcomes.count('crash'),
         'jackpot_rate': outcomes.count('jackpot') / n * 100,
         'crash_rate': outcomes.count('crash') / n * 100,
+        'n_overrides': n_overrides,
+        'override_rate': n_overrides / n * 100,
     }
 
 
@@ -435,6 +457,8 @@ def export_csv(noise_levels, ua_raw, bl_raw, ua_safe, bl_safe):
                 'Blind_Jackpot%': round(bl_r['jackpot_rate'], 1),
                 'UA_Crash%': round(ua_r['crash_rate'], 1),
                 'Blind_Crash%': round(bl_r['crash_rate'], 1),
+                'UA_Override%': round(ua_r.get('override_rate', 0), 1),
+                'Blind_Override%': round(bl_r.get('override_rate', 0), 1),
             })
     df = pd.DataFrame(rows)
     df.to_csv('report_cost_summary.csv', index=False)
@@ -493,8 +517,11 @@ def main():
         ua_cost = ua_safe_results[-1]['mean_cost']
         bl_cost = bl_safe_results[-1]['mean_cost']
         saving = bl_cost - ua_cost
+        ua_ovr = ua_safe_results[-1]['override_rate']
+        bl_ovr = bl_safe_results[-1]['override_rate']
         print(f'UA: £{ua_cost:,.0f}  Blind: £{bl_cost:,.0f}  '
-              f'Saving: £{saving:,.0f}/decision')
+              f'Saving: £{saving:,.0f}/decision  '
+              f'(Overrides: UA {ua_ovr:.0f}% / Blind {bl_ovr:.0f}%)')
 
     # ── Summary Stats ────────────────────────────────────────
     print('\n' + '─' * 60)
