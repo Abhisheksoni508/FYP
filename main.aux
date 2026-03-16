@@ -167,12 +167,12 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Ensemble uncertainty (standard deviation) plotted against absolute prediction error on the C-MAPSS test set. The positive correlation confirms that ensemble disagreement is a well-calibrated indicator of prediction reliability \citep  {lakshminarayanan2017simple}.}}{25}{figure.4.1}\protected@file@percent }
 \newlabel{fig:uncertainty_error}{{4.1}{25}{Ensemble uncertainty (standard deviation) plotted against absolute prediction error on the C-MAPSS test set. The positive correlation confirms that ensemble disagreement is a well-calibrated indicator of prediction reliability \citep {lakshminarayanan2017simple}}{figure.4.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.5}DQN Agent Training}{25}{section.4.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.6}Safety Supervisor}{25}{section.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.6}Safety Supervisor}{26}{section.4.6}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4.7}Interactive Dashboard}{26}{section.4.7}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4.8}Implementation Challenges}{26}{section.4.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.9}Testing}{26}{section.4.9}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces The Streamlit interactive dashboard during a simulation run, showing the three-panel visualisation (RUL prediction, uncertainty trend, and Q-value decision pressure), the status panel, and the sidebar controls for agent type, safety supervisor, and noise intensity.}}{27}{figure.4.2}\protected@file@percent }
 \newlabel{fig:dashboard}{{4.2}{27}{The Streamlit interactive dashboard during a simulation run, showing the three-panel visualisation (RUL prediction, uncertainty trend, and Q-value decision pressure), the status panel, and the sidebar controls for agent type, safety supervisor, and noise intensity}{figure.4.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.9}Testing}{27}{section.4.9}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4.10}Conclusion}{27}{section.4.10}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces Three-panel engine lifecycle timeline for Engine~134, showing the ensemble RUL prediction with uncertainty band (top), scaled ensemble disagreement (middle), and DQN Q-value decision pressure (bottom). The smooth degradation profile allowed the agent to make a confident, timely maintenance decision.}}{28}{figure.4.3}\protected@file@percent }
 \newlabel{fig:engine_134}{{4.3}{28}{Three-panel engine lifecycle timeline for Engine~134, showing the ensemble RUL prediction with uncertainty band (top), scaled ensemble disagreement (middle), and DQN Q-value decision pressure (bottom). The smooth degradation profile allowed the agent to make a confident, timely maintenance decision}{figure.4.3}{}}
@@ -203,9 +203,12 @@
 \newlabel{fig:threshold}{{5.4}{33}{DQN agent performance versus eight fixed-threshold baselines across noise levels. The UA DQN consistently outperformed all fixed thresholds at moderate to high noise, confirming that the learned policy captured non-trivial timing behaviour that a simple rule cannot replicate}{figure.5.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1.5}Financial Impact Analysis}{33}{subsection.5.1.5}\protected@file@percent }
 \newlabel{sec:financial_analysis}{{5.1.5}{33}{Financial Impact Analysis}{subsection.5.1.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces Summary of key evaluation metrics across all experimental conditions, showing the systematic advantage of the uncertainty-aware agent in mean reward, failure avoidance, and optimal timing rate compared to the blind baseline.}}{34}{figure.5.5}\protected@file@percent }
-\newlabel{fig:final_result}{{5.5}{34}{Summary of key evaluation metrics across all experimental conditions, showing the systematic advantage of the uncertainty-aware agent in mean reward, failure avoidance, and optimal timing rate compared to the blind baseline}{figure.5.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.6}Results Summary}{34}{subsection.5.1.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces Comprehensive cost-effectiveness analysis comparing UA and blind strategies across noise levels, including per-decision cost, annual fleet savings, and outcome distributions under the full safety architecture.}}{34}{figure.5.5}\protected@file@percent }
+\newlabel{fig:cost_analysis_main}{{5.5}{34}{Comprehensive cost-effectiveness analysis comparing UA and blind strategies across noise levels, including per-decision cost, annual fleet savings, and outcome distributions under the full safety architecture}{figure.5.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces Summary of key evaluation metrics across all experimental conditions, showing the systematic advantage of the uncertainty-aware agent in mean reward, failure avoidance, and optimal timing rate compared to the blind baseline.}}{35}{figure.5.6}\protected@file@percent }
+\newlabel{fig:final_result}{{5.6}{35}{Summary of key evaluation metrics across all experimental conditions, showing the systematic advantage of the uncertainty-aware agent in mean reward, failure avoidance, and optimal timing rate compared to the blind baseline}{figure.5.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.6}Results Summary}{35}{subsection.5.1.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Evaluation}{35}{section.5.2}\protected@file@percent }
 \citation{cohen1988statistical}
 \citation{heimes2008recurrent}
 \citation{lakshminarayanan2017simple}
@@ -216,18 +219,17 @@
 \citation{wu2018remaining}
 \citation{zhang2022transformer}
 \citation{wang2024adaptive}
-\@writefile{toc}{\contentsline {section}{\numberline {5.2}Evaluation}{35}{section.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}Evaluation Criteria}{35}{subsection.5.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Achievement of Project Objectives}{35}{subsection.5.2.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces Comparison of RUL prediction RMSE on C-MAPSS FD001 against published baselines. Lower RMSE indicates better prediction accuracy. Our ensemble results reflect validation-set performance.}}{35}{table.5.3}\protected@file@percent }
-\newlabel{tab:rmse_comparison}{{5.3}{35}{Comparison of RUL prediction RMSE on C-MAPSS FD001 against published baselines. Lower RMSE indicates better prediction accuracy. Our ensemble results reflect validation-set performance}{table.5.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}Evaluation Criteria}{36}{subsection.5.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Achievement of Project Objectives}{36}{subsection.5.2.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces Comparison of RUL prediction RMSE on C-MAPSS FD001 against published baselines. Lower RMSE indicates better prediction accuracy. Our ensemble results reflect validation-set performance.}}{36}{table.5.3}\protected@file@percent }
+\newlabel{tab:rmse_comparison}{{5.3}{36}{Comparison of RUL prediction RMSE on C-MAPSS FD001 against published baselines. Lower RMSE indicates better prediction accuracy. Our ensemble results reflect validation-set performance}{table.5.3}{}}
 \citation{brockman2016openai}
 \citation{tobin2017domain}
 \citation{alshiekh2018safe}
 \citation{zhang2019deep}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Critical Assessment}{36}{subsection.5.2.3}\protected@file@percent }
 \citation{der2009aleatory}
 \citation{tobin2017domain}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}Critical Assessment}{37}{subsection.5.2.3}\protected@file@percent }
 \citation{zhang2019deep}
 \citation{ovadia2019can}
 \citation{tessler2018reward}
@@ -236,84 +238,92 @@
 \citation{ramasso2014review}
 \citation{lakshminarayanan2017simple}
 \citation{schulman2017proximal}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.4}Comparison with Existing Work}{37}{subsection.5.2.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.5}Limitations}{37}{subsection.5.2.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5.3}Conclusion}{38}{section.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.4}Comparison with Existing Work}{38}{subsection.5.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.5}Limitations}{38}{subsection.5.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Conclusion}{39}{section.5.3}\protected@file@percent }
 \citation{saxena2008damage}
 \citation{do178c}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Legal, Social, Ethical and Professional Issues}{39}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Legal, Social, Ethical and Professional Issues}{40}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {6.1}Data Protection and Privacy}{39}{section.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6.2}Aerospace Safety Regulation and Certification}{39}{section.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Data Protection and Privacy}{40}{section.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Aerospace Safety Regulation and Certification}{40}{section.6.2}\protected@file@percent }
 \citation{amodei2016concrete}
-\@writefile{toc}{\contentsline {section}{\numberline {6.3}Liability and Accountability}{40}{section.6.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6.4}Social Impact and Workforce Implications}{40}{section.6.4}\protected@file@percent }
-\citation{paszke2019pytorch,raffin2021stable}
+\@writefile{toc}{\contentsline {section}{\numberline {6.3}Liability and Accountability}{41}{section.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6.4}Social Impact and Workforce Implications}{41}{section.6.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {6.5}Ethical Considerations in Autonomous Decision-Making}{41}{section.6.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6.6}Professional Standards}{41}{section.6.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6.7}Commercial Deployment Considerations}{41}{section.6.7}\protected@file@percent }
+\citation{paszke2019pytorch,raffin2021stable}
+\@writefile{toc}{\contentsline {section}{\numberline {6.6}Professional Standards}{42}{section.6.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6.7}Commercial Deployment Considerations}{42}{section.6.7}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {6.8}Conclusion}{42}{section.6.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{\numberline {7}Conclusion}{43}{chapter.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Conclusion}{44}{chapter.7}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {7.1}Summary of Work}{43}{section.7.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7.2}Achievement of Objectives}{43}{section.7.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7.3}Key Contributions}{44}{section.7.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7.4}Limitations}{44}{section.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.1}Summary of Work}{44}{section.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.2}Achievement of Objectives}{44}{section.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.3}Key Contributions}{45}{section.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.4}Limitations}{45}{section.7.4}\protected@file@percent }
 \citation{schulman2017proximal}
 \citation{haarnoja2018soft}
 \citation{zhang2022transformer}
-\@writefile{toc}{\contentsline {section}{\numberline {7.5}Future Work}{45}{section.7.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7.6}Reflective Statement}{46}{section.7.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.5}Future Work}{46}{section.7.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.6}Reflective Statement}{47}{section.7.6}\protected@file@percent }
 \bibstyle{agsm}
 \bibdata{references}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Project Proposal}{47}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Project Proposal}{48}{appendix.A}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:proposal}{{A}{47}{Project Proposal}{appendix.A}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.1}{\ignorespaces Project timeline and milestones.}}{48}{table.A.1}\protected@file@percent }
-\newlabel{tab:timeline}{{A.1}{48}{Project timeline and milestones}{table.A.1}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}Extended Experiment Data}{49}{appendix.B}\protected@file@percent }
+\newlabel{app:proposal}{{A}{48}{Project Proposal}{appendix.A}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A.1}{\ignorespaces Project timeline and milestones.}}{49}{table.A.1}\protected@file@percent }
+\newlabel{tab:timeline}{{A.1}{49}{Project timeline and milestones}{table.A.1}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}Extended Experiment Data}{50}{appendix.B}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:experiment_data}{{B}{49}{Extended Experiment Data}{appendix.B}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {B.1}{\ignorespaces Experiment 1 complete results: UA vs Blind agent without safety supervisor (500 episodes per noise level).}}{49}{table.B.1}\protected@file@percent }
-\newlabel{tab:app_exp1}{{B.1}{49}{Experiment 1 complete results: UA vs Blind agent without safety supervisor (500 episodes per noise level)}{table.B.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {B.2}{\ignorespaces Experiment 1 supplementary data: jackpot rates, medians, and statistical significance.}}{49}{table.B.2}\protected@file@percent }
-\newlabel{tab:app_exp1_supp}{{B.2}{49}{Experiment 1 supplementary data: jackpot rates, medians, and statistical significance}{table.B.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {B.3}{\ignorespaces Experiment 2 complete results: UA vs Blind agent with safety supervisor (500 episodes per noise level).}}{50}{table.B.3}\protected@file@percent }
-\newlabel{tab:app_exp2}{{B.3}{50}{Experiment 2 complete results: UA vs Blind agent with safety supervisor (500 episodes per noise level)}{table.B.3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {B.4}{\ignorespaces Experiment 2 autonomy data: supervisor overrides and autonomous decision rates.}}{50}{table.B.4}\protected@file@percent }
-\newlabel{tab:app_exp2_auto}{{B.4}{50}{Experiment 2 autonomy data: supervisor overrides and autonomous decision rates}{table.B.4}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {C}Key Source Code}{51}{appendix.C}\protected@file@percent }
+\newlabel{app:experiment_data}{{B}{50}{Extended Experiment Data}{appendix.B}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {B.1}{\ignorespaces Experiment 1 complete results: UA vs Blind agent without safety supervisor (500 episodes per noise level).}}{50}{table.B.1}\protected@file@percent }
+\newlabel{tab:app_exp1}{{B.1}{50}{Experiment 1 complete results: UA vs Blind agent without safety supervisor (500 episodes per noise level)}{table.B.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {B.2}{\ignorespaces Experiment 1 supplementary data: jackpot rates, medians, and statistical significance.}}{50}{table.B.2}\protected@file@percent }
+\newlabel{tab:app_exp1_supp}{{B.2}{50}{Experiment 1 supplementary data: jackpot rates, medians, and statistical significance}{table.B.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {B.3}{\ignorespaces Experiment 2 complete results: UA vs Blind agent with safety supervisor (500 episodes per noise level).}}{51}{table.B.3}\protected@file@percent }
+\newlabel{tab:app_exp2}{{B.3}{51}{Experiment 2 complete results: UA vs Blind agent with safety supervisor (500 episodes per noise level)}{table.B.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {B.4}{\ignorespaces Experiment 2 autonomy data: supervisor overrides and autonomous decision rates.}}{51}{table.B.4}\protected@file@percent }
+\newlabel{tab:app_exp2_auto}{{B.4}{51}{Experiment 2 autonomy data: supervisor overrides and autonomous decision rates}{table.B.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {B.5}{\ignorespaces Annual fleet cost comparison by noise level (full three-layer system, 50 engines, 200 decisions/year).}}{52}{table.B.5}\protected@file@percent }
+\newlabel{tab:app_cost_full}{{B.5}{52}{Annual fleet cost comparison by noise level (full three-layer system, 50 engines, 200 decisions/year)}{table.B.5}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {C}Key Source Code}{53}{appendix.C}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:source_code}{{C}{51}{Key Source Code}{appendix.C}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {D}Hyperparameter Configuration}{54}{appendix.D}\protected@file@percent }
+\newlabel{app:source_code}{{C}{53}{Key Source Code}{appendix.C}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {D}Hyperparameter Configuration}{56}{appendix.D}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:hyperparams}{{D}{54}{Hyperparameter Configuration}{appendix.D}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {D.1}{\ignorespaces LSTM deep ensemble training hyperparameters.}}{54}{table.D.1}\protected@file@percent }
-\newlabel{tab:app_lstm_params}{{D.1}{54}{LSTM deep ensemble training hyperparameters}{table.D.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {D.2}{\ignorespaces DQN agent and Gymnasium environment hyperparameters.}}{55}{table.D.2}\protected@file@percent }
-\newlabel{tab:app_rl_params}{{D.2}{55}{DQN agent and Gymnasium environment hyperparameters}{table.D.2}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {E}Additional Visualisations}{56}{appendix.E}\protected@file@percent }
+\newlabel{app:hyperparams}{{D}{56}{Hyperparameter Configuration}{appendix.D}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {D.1}{\ignorespaces LSTM deep ensemble training hyperparameters.}}{56}{table.D.1}\protected@file@percent }
+\newlabel{tab:app_lstm_params}{{D.1}{56}{LSTM deep ensemble training hyperparameters}{table.D.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {D.2}{\ignorespaces DQN agent and Gymnasium environment hyperparameters.}}{57}{table.D.2}\protected@file@percent }
+\newlabel{tab:app_rl_params}{{D.2}{57}{DQN agent and Gymnasium environment hyperparameters}{table.D.2}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {E}Additional Visualisations}{58}{appendix.E}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:visualisations}{{E}{56}{Additional Visualisations}{appendix.E}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.1}{\ignorespaces Experiment 1 Layer 2 ablation: alternative visualisation of UA vs Blind reward distributions across all eight noise levels without the safety supervisor.}}{56}{figure.E.1}\protected@file@percent }
-\newlabel{fig:app_exp1_alt}{{E.1}{56}{Experiment 1 Layer 2 ablation: alternative visualisation of UA vs Blind reward distributions across all eight noise levels without the safety supervisor}{figure.E.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.2}{\ignorespaces Experiment 2 full system: alternative visualisation of UA vs Blind performance with the three-layer safety supervisor active across all noise levels.}}{56}{figure.E.2}\protected@file@percent }
-\newlabel{fig:app_exp2_alt}{{E.2}{56}{Experiment 2 full system: alternative visualisation of UA vs Blind performance with the three-layer safety supervisor active across all noise levels}{figure.E.2}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {F}Testing Documentation}{57}{appendix.F}\protected@file@percent }
+\newlabel{app:visualisations}{{E}{58}{Additional Visualisations}{appendix.E}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.1}{\ignorespaces Experiment 1 Layer 2 ablation: alternative visualisation of UA vs Blind reward distributions across all eight noise levels without the safety supervisor.}}{58}{figure.E.1}\protected@file@percent }
+\newlabel{fig:app_exp1_alt}{{E.1}{58}{Experiment 1 Layer 2 ablation: alternative visualisation of UA vs Blind reward distributions across all eight noise levels without the safety supervisor}{figure.E.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.2}{\ignorespaces Experiment 2 full system: alternative visualisation of UA vs Blind performance with the three-layer safety supervisor active across all noise levels.}}{58}{figure.E.2}\protected@file@percent }
+\newlabel{fig:app_exp2_alt}{{E.2}{58}{Experiment 2 full system: alternative visualisation of UA vs Blind performance with the three-layer safety supervisor active across all noise levels}{figure.E.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.3}{\ignorespaces Detailed cost-effectiveness figure generated by the financial evaluation pipeline, including per-decision costs, annual savings, and outcome composition across noise levels.}}{59}{figure.E.3}\protected@file@percent }
+\newlabel{fig:app_cost_full}{{E.3}{59}{Detailed cost-effectiveness figure generated by the financial evaluation pipeline, including per-decision costs, annual savings, and outcome composition across noise levels}{figure.E.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.4}{\ignorespaces Executive five-year cost projection for the representative 50-engine fleet, comparing cumulative UA and blind maintenance expenditure.}}{60}{figure.E.4}\protected@file@percent }
+\newlabel{fig:app_cost_exec}{{E.4}{60}{Executive five-year cost projection for the representative 50-engine fleet, comparing cumulative UA and blind maintenance expenditure}{figure.E.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {E.1}{\ignorespaces Complete inventory of generated analysis figures and source scripts.}}{60}{table.E.1}\protected@file@percent }
+\newlabel{tab:app_visual_inventory}{{E.1}{60}{Complete inventory of generated analysis figures and source scripts}{table.E.1}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {F}Testing Documentation}{61}{appendix.F}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:testing}{{F}{57}{Testing Documentation}{appendix.F}{}}
+\newlabel{app:testing}{{F}{61}{Testing Documentation}{appendix.F}{}}
 \citation{heimes2008recurrent}
 \citation{fort2019deep}
-\@writefile{toc}{\contentsline {chapter}{\numberline {G}Extended Implementation Details}{59}{appendix.G}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {G}Extended Implementation Details}{63}{appendix.G}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{app:impl_details}{{G}{59}{Extended Implementation Details}{appendix.G}{}}
-\gdef \@abspage@last{71}
+\newlabel{app:impl_details}{{G}{63}{Extended Implementation Details}{appendix.G}{}}
+\gdef \@abspage@last{75}

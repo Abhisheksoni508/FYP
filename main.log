@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.10)  12 MAR 2026 13:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.10)  14 MAR 2026 12:04
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -663,7 +663,12 @@ Package natbib Warning: Citation `zhang2019deep' on page viii undefined on input
 
 [8
 
-])
+]
+Overfull \hbox (18.23283pt too wide) in paragraph at lines 30--30
+ [][] [][]\OT1/cmr/m/n/12 Detailed cost-effectiveness fig-ure gen-er-ated by the fi-nan-cial eval-u-a-tion pipeline, 
+ []
+
+)
 \tf@lof=\write6
 \openout6 = `main.lof'.
 
@@ -795,12 +800,12 @@ Package natbib Warning: Citation `kraus2019deep' on page 8 undefined on input li
 
 Package natbib Warning: Citation `peng2020bayesian' on page 8 undefined on input line 289.
 
-<ensemble_evaluation_1_prediction.png, id=692, 1034.1837pt x 514.5624pt>
+<ensemble_evaluation_1_prediction.png, id=708, 1034.1837pt x 514.5624pt>
 File: ensemble_evaluation_1_prediction.png Graphic file (type png)
 <use ensemble_evaluation_1_prediction.png>
 Package pdftex.def Info: ensemble_evaluation_1_prediction.png  used on input line 297.
 (pdftex.def)             Requested size: 385.02547pt x 191.5707pt.
-<ensemble_evaluation_3_uncertainty.png, id=693, 1126.6893pt x 441.5697pt>
+<ensemble_evaluation_3_uncertainty.png, id=709, 1126.6893pt x 441.5697pt>
 File: ensemble_evaluation_3_uncertainty.png Graphic file (type png)
 <use ensemble_evaluation_3_uncertainty.png>
 Package pdftex.def Info: ensemble_evaluation_3_uncertainty.png  used on input line 304.
@@ -934,7 +939,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 Package natbib Warning: Citation `fort2019deep' on page 15 undefined on input line 548.
 
 [15]
-<ensemble_evaluation_2_error.png, id=749, 1148.73164pt x 441.5697pt>
+<ensemble_evaluation_2_error.png, id=765, 1148.73164pt x 441.5697pt>
 File: ensemble_evaluation_2_error.png Graphic file (type png)
 <use ensemble_evaluation_2_error.png>
 Package pdftex.def Info: ensemble_evaluation_2_error.png  used on input line 556.
@@ -947,7 +952,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 Package natbib Warning: Citation `do178c' on page 17 undefined on input line 628.
 
-<final_engine_50_timeline.png, id=760, 968.05666pt x 858.5676pt>
+<final_engine_50_timeline.png, id=776, 968.05666pt x 858.5676pt>
 File: final_engine_50_timeline.png Graphic file (type png)
 <use final_engine_50_timeline.png>
 Package pdftex.def Info: final_engine_50_timeline.png  used on input line 636.
@@ -1022,7 +1027,7 @@ Package natbib Warning: Citation `ovadia2019can' on page 23 undefined on input l
 [23
 
 ]
-<uncertainty_vs_error.png, id=798, 1011.78pt x 361.35pt>
+<uncertainty_vs_error.png, id=814, 1011.78pt x 361.35pt>
 File: uncertainty_vs_error.png Graphic file (type png)
 <use uncertainty_vs_error.png>
 Package pdftex.def Info: uncertainty_vs_error.png  used on input line 726.
@@ -1062,35 +1067,35 @@ Package natbib Warning: Citation `mnih2015human' on page 25 undefined on input l
 Package natbib Warning: Citation `raffin2021stable' on page 25 undefined on input line 753.
 
 
-Package natbib Warning: Citation `alshiekh2018safe' on page 25 undefined on input line 757.
+Package natbib Warning: Citation `alshiekh2018safe' on page 25 undefined on input line 761.
 
 
-Package natbib Warning: Citation `do178c' on page 25 undefined on input line 757.
+Package natbib Warning: Citation `do178c' on page 25 undefined on input line 761.
 
 [25 <./uncertainty_vs_error.png>]
-<report_summary_dashboard.png, id=811, 1436.4867pt x 807.015pt>
+<report_summary_dashboard.png, id=827, 1436.4867pt x 807.015pt>
 File: report_summary_dashboard.png Graphic file (type png)
 <use report_summary_dashboard.png>
-Package pdftex.def Info: report_summary_dashboard.png  used on input line 773.
+Package pdftex.def Info: report_summary_dashboard.png  used on input line 777.
 (pdftex.def)             Requested size: 430.31812pt x 241.74925pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [26]
-<final_engine_134_timeline.png, id=821, 967.6953pt x 858.5676pt>
+<final_engine_134_timeline.png, id=837, 967.6953pt x 858.5676pt>
 File: final_engine_134_timeline.png Graphic file (type png)
 <use final_engine_134_timeline.png>
-Package pdftex.def Info: final_engine_134_timeline.png  used on input line 792.
+Package pdftex.def Info: final_engine_134_timeline.png  used on input line 800.
 (pdftex.def)             Requested size: 430.31812pt x 381.79282pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<final_engine_200_timeline.png, id=822, 967.33395pt x 858.5676pt>
+<final_engine_200_timeline.png, id=838, 967.33395pt x 858.5676pt>
 File: final_engine_200_timeline.png Graphic file (type png)
 <use final_engine_200_timeline.png>
-Package pdftex.def Info: final_engine_200_timeline.png  used on input line 799.
+Package pdftex.def Info: final_engine_200_timeline.png  used on input line 807.
 (pdftex.def)             Requested size: 430.31812pt x 381.93692pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
@@ -1098,272 +1103,383 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 [27 <./report_summary_dashboard.png>] [28 <./final_engine_134_timeline.png>] [29 <./final_engine_200_timeline.png>]
 Chapter 5.
 
-Package natbib Warning: Citation `cohen1988statistical' on page 30 undefined on input line 817.
+Package natbib Warning: Citation `cohen1988statistical' on page 30 undefined on input line 825.
 
 
-Overfull \hbox (161.13249pt too wide) in paragraph at lines 830--844
+Overfull \hbox (161.13249pt too wide) in paragraph at lines 838--852
  [][] 
  []
 
 [30
 
 ]
-<report_exp1_layer2_isolation.png, id=845, 1290.9831pt x 405.6756pt>
+<report_exp1_layer2_isolation.png, id=861, 1290.9831pt x 405.6756pt>
 File: report_exp1_layer2_isolation.png Graphic file (type png)
 <use report_exp1_layer2_isolation.png>
-Package pdftex.def Info: report_exp1_layer2_isolation.png  used on input line 852.
+Package pdftex.def Info: report_exp1_layer2_isolation.png  used on input line 860.
 (pdftex.def)             Requested size: 430.31812pt x 135.2228pt.
 
 
-Package natbib Warning: Citation `zhang2019deep' on page 31 undefined on input line 853.
+Package natbib Warning: Citation `zhang2019deep' on page 31 undefined on input line 861.
 
 
-Package natbib Warning: Citation `zhang2019deep' on page 31 undefined on input line 853.
+Package natbib Warning: Citation `zhang2019deep' on page 31 undefined on input line 861.
 
 
-Overfull \hbox (223.48108pt too wide) in paragraph at lines 868--882
+Overfull \hbox (223.48108pt too wide) in paragraph at lines 876--890
  [][] 
  []
 
 [31 <./report_exp1_layer2_isolation.png>]
-<report_exp2_full_system.png, id=853, 1292.1876pt x 405.6756pt>
+<report_exp2_full_system.png, id=869, 1292.1876pt x 405.6756pt>
 File: report_exp2_full_system.png Graphic file (type png)
 <use report_exp2_full_system.png>
-Package pdftex.def Info: report_exp2_full_system.png  used on input line 890.
+Package pdftex.def Info: report_exp2_full_system.png  used on input line 898.
 (pdftex.def)             Requested size: 430.31812pt x 135.099pt.
-<report_exp3_safety_contribution.png, id=856, 1291.224pt x 405.6756pt>
+<report_exp3_safety_contribution.png, id=872, 1291.224pt x 405.6756pt>
 File: report_exp3_safety_contribution.png Graphic file (type png)
 <use report_exp3_safety_contribution.png>
-Package pdftex.def Info: report_exp3_safety_contribution.png  used on input line 905.
+Package pdftex.def Info: report_exp3_safety_contribution.png  used on input line 913.
 (pdftex.def)             Requested size: 430.31812pt x 135.19185pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [32 <./report_exp2_full_system.png>]
-<experiment_3_threshold_baseline.png, id=864, 1292.54895pt x 520.344pt>
+<experiment_3_threshold_baseline.png, id=880, 1292.54895pt x 520.344pt>
 File: experiment_3_threshold_baseline.png Graphic file (type png)
 <use experiment_3_threshold_baseline.png>
-Package pdftex.def Info: experiment_3_threshold_baseline.png  used on input line 916.
+Package pdftex.def Info: experiment_3_threshold_baseline.png  used on input line 924.
 (pdftex.def)             Requested size: 430.31812pt x 173.23055pt.
  [33 <./report_exp3_safety_contribution.png> <./experiment_3_threshold_baseline.png>]
-<final_result_chart.png, id=872, 1011.78pt x 433.62pt>
+<report_cost_analysis.png, id=887, 1147.1658pt x 891.5709pt>
+File: report_cost_analysis.png Graphic file (type png)
+<use report_cost_analysis.png>
+Package pdftex.def Info: report_cost_analysis.png  used on input line 948.
+(pdftex.def)             Requested size: 430.31812pt x 334.4335pt.
+<final_result_chart.png, id=889, 1011.78pt x 433.62pt>
 File: final_result_chart.png Graphic file (type png)
 <use final_result_chart.png>
-Package pdftex.def Info: final_result_chart.png  used on input line 936.
+Package pdftex.def Info: final_result_chart.png  used on input line 959.
 (pdftex.def)             Requested size: 430.31812pt x 184.42169pt.
 
-Overfull \hbox (8.52698pt too wide) in paragraph at lines 952--953
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[34 <./report_cost_analysis.png>]
+Overfull \hbox (8.52698pt too wide) in paragraph at lines 975--976
 []\OT1/cmr/bx/n/12 The DQN out-per-formed fixed-threshold base-lines. \OT1/cmr/m/n/12 The learned pol-icy adapted
  []
 
-[34 <./final_result_chart.png>]
+[35 <./final_result_chart.png>]
 
-Package natbib Warning: Citation `cohen1988statistical' on page 35 undefined on input line 961.
-
-
-Package natbib Warning: Citation `heimes2008recurrent' on page 35 undefined on input line 965.
+Package natbib Warning: Citation `cohen1988statistical' on page 36 undefined on input line 986.
 
 
-Package natbib Warning: Citation `lakshminarayanan2017simple' on page 35 undefined on input line 969.
+Package natbib Warning: Citation `heimes2008recurrent' on page 36 undefined on input line 994.
 
 
-Package natbib Warning: Citation `heimes2008recurrent' on page 35 undefined on input line 980.
+Package natbib Warning: Citation `lakshminarayanan2017simple' on page 36 undefined on input line 998.
 
 
-Package natbib Warning: Citation `louen2013svm' on page 35 undefined on input line 981.
+Package natbib Warning: Citation `heimes2008recurrent' on page 36 undefined on input line 1009.
 
 
-Package natbib Warning: Citation `zheng2017long' on page 35 undefined on input line 982.
+Package natbib Warning: Citation `louen2013svm' on page 36 undefined on input line 1010.
 
 
-Package natbib Warning: Citation `li2018remaining' on page 35 undefined on input line 983.
+Package natbib Warning: Citation `zheng2017long' on page 36 undefined on input line 1011.
 
 
-Package natbib Warning: Citation `wu2018remaining' on page 35 undefined on input line 984.
+Package natbib Warning: Citation `li2018remaining' on page 36 undefined on input line 1012.
 
 
-Package natbib Warning: Citation `zhang2022transformer' on page 35 undefined on input line 985.
+Package natbib Warning: Citation `wu2018remaining' on page 36 undefined on input line 1013.
 
 
-Package natbib Warning: Citation `wang2024adaptive' on page 35 undefined on input line 986.
+Package natbib Warning: Citation `zhang2022transformer' on page 36 undefined on input line 1014.
 
 
-Overfull \hbox (8.894pt too wide) in paragraph at lines 976--992
+Package natbib Warning: Citation `wang2024adaptive' on page 36 undefined on input line 1015.
+
+
+Overfull \hbox (8.894pt too wide) in paragraph at lines 1005--1021
  [][] 
- []
-
-[35]
-
-Package natbib Warning: Citation `brockman2016openai' on page 36 undefined on input line 1000.
-
-
-Package natbib Warning: Citation `tobin2017domain' on page 36 undefined on input line 1004.
-
-
-Package natbib Warning: Citation `alshiekh2018safe' on page 36 undefined on input line 1008.
-
-
-Package natbib Warning: Citation `zhang2019deep' on page 36 undefined on input line 1012.
-
-
-Overfull \hbox (7.30093pt too wide) in paragraph at lines 1016--1017
-\OT1/cmr/m/n/12 lated sim-u-la-tion out-comes into fleet-level fi-nan-cial pro-jec-tions us-ing industry-representative
  []
 
 [36]
 
-Package natbib Warning: Citation `der2009aleatory' on page 37 undefined on input line 1032.
+Package natbib Warning: Citation `brockman2016openai' on page 37 undefined on input line 1029.
 
 
-Package natbib Warning: Citation `tobin2017domain' on page 37 undefined on input line 1032.
+Package natbib Warning: Citation `tobin2017domain' on page 37 undefined on input line 1033.
 
 
-Package natbib Warning: Citation `zhang2019deep' on page 37 undefined on input line 1044.
+Package natbib Warning: Citation `alshiekh2018safe' on page 37 undefined on input line 1037.
 
 
-Package natbib Warning: Citation `ovadia2019can' on page 37 undefined on input line 1044.
+Package natbib Warning: Citation `zhang2019deep' on page 37 undefined on input line 1041.
 
 
-Package natbib Warning: Citation `tessler2018reward' on page 37 undefined on input line 1044.
+Overfull \hbox (7.30093pt too wide) in paragraph at lines 1045--1046
+\OT1/cmr/m/n/12 lated sim-u-la-tion out-comes into fleet-level fi-nan-cial pro-jec-tions us-ing industry-representative
+ []
 
 
-Package natbib Warning: Citation `alshiekh2018safe' on page 37 undefined on input line 1044.
+Package natbib Warning: Citation `der2009aleatory' on page 37 undefined on input line 1061.
 
 
-Package natbib Warning: Citation `saxena2008damage' on page 37 undefined on input line 1052.
+Package natbib Warning: Citation `tobin2017domain' on page 37 undefined on input line 1061.
+
+[37]
+
+Package natbib Warning: Citation `zhang2019deep' on page 38 undefined on input line 1075.
 
 
-Package natbib Warning: Citation `ramasso2014review' on page 37 undefined on input line 1052.
+Package natbib Warning: Citation `ovadia2019can' on page 38 undefined on input line 1075.
 
 
-Package natbib Warning: Citation `lakshminarayanan2017simple' on page 37 undefined on input line 1060.
+Package natbib Warning: Citation `tessler2018reward' on page 38 undefined on input line 1075.
 
 
-Package natbib Warning: Citation `schulman2017proximal' on page 37 undefined on input line 1064.
+Package natbib Warning: Citation `alshiekh2018safe' on page 38 undefined on input line 1075.
 
-[37] [38]
+
+Package natbib Warning: Citation `saxena2008damage' on page 38 undefined on input line 1083.
+
+
+Package natbib Warning: Citation `ramasso2014review' on page 38 undefined on input line 1083.
+
+
+Package natbib Warning: Citation `lakshminarayanan2017simple' on page 38 undefined on input line 1091.
+
+
+Package natbib Warning: Citation `schulman2017proximal' on page 38 undefined on input line 1095.
+
+[38] [39]
 Chapter 6.
 
-Package natbib Warning: Citation `saxena2008damage' on page 39 undefined on input line 1086.
+Package natbib Warning: Citation `saxena2008damage' on page 40 undefined on input line 1117.
 
 
-Package natbib Warning: Citation `do178c' on page 39 undefined on input line 1090.
+Package natbib Warning: Citation `do178c' on page 40 undefined on input line 1121.
 
-[39
+[40
 
 ]
 
-Package natbib Warning: Citation `amodei2016concrete' on page 40 undefined on input line 1100.
+Package natbib Warning: Citation `amodei2016concrete' on page 41 undefined on input line 1131.
 
-[40]
+[41]
 
-Package natbib Warning: Citation `paszke2019pytorch' on page 41 undefined on input line 1117.
+Package natbib Warning: Citation `paszke2019pytorch' on page 42 undefined on input line 1148.
 
 
-Package natbib Warning: Citation `raffin2021stable' on page 41 undefined on input line 1117.
+Package natbib Warning: Citation `raffin2021stable' on page 42 undefined on input line 1148.
 
-[41] [42]
+[42] [43]
 Chapter 7.
 
-Overfull \hbox (2.1571pt too wide) in paragraph at lines 1144--1145
+Overfull \hbox (2.1571pt too wide) in paragraph at lines 1179--1180
 []\OT1/cmr/bx/n/12 LSTM deep en-sem-ble with cal-i-brated un-cer-tainty. \OT1/cmr/m/n/12 Achieved. Five bootstrap-
  []
 
-[43
+[44
 
-] [44]
-Overfull \hbox (13.4981pt too wide) in paragraph at lines 1176--1177
+] [45]
+Overfull \hbox (13.4981pt too wide) in paragraph at lines 1211--1212
 []\OT1/cmr/m/n/12 All fi-nan-cial pro-jec-tions were based on sim-u-lated out-comes and industry-representative
  []
 
 
-Package natbib Warning: Citation `schulman2017proximal' on page 45 undefined on input line 1187.
+Package natbib Warning: Citation `schulman2017proximal' on page 46 undefined on input line 1222.
 
 
-Package natbib Warning: Citation `haarnoja2018soft' on page 45 undefined on input line 1187.
+Package natbib Warning: Citation `haarnoja2018soft' on page 46 undefined on input line 1222.
 
 
-Package natbib Warning: Citation `zhang2022transformer' on page 45 undefined on input line 1188.
+Package natbib Warning: Citation `zhang2022transformer' on page 46 undefined on input line 1223.
 
-[45] [46]
+[46] [47]
 No file main.bbl.
 Appendix A.
 
-Overfull \hbox (3.03896pt too wide) in paragraph at lines 1245--1260
+Overfull \hbox (3.03896pt too wide) in paragraph at lines 1280--1295
  [][] 
  []
 
-[47
+[48
 
-] [48]
+] [49]
 Appendix B.
 
-Overfull \hbox (60.0109pt too wide) in paragraph at lines 1278--1292
+Overfull \hbox (60.0109pt too wide) in paragraph at lines 1313--1327
  [][] 
  []
 
 
-Overfull \hbox (9.86987pt too wide) in paragraph at lines 1316--1316
+Overfull \hbox (9.86987pt too wide) in paragraph at lines 1351--1351
 |\OT1/cmr/bx/n/17.28 B.2 Ex-per-i-ment 2: Full Three-Layer Sys-tem (Full Data)| 
  []
 
 
-Overfull \hbox (60.0109pt too wide) in paragraph at lines 1323--1337
+Overfull \hbox (60.0109pt too wide) in paragraph at lines 1358--1372
  [][] 
  []
 
-[49
+[50
 
 ]
-Overfull \hbox (54.71992pt too wide) in paragraph at lines 1345--1359
+Overfull \hbox (54.71992pt too wide) in paragraph at lines 1380--1394
  [][] 
  []
 
-[50]
-Appendix C.
-[51
 
-] [52] [53]
+Overfull \hbox (8.05396pt too wide) in paragraph at lines 1396--1396
+|\OT1/cmr/bx/n/17.28 B.3 Fi-nan-cial Cost Anal-y-sis (Full-System De-tailed Out-
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[51] [52]
+Appendix C.
+[53
+
+] [54] [55]
 Appendix D.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[54
-
-] [55]
-Appendix E.
-<experiment_1_layer2_ablation.png, id=1009, 1436.7276pt x 521.7894pt>
-File: experiment_1_layer2_ablation.png Graphic file (type png)
-<use experiment_1_layer2_ablation.png>
-Package pdftex.def Info: experiment_1_layer2_ablation.png  used on input line 1590.
-(pdftex.def)             Requested size: 385.02547pt x 139.82608pt.
-<experiment_2_full_system.png, id=1010, 1436.7276pt x 521.7894pt>
-File: experiment_2_full_system.png Graphic file (type png)
-<use experiment_2_full_system.png>
-Package pdftex.def Info: experiment_2_full_system.png  used on input line 1597.
-(pdftex.def)             Requested size: 385.02547pt x 139.82608pt.
 [56
 
- <./experiment_1_layer2_ablation.png> <./experiment_2_full_system.png>]
-Appendix F.
-[57
+] [57]
+Appendix E.
+<experiment_1_layer2_ablation.png, id=1041, 1436.7276pt x 521.7894pt>
+File: experiment_1_layer2_ablation.png Graphic file (type png)
+<use experiment_1_layer2_ablation.png>
+Package pdftex.def Info: experiment_1_layer2_ablation.png  used on input line 1652.
+(pdftex.def)             Requested size: 385.02547pt x 139.82608pt.
+<experiment_2_full_system.png, id=1042, 1436.7276pt x 521.7894pt>
+File: experiment_2_full_system.png Graphic file (type png)
+<use experiment_2_full_system.png>
+Package pdftex.def Info: experiment_2_full_system.png  used on input line 1659.
+(pdftex.def)             Requested size: 385.02547pt x 139.82608pt.
+File: report_cost_analysis.png Graphic file (type png)
+<use report_cost_analysis.png>
+Package pdftex.def Info: report_cost_analysis.png  used on input line 1666.
+(pdftex.def)             Requested size: 430.31812pt x 334.4335pt.
 
-] [58]
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<report_cost_executive_summary.png, id=1043, 858.3267pt x 425.1885pt>
+File: report_cost_executive_summary.png Graphic file (type png)
+<use report_cost_executive_summary.png>
+Package pdftex.def Info: report_cost_executive_summary.png  used on input line 1673.
+(pdftex.def)             Requested size: 407.66833pt x 201.94716pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (13.66748pt too wide) in paragraph at lines 1691--1691
+[]|\OT1/cmtt/m/n/10.95 main[]evaluate[]ensemble.py| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1691--1692
+[]|\OT1/cmtt/m/n/10.95 ensemble[]evaluation[]1[]prediction.png\OT1/cmr/m/n/10.95 ,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1691--1692
+\OT1/cmtt/m/n/10.95 ensemble[]evaluation[]2[]error.png\OT1/cmr/m/n/10.95 ,
+ []
+
+
+Overfull \hbox (2.29277pt too wide) in paragraph at lines 1692--1693
+[]|\OT1/cmtt/m/n/10.95 uncertainty[]vs[]error.png\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 report[]summary[]dashboard.png\OT1/cmr/m/n/10.95 ,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1692--1693
+\OT1/cmtt/m/n/10.95 final[]engine[]50[]timeline.png\OT1/cmr/m/n/10.95 ,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1692--1693
+\OT1/cmtt/m/n/10.95 final[]engine[]134[]timeline.png\OT1/cmr/m/n/10.95 ,
+ []
+
+
+Overfull \hbox (25.16486pt too wide) in paragraph at lines 1693--1693
+[]|\OT1/cmtt/m/n/10.95 main[]experiment[]ablation.py| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1693--1694
+[]|\OT1/cmtt/m/n/10.95 report[]exp1[]layer2[]isolation.png\OT1/cmr/m/n/10.95 ,
+ []
+
+
+Overfull \hbox (53.5187pt too wide) in paragraph at lines 1693--1694
+\OT1/cmtt/m/n/10.95 report[]exp2[]full[]system.png\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 report[]exp3[]safety[]contribution.png| 
+ []
+
+
+Overfull \hbox (30.91354pt too wide) in paragraph at lines 1694--1694
+[]|\OT1/cmtt/m/n/10.95 main[]experiment[]threshold.py| 
+ []
+
+
+Overfull \hbox (7.9188pt too wide) in paragraph at lines 1695--1695
+[]|\OT1/cmtt/m/n/10.95 main[]experiment[]final.py| 
+ []
+
+
+Overfull \hbox (12.18051pt too wide) in paragraph at lines 1695--1696
+[]|\OT1/cmtt/m/n/10.95 final[]result[]chart.png\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 experiment[]1[]layer2[]ablation.png\OT1/cmr/m/n/10.95 ,
+ []
+
+
+Overfull \hbox (26.3849pt too wide) in paragraph at lines 1696--1697
+[]|\OT1/cmtt/m/n/10.95 report[]cost[]analysis.png\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 report[]cost[]executive[]summary.png| 
+ []
+
+[58
+
+ <./experiment_1_layer2_ablation.png> <./experiment_2_full_system.png>]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[59] [60 <./report_cost_executive_summary.png>]
+Appendix F.
+[61
+
+]
+Overfull \hbox (2.79681pt too wide) in paragraph at lines 1755--1756
+\OT1/cmr/m/n/12 The fol-low-ing com-mand se-quence re-pro-duces the com-plete eval-u-a-tion and plot-ting pipeline
+ []
+
+
+Overfull \hbox (16.43973pt too wide) in paragraph at lines 1767--1768
+\OT1/cmr/m/n/12 as well as CSV arte-facts (\OT1/cmtt/m/n/12 report[]experiment[]results.csv \OT1/cmr/m/n/12 and \OT1/cmtt/m/n/12 report[]cost[]summary.csv\OT1/cmr/m/n/12 )
+ []
+
+[62]
 Appendix G.
 
-Package natbib Warning: Citation `heimes2008recurrent' on page 59 undefined on input line 1666.
+Package natbib Warning: Citation `heimes2008recurrent' on page 63 undefined on input line 1781.
 
 
-Package natbib Warning: Citation `fort2019deep' on page 59 undefined on input line 1670.
+Package natbib Warning: Citation `fort2019deep' on page 63 undefined on input line 1785.
 
-[59
+[63
 
 ]
 
 Package natbib Warning: There were undefined citations.
 
-[60] (main.aux)
+[64] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -1372,17 +1488,17 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 430CEFA5442E944DEBBFCC7385C448D2;16925.
  ) 
 Here is how much of TeX's memory you used:
- 23303 strings out of 467872
- 440875 string characters out of 5414483
- 876498 words of memory out of 5000000
- 51577 multiletter control sequences out of 15000+600000
- 637327 words of font info for 73 fonts, out of 8000000 for 9000
+ 23336 strings out of 467872
+ 441610 string characters out of 5414483
+ 878761 words of memory out of 5000000
+ 51598 multiletter control sequences out of 15000+600000
+ 637840 words of font info for 75 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,14n,104p,1378b,818s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\Abhishek Soni\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (71 pages, 5595199 bytes).
+ <C:\Users\Abhishek Soni\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcbx1095.pk> <C:\Users\Abhishek Soni\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on main.pdf (75 pages, 6715688 bytes).
 PDF statistics:
- 1163 PDF objects out of 1200 (max. 8388607)
- 237 named destinations out of 1000 (max. 500000)
- 837 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1219 PDF objects out of 1440 (max. 8388607)
+ 247 named destinations out of 1000 (max. 500000)
+ 847 words of extra memory for PDF output out of 10000 (max. 10000000)
 

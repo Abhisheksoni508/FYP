@@ -752,6 +752,10 @@ The \texttt{PdMEnvironment} class (FR3) extended \texttt{gymnasium.Env} \citep{b
 
 The DQN agent (FR4) used a $[256, 256, 128]$ fully connected Q-network \citep{mnih2015human}, trained for 1.5 million timesteps via Stable-Baselines3 \citep{raffin2021stable} with a 150,000-transition replay buffer, $\gamma = 0.99$, and $\epsilon$-greedy exploration decaying from 1.0 to 0.03 over 40\% of training. The noise augmentation and end-of-life bias exposed the agent to clean, moderate, and heavy noise regimes, teaching it to adapt its policy to the current uncertainty level rather than memorise a fixed mapping. The blind control agent was trained identically but on the \texttt{BlindPdMEnvironment}, which zeroed the uncertainty dimensions. Full hyperparameters are listed in Appendix~\ref{app:hyperparams}.
 
+\vspace{0.3cm}
+
+Training diagnostics were monitored to avoid unstable policies. Pilot runs revealed over-waiting near end of life; the final configuration resolved this through stronger crash penalties and end-of-life start biasing.
+
 \section{Safety Supervisor}
 
 The safety supervisor implemented FR6 as a pure Python function that accepted the DQN agent's proposed action and the current observation vector and returned a possibly modified action. The implementation was deliberately kept outside any learned component to provide a deterministic guarantee, following the shielding principle formalised by \citet{alshiekh2018safe} and the defence-in-depth requirement of aerospace safety standards \citep{do178c}.
@@ -782,6 +786,10 @@ Three non-trivial challenges arose during development. First, end-of-life class 
 \section{Testing}
 
 Testing was conducted at three levels: unit testing verified individual module correctness (data pipeline, LSTM output shapes, environment API compliance); integration testing confirmed ensemble-environment interaction, agent performance, and safety supervisor override behaviour; and system-level validation ran the ablation study on a subset of conditions to verify statistical outputs and reproducibility. The full testing protocol is documented in Appendix~\ref{app:testing}.
+
+\vspace{0.3cm}
+
+Behavioural checks complemented functional tests. Reward-outcome mapping and uncertainty monotonicity were validated.
 
 \vspace{0.3cm}
 
@@ -925,7 +933,22 @@ The financial analysis translated simulation outcomes into real-world cost estim
 
 \vspace{0.3cm}
 
-Under the full three-layer system, the UA strategy produced a lower average cost per maintenance decision than the blind strategy at six out of eight noise levels. The advantage was most pronounced in the moderate noise range ($\sigma = 0.025$ to $\sigma = 0.075$), where the UA agent's ability to distinguish between reliable and unreliable predictions allowed it to time maintenance more accurately, avoiding both the wasteful early interventions and the supervisor-triggered safe-but-early events that inflated the blind agent's costs. At the heaviest noise levels ($\sigma = 0.150$ and above), the safety supervisor dominated both agents' behaviour, narrowing the cost gap as both agents increasingly relied on the override mechanism.
+Because the full three-layer architecture can force safety overrides, the final cost model also included an override premium for supervisor-forced interventions. This reflects operational reality: even when failure is avoided, reactive supervisor-triggered maintenance is less efficient than agent-initiated planned maintenance due to urgent scheduling and logistics overhead.
+
+\vspace{0.3cm}
+
+Under the full three-layer system, UA produced lower average cost per decision than blind at all eight noise levels: \pounds36,863 versus \pounds39,648 (\pounds2,785, or 7.0\%, saved per decision). At fleet level, this corresponds to \pounds556,950 annual savings and \pounds2,784,750 over five years, with positive savings retained even at heavy noise.
+
+\vspace{0.3cm}
+
+The override statistics provide the mechanism behind this result. As noise increased, blind remained more dependent on supervisor intervention (for example, 95\% overrides at $\sigma = 0.175$ versus 83\% for UA), while UA retained greater autonomous control. This autonomy gap translated directly into lower total operating cost once override-driven operational overheads were accounted for.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{report_cost_analysis.png}
+\caption{Comprehensive cost-effectiveness analysis comparing UA and blind strategies across noise levels, including per-decision cost, annual fleet savings, and outcome distributions under the full safety architecture.}
+\label{fig:cost_analysis_main}
+\end{figure}
 
 \vspace{0.3cm}
 
@@ -950,6 +973,8 @@ The experimental results can be distilled into four key findings:
   \item \textbf{The UA agent was substantially more autonomous.} The UA agent operated without supervisor intervention in 96.6\% of clean episodes and produced 70\% autonomous jackpots, compared to 59.8\% autonomy and 43\% autonomous jackpots for the blind agent. This gap persisted across all noise levels.
 
   \item \textbf{The DQN outperformed fixed-threshold baselines.} The learned policy adapted its behaviour to the current noise regime, a capability that no static threshold could replicate, confirming that reinforcement learning added genuine value to the maintenance scheduling task.
+
+    \item \textbf{Uncertainty awareness improved fleet-level cost-effectiveness.} Under the calibrated full-system cost model, UA achieved lower annual fleet cost than blind at all eight noise levels, yielding \pounds556,950 annual savings (\pounds2.78M over five years) for the representative 50-engine fleet.
 \end{enumerate}
 
 \section{Evaluation}
@@ -959,6 +984,10 @@ This section critically assesses the experimental results against the eight proj
 \subsection{Evaluation Criteria}
 
 Four quantitative criteria were used: mean episode reward, failure rate, jackpot rate, and statistical significance (Welch's t-test and Cohen's d) \citep{cohen1988statistical}. Additionally, autonomy percentage and autonomous jackpot count were introduced as novel metrics measuring how much the agent's own policy, rather than the safety net, drove performance.
+
+\vspace{0.3cm}
+
+Each metric answered a different question: mean reward for overall utility, failure rate for safety, jackpot rate for timing quality, and significance testing for statistical confidence under heteroscedastic RL outcomes. Autonomy metrics were necessary because supervisory rescue can mask weak policies; override dependence and autonomous jackpots distinguished systems that were safe through learned decision quality from systems that were safe mainly through external correction.
 
 \subsection{Achievement of Project Objectives}
 
@@ -1039,6 +1068,8 @@ While all objectives were achieved, an honest evaluation must acknowledge both s
 
 \textbf{Effect sizes were moderate.} The maximum Cohen's d of 0.65 (medium) reflects the binary action space, which limits scope for differentiated behaviour, and the strong reward shaping ($\pm 500$), which ensures any agent achieving occasional correct timing produces a high mean reward. Larger action spaces would likely yield more pronounced advantages for uncertainty awareness.
 
+
+
 \subsection{Comparison with Existing Work}
 
 Direct comparison is limited by novelty, but \citet{zhang2019deep} used DQN for C-MAPSS maintenance with no uncertainty, no noise evaluation, and fewer than 50 episodes. This project extends their work with ensemble uncertainty, noise-augmented training, and a formal safety supervisor, with substantially stronger statistical evidence (500 episodes per condition, eight noise levels). The ensemble uncertainty calibration is consistent with \citet{ovadia2019can}, and the two-tier safety supervisor, which conditions its override on ensemble confidence, is novel in the predictive maintenance context compared to existing constrained optimisation \citep{tessler2018reward} or context-independent shielding \citep{alshiekh2018safe} approaches.
@@ -1083,13 +1114,13 @@ Deploying an AI-driven predictive maintenance system in a safety-critical aerosp
 
 \section{Data Protection and Privacy}
 
-The C-MAPSS dataset used in this project is a publicly available NASA benchmark and contains no personally identifiable information \citep{saxena2008damage}. However, a production deployment would ingest live sensor telemetry from operational engines, fleet identifiers, and maintenance logs. Under the UK Data Protection Act 2018 and the retained EU General Data Protection Regulation (GDPR), such data could constitute personal data if it can be linked to individual crews, routes, or operators. A Data Protection Impact Assessment would therefore be required before deployment, and the system would need to comply with the principles of data minimisation, purpose limitation, and storage limitation. Sensor readings should be anonymised or pseudonymised wherever possible, and role-based access controls must restrict who can view fleet-level patterns that might reveal commercially sensitive operational behaviour.
+The C-MAPSS dataset used in this project is a public NASA benchmark with no personally identifiable information \citep{saxena2008damage}. In production, however, telemetry, fleet identifiers, and maintenance logs may become personal or commercially sensitive data when linked to crews, routes, or operators. Deployment would therefore require GDPR-compliant governance, including a Data Protection Impact Assessment, data minimisation, strict retention rules, pseudonymisation where feasible, and role-based access controls.
 
 \section{Aerospace Safety Regulation and Certification}
 
-Aviation software that influences maintenance decisions falls within the scope of RTCA DO-178C, the internationally recognised standard for airborne software assurance \citep{do178c}. DO-178C defines five Design Assurance Levels (DAL A through E); a system that can trigger or defer maintenance actions on flight-critical components would likely be classified at DAL B or above, requiring modified condition/decision coverage testing and formal traceability from requirements to code. The current prototype satisfies none of these certification requirements: it was developed as a research proof of concept, not as certifiable software. Before any real-world deployment, the entire codebase, training pipeline, and safety supervisor logic would need to be re-engineered under a DO-178C-compliant development process, including independent verification and configuration management.
+Aviation software that influences maintenance decisions falls within RTCA DO-178C \citep{do178c}. A deployable system would likely require DAL B or higher assurance, including formal traceability, rigorous testing coverage, independent verification, and controlled configuration management. The current implementation is a research prototype, not certifiable software, and would require full redevelopment under a compliant process before operational use.
 
-The European Union Aviation Safety Agency (EASA) has also published a roadmap for AI in aviation that mandates explainability and human oversight for any AI system used in safety-critical decisions. The safety supervisor (Layer~3) of this project partially addresses the oversight requirement by providing a deterministic override that can be audited, but the DQN policy itself remains a black-box neural network. Integrating post-hoc explainability methods such as SHAP values or attention-based attribution would be necessary to satisfy regulatory expectations.
+The EASA AI roadmap additionally emphasises explainability and human oversight. Layer~3 partially addresses this through deterministic, auditable overrides, but the DQN policy remains a black box. Practical deployment would therefore require supplementary explainability tooling and human-in-the-loop operating procedures.
 
 \section{Liability and Accountability}
 
@@ -1120,9 +1151,13 @@ This project was conducted in alignment with the British Computer Society (BCS) 
 
 \section{Commercial Deployment Considerations}
 
-If the system were to be deployed commercially, several additional factors would need to be addressed. The computational cost of running a five-model LSTM ensemble in real time is modest on modern hardware, but the system would need to be integrated with an airline's existing fleet management software, maintenance scheduling databases, and spare-parts inventory systems. Data ownership would need to be clearly defined: sensor telemetry is typically owned by the engine manufacturer (under power-by-the-hour contracts), while maintenance records may be owned by the operator. The AI system would need contractual access to both data streams, subject to appropriate data-sharing agreements.
+If deployed commercially, the system would require integration with fleet management, maintenance scheduling, and spare-parts systems. Data ownership and access rights would also need contractual clarity, because telemetry is often controlled by manufacturers while maintenance records are held by operators.
 
-Scalability is another concern. The current system was trained and evaluated on the C-MAPSS dataset, which models a single engine type under a limited set of operating conditions. Extending coverage to multiple engine families (e.g., CFM56, LEAP, Trent XWB) would require separate ensemble training for each type, and the RL agent would need to generalise across different degradation profiles. Finally, ongoing model maintenance, including retraining as sensor drift occurs and validating against evolving certification standards, represents a continuous operational commitment that must be factored into any commercial business case.
+\vspace{0.3cm}
+
+The architecture can transfer beyond turbofan engines: Layer~1 is retrained per asset class, while Layers~2 and~3 remain reusable because they operate on abstract health and uncertainty signals.
+
+Scalability is another concern. The current system was validated on C-MAPSS, which represents one simulated engine family and limited operating conditions. Broader coverage would require per-platform retraining, periodic recalibration under sensor drift, and continuous compliance checks against evolving certification requirements.
 
 \section{Conclusion}
 
@@ -1148,7 +1183,7 @@ The eight objectives defined in Section~\ref{sec:objectives} were evaluated agai
     \item \textbf{Comparative evaluation under noise.} Achieved. Statistically significant advantages at six of eight noise levels ($d$ up to 0.649).
     \item \textbf{Safety supervisor evaluation.} Achieved. Zero crash rates under full system; UA agent achieved 70\% autonomous jackpots versus 43\% for blind.
     \item \textbf{Threshold baseline comparison.} Achieved. DQN outperformed all eight baselines across six noise levels.
-    \item \textbf{Financial cost analysis.} Achieved. Projected 18.2\% annual cost savings versus threshold-based maintenance.
+    \item \textbf{Financial cost analysis.} Achieved. Projected \pounds556,950 annual fleet savings (\pounds2,784,750 over five years) versus the blind baseline under the full system.
 \end{enumerate}
 
 All eight objectives were fully met. The complete numerical data underpinning these claims is provided in Appendix~\ref{app:experiment_data}, and key source code excerpts are documented in Appendix~\ref{app:source_code}. The central hypothesis, that uncertainty awareness improves both robustness to noise and decision-making autonomy, was supported by the experimental evidence with statistical significance.
@@ -1354,6 +1389,33 @@ This appendix presents the complete numerical results from the three experiments
 0.125 & 364 & 431 & 16.2 & 10.4 & 34 & 18 \\
 0.150 & 401 & 455 & 10.6 & 6.4 & 17 & 12 \\
 0.175 & 408 & 461 & 9.0 & 6.0 & 20 & 11 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section*{B.3 Financial Cost Analysis (Full-System Detailed Output)}
+
+Table~\ref{tab:app_cost_full} reports the full-system annual fleet cost output from the cost analysis pipeline after incorporating override-aware operational costing. The UA strategy achieved lower annual fleet cost at all evaluated noise levels.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Annual fleet cost comparison by noise level (full three-layer system, 50 engines, 200 decisions/year).}
+\label{tab:app_cost_full}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Noise $\sigma$} & \textbf{UA Annual (\pounds)} & \textbf{Blind Annual (\pounds)} & \textbf{Saving (\pounds)} & \textbf{Saving \%} \\
+\midrule
+0.000 & 4,474,800 & 5,296,000 & 821,200 & 15.5 \\
+0.025 & 6,738,400 & 7,374,800 & 636,400 & 8.6 \\
+0.050 & 6,946,800 & 7,967,200 & 1,020,400 & 12.8 \\
+0.075 & 7,717,600 & 8,251,200 & 533,600 & 6.5 \\
+0.100 & 8,056,800 & 8,451,600 & 394,800 & 4.7 \\
+0.125 & 8,214,800 & 8,529,200 & 314,400 & 3.7 \\
+0.150 & 8,455,200 & 8,682,800 & 227,600 & 2.6 \\
+0.175 & 8,376,000 & 8,883,200 & 507,200 & 5.7 \\
+\midrule
+\textbf{Average} & \textbf{7,372,600} & \textbf{7,929,550} & \textbf{556,950} & \textbf{7.0} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1583,7 +1645,7 @@ Reward Function & Jackpot bonus (RUL $< 20$) & +500 \\
 \chapter{Additional Visualisations}
 \label{app:visualisations}
 
-Appendix~\ref{app:visualisations} presents supplementary figures that provide additional perspectives on the experimental results. Figure~\ref{fig:app_exp1_alt} shows the Layer~2 ablation from an alternative angle, while Figure~\ref{fig:app_exp2_alt} provides an alternative view of the full system performance.
+Appendix~\ref{app:visualisations} presents supplementary figures that provide additional perspectives on the experimental results and ensure that all generated visual outputs used for evaluation are archived in the dissertation. Figure~\ref{fig:app_exp1_alt} shows the Layer~2 ablation from an alternative angle, Figure~\ref{fig:app_exp2_alt} provides an alternative view of full-system performance, and Figures~\ref{fig:app_cost_full} and \ref{fig:app_cost_exec} provide the full financial analysis visualisations.
 
 \begin{figure}[h]
     \centering
@@ -1598,6 +1660,43 @@ Appendix~\ref{app:visualisations} presents supplementary figures that provide ad
     \caption{Experiment 2 full system: alternative visualisation of UA vs Blind performance with the three-layer safety supervisor active across all noise levels.}
     \label{fig:app_exp2_alt}
 \end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth]{report_cost_analysis.png}
+    \caption{Detailed cost-effectiveness figure generated by the financial evaluation pipeline, including per-decision costs, annual savings, and outcome composition across noise levels.}
+    \label{fig:app_cost_full}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{report_cost_executive_summary.png}
+    \caption{Executive five-year cost projection for the representative 50-engine fleet, comparing cumulative UA and blind maintenance expenditure.}
+    \label{fig:app_cost_exec}
+\end{figure}
+
+\section*{E.1 Visualisation Inventory and Provenance}
+
+Table~\ref{tab:app_visual_inventory} maps each generated analysis figure to its producing script, providing a complete audit trail of visual evidence included in this dissertation.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Complete inventory of generated analysis figures and source scripts.}
+\label{tab:app_visual_inventory}
+\begin{tabular}{p{0.28\textwidth} p{0.66\textwidth}}
+\toprule
+\textbf{Script} & \textbf{Generated Figures} \\
+\midrule
+\texttt{main\_evaluate\_ensemble.py} & \texttt{ensemble\_evaluation\_1\_prediction.png}, \texttt{ensemble\_evaluation\_2\_error.png}, \texttt{ensemble\_evaluation\_3\_uncertainty.png} \\
+\texttt{main\_visualize.py} & \texttt{uncertainty\_vs\_error.png}, \texttt{report\_summary\_dashboard.png}, \texttt{final\_engine\_50\_timeline.png}, \texttt{final\_engine\_134\_timeline.png}, \texttt{final\_engine\_200\_timeline.png} \\
+\texttt{main\_experiment\_ablation.py} & \texttt{report\_exp1\_layer2\_isolation.png}, \texttt{report\_exp2\_full\_system.png}, \texttt{report\_exp3\_safety\_contribution.png} \\
+\texttt{main\_experiment\_threshold.py} & \texttt{experiment\_3\_threshold\_baseline.png} \\
+\texttt{main\_experiment\_final.py} & \texttt{final\_result\_chart.png}, \texttt{experiment\_1\_layer2\_ablation.png}, \texttt{experiment\_2\_full\_system.png} \\
+\texttt{main\_cost\_analysis.py} & \texttt{report\_cost\_analysis.png}, \texttt{report\_cost\_executive\_summary.png} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 
 \chapter{Testing Documentation}
@@ -1650,6 +1749,22 @@ The Streamlit dashboard (Section~4.7) was tested manually by:
     \item Checking that session state persists correctly across Streamlit reruns.
     \item Testing the noise injection slider across its full range and verifying that uncertainty estimates respond proportionally.
 \end{itemize}
+
+\section*{F.5 Reproducibility Runbook (All Tests and Plots)}
+
+The following command sequence reproduces the complete evaluation and plotting pipeline from a clean environment:
+
+\begin{verbatim}
+python main_evaluate_ensemble.py
+python main_experiment_ablation.py
+python main_experiment_threshold.py
+python main_experiment_final.py
+python main_cost_analysis.py
+python main_visualize.py
+python main_evaluate.py
+\end{verbatim}
+
+The generated outputs include all figures referenced in Chapters~4--5 and Appendix~\ref{app:visualisations}, as well as CSV artefacts (\texttt{report\_experiment\_results.csv} and \texttt{report\_cost\_summary.csv}) used for numerical validation.
 
 
 

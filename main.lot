@@ -11,20 +11,22 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {5.1}{\ignorespaces Experiment~1 results: UA vs Blind agent without safety supervisor. Significance: * $p < 0.05$, ** $p < 0.01$, *** $p < 0.001$, ns = not significant.}}{30}{table.5.1}%
 \contentsline {table}{\numberline {5.2}{\ignorespaces Experiment~2 results: UA vs Blind agent with safety supervisor active. Override counts indicate the number of times the supervisor intervened across 500 episodes.}}{31}{table.5.2}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces Comparison of RUL prediction RMSE on C-MAPSS FD001 against published baselines. Lower RMSE indicates better prediction accuracy. Our ensemble results reflect validation-set performance.}}{35}{table.5.3}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Comparison of RUL prediction RMSE on C-MAPSS FD001 against published baselines. Lower RMSE indicates better prediction accuracy. Our ensemble results reflect validation-set performance.}}{36}{table.5.3}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Project timeline and milestones.}}{48}{table.A.1}%
+\contentsline {table}{\numberline {A.1}{\ignorespaces Project timeline and milestones.}}{49}{table.A.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {B.1}{\ignorespaces Experiment 1 complete results: UA vs Blind agent without safety supervisor (500 episodes per noise level).}}{49}{table.B.1}%
-\contentsline {table}{\numberline {B.2}{\ignorespaces Experiment 1 supplementary data: jackpot rates, medians, and statistical significance.}}{49}{table.B.2}%
-\contentsline {table}{\numberline {B.3}{\ignorespaces Experiment 2 complete results: UA vs Blind agent with safety supervisor (500 episodes per noise level).}}{50}{table.B.3}%
-\contentsline {table}{\numberline {B.4}{\ignorespaces Experiment 2 autonomy data: supervisor overrides and autonomous decision rates.}}{50}{table.B.4}%
+\contentsline {table}{\numberline {B.1}{\ignorespaces Experiment 1 complete results: UA vs Blind agent without safety supervisor (500 episodes per noise level).}}{50}{table.B.1}%
+\contentsline {table}{\numberline {B.2}{\ignorespaces Experiment 1 supplementary data: jackpot rates, medians, and statistical significance.}}{50}{table.B.2}%
+\contentsline {table}{\numberline {B.3}{\ignorespaces Experiment 2 complete results: UA vs Blind agent with safety supervisor (500 episodes per noise level).}}{51}{table.B.3}%
+\contentsline {table}{\numberline {B.4}{\ignorespaces Experiment 2 autonomy data: supervisor overrides and autonomous decision rates.}}{51}{table.B.4}%
+\contentsline {table}{\numberline {B.5}{\ignorespaces Annual fleet cost comparison by noise level (full three-layer system, 50 engines, 200 decisions/year).}}{52}{table.B.5}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {D.1}{\ignorespaces LSTM deep ensemble training hyperparameters.}}{54}{table.D.1}%
-\contentsline {table}{\numberline {D.2}{\ignorespaces DQN agent and Gymnasium environment hyperparameters.}}{55}{table.D.2}%
+\contentsline {table}{\numberline {D.1}{\ignorespaces LSTM deep ensemble training hyperparameters.}}{56}{table.D.1}%
+\contentsline {table}{\numberline {D.2}{\ignorespaces DQN agent and Gymnasium environment hyperparameters.}}{57}{table.D.2}%
 \addvspace {10\p@ }
+\contentsline {table}{\numberline {E.1}{\ignorespaces Complete inventory of generated analysis figures and source scripts.}}{60}{table.E.1}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
