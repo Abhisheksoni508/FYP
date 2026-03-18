@@ -11,7 +11,6 @@ Usage: python main_visualize.py
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 import torch
 from stable_baselines3 import DQN
 
@@ -58,6 +57,7 @@ def simulate_engine(unit_id, df, df_clean, lstm_models, agent):
     trigger_type = None
     trigger_true_rul = None
     trigger_idx = None
+    sigma_history = [0.0, 0.0, 0.0]
     
     for t in range(WINDOW_SIZE, len(unit_clean)):
         features = [c for c in unit_clean.columns if c not in ['unit', 'time', 'RUL']]
@@ -66,7 +66,11 @@ def simulate_engine(unit_id, df, df_clean, lstm_models, agent):
         
         mean_pred, std_pred = predict_ensemble(lstm_models, seq)
         norm_std = np.clip(std_pred * UNCERTAINTY_SCALE, 0, 1)
-        obs = np.array([mean_pred, norm_std, np.mean(seq[0, -1, :])], dtype=np.float32)
+        sigma_history.pop(0)
+        sigma_history.append(float(norm_std))
+        rolling_sigma = float(np.mean(sigma_history))
+        sensor_trend = float(np.mean(seq[0, -1, :]))
+        obs = np.array([mean_pred, norm_std, rolling_sigma, sensor_trend], dtype=np.float32)
         
         # Layer 2: DQN decision + Q-value extraction
         dqn_action = 0
@@ -87,8 +91,7 @@ def simulate_engine(unit_id, df, df_clean, lstm_models, agent):
         safety_flag = False
         final_action = dqn_action
         if not repaired:
-            final_action, safety_flag = safety_override(dqn_action, 
-                np.array([mean_pred, norm_std, np.mean(seq[0, -1, :])], dtype=np.float32))
+            final_action, safety_flag = safety_override(dqn_action, obs)
         
         if not repaired and final_action == 1:
             repaired = True
@@ -301,12 +304,18 @@ def create_visualization(data):
     # =================================================================
     # Summary footer
     # =================================================================
-    result_label = 'Jackpot (+500)' if data['trigger_true_rul'] < 20 else 'Safe (+10)'
-    trigger_label = 'Safety Supervisor' if data['trigger_type'] == 'safety' else 'DQN Agent'
+    if data['trigger_true_rul'] is None:
+        result_label = f'Crash ({CRASH_PENALTY})'
+        trigger_label = 'No maintenance trigger'
+        trigger_rul = 'N/A'
+    else:
+        result_label = 'Jackpot (+500+)' if data['trigger_true_rul'] < 20 else 'Safe (+10+)'
+        trigger_label = 'Safety Supervisor' if data['trigger_type'] == 'safety' else 'DQN Agent'
+        trigger_rul = f'{data["trigger_true_rul"]:.0f} cycles'
     
     summary = (f"Architecture: LSTM Ensemble (×5) → DQN Agent → Safety Supervisor   |   "
                f"Triggered by: {trigger_label}   |   "
-               f"True RUL at trigger: {data['trigger_true_rul']:.0f} cycles   |   "
+               f"True RUL at trigger: {trigger_rul}   |   "
                f"Outcome: {result_label}")
     
     fig.text(0.5, 0.008, summary, ha='center', fontsize=9, style='italic', color='#444444')

@@ -253,3 +253,23 @@ def safety_override(action, obs):
             return 1, True
 
     return action, False
+
+
+def classify_terminal_reward(reward):
+    """
+    Map terminal rewards to a stable outcome label.
+
+    The environment can emit proactive-bonus variants of the nominal
+    jackpot/safe rewards (for example 530 or 40). Centralising the
+    classification keeps evaluation scripts consistent with the current
+    reward design.
+    """
+    if reward <= CRASH_PENALTY:
+        return 'crash'
+    if reward >= 500:
+        return 'jackpot'
+    if reward >= 10:
+        return 'safe'
+    if reward == -20:
+        return 'wasteful'
+    return 'other'

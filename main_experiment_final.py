@@ -8,7 +8,7 @@ THREE EXPERIMENTS:
     Proves uncertainty-awareness improves DQN decision quality.
 
   Experiment 2 — Full 3-Layer System (Safety Supervisor Active):
-    Proves Layer 3 eliminates all catastrophic failures.
+    Measures how strongly Layer 3 suppresses catastrophic failures.
 
   Experiment 3 — Safety Supervisor Contribution (Delta Analysis):
     Quantifies the exact contribution of Layer 3 by comparing
@@ -45,7 +45,7 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.monitor import Monitor
 
 from src.preprocessing import load_combined_data, calculate_rul, process_data
-from src.gym_env import PdMEnvironment, BlindPdMEnvironment, safety_override
+from src.gym_env import PdMEnvironment, BlindPdMEnvironment, safety_override, classify_terminal_reward
 from src.config import *
 
 # ── Reproducibility ──────────────────────────────────────────
@@ -98,10 +98,15 @@ def evaluate_raw(env, model, num_episodes):
             ep_reward += reward
             steps += 1
             if done:
-                if reward <= -100:  fails += 1
-                elif reward == 500: jacks += 1
-                elif reward == 10:  safes += 1
-                elif reward == -20: wastes += 1
+                outcome = classify_terminal_reward(reward)
+                if outcome == 'crash':
+                    fails += 1
+                elif outcome == 'jackpot':
+                    jacks += 1
+                elif outcome == 'safe':
+                    safes += 1
+                elif outcome == 'wasteful':
+                    wastes += 1
         rewards.append(ep_reward)
         ep_lengths.append(steps)
 
@@ -133,16 +138,19 @@ def evaluate_with_safety(env, model, num_episodes):
             ep_reward += reward
             steps += 1
             if done:
-                if reward <= -100:  fails += 1
-                elif reward == 500:
+                outcome = classify_terminal_reward(reward)
+                if outcome == 'crash':
+                    fails += 1
+                elif outcome == 'jackpot':
                     jacks += 1
                     if not episode_overridden:
                         autonomous_jacks += 1
-                elif reward == 10:
+                elif outcome == 'safe':
                     safes += 1
                     if not episode_overridden:
                         autonomous_safes += 1
-                elif reward == -20: wastes += 1
+                elif outcome == 'wasteful':
+                    wastes += 1
                 if episode_overridden:
                     episodes_with_override += 1
         rewards.append(ep_reward)

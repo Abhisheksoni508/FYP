@@ -44,7 +44,7 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.monitor import Monitor
 
 from src.preprocessing import load_combined_data, calculate_rul, process_data
-from src.gym_env import PdMEnvironment, BlindPdMEnvironment, safety_override
+from src.gym_env import PdMEnvironment, BlindPdMEnvironment, safety_override, classify_terminal_reward
 from src.config import *
 
 # ── Reproducibility ──────────────────────────────────────────
@@ -126,20 +126,19 @@ def evaluate_outcomes(env, model, num_episodes, use_safety=True):
                     episode_overridden = True
             obs, reward, done, _, _ = env.step(action)
             if done:
-                if reward <= -100:
+                outcome = classify_terminal_reward(reward)
+                if outcome == 'crash':
                     outcomes.append('crash')
                     costs.append(COST_CRASH)
-                elif reward >= 500:
-                    # Jackpot: reward is 500 or 530 (with proactive bonus)
+                elif outcome == 'jackpot':
                     outcomes.append('jackpot')
                     base = COST_JACKPOT
                     costs.append(base + OVERRIDE_PREMIUM if episode_overridden else base)
-                elif reward >= 10 and reward < 100:
-                    # Safe/acceptable: reward is 10 or 40 (with proactive bonus)
+                elif outcome == 'safe':
                     outcomes.append('safe')
                     base = COST_SAFE
                     costs.append(base + OVERRIDE_PREMIUM if episode_overridden else base)
-                elif reward == -20:
+                elif outcome == 'wasteful':
                     outcomes.append('wasteful')
                     costs.append(COST_WASTEFUL)
                 else:

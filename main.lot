@@ -2,31 +2,32 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {2.1}{\ignorespaces Summary of identified research gaps and how this project addresses each one.}}{12}{table.2.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Functional requirements prioritised using MoSCoW.}}{20}{table.3.1}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Non-functional requirements prioritised using MoSCoW.}}{21}{table.3.2}%
-\contentsline {table}{\numberline {3.3}{\ignorespaces Reward function for the predictive maintenance MDP.}}{21}{table.3.3}%
-\contentsline {table}{\numberline {3.4}{\ignorespaces Ablation study design: three experiments isolating different system layers.}}{22}{table.3.4}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Functional requirements prioritised using MoSCoW.}}{21}{table.3.1}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Non-functional requirements prioritised using MoSCoW.}}{22}{table.3.2}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Reward function for the predictive maintenance MDP.}}{22}{table.3.3}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Ablation study design: three experiments isolating different system layers.}}{23}{table.3.4}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Repository structure and purpose of each file.}}{24}{table.4.1}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Repository structure and purpose of each file.}}{25}{table.4.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Experiment~1 results: UA vs Blind agent without safety supervisor. Significance: * $p < 0.05$, ** $p < 0.01$, *** $p < 0.001$, ns = not significant.}}{30}{table.5.1}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces Experiment~2 results: UA vs Blind agent with safety supervisor active. Override counts indicate the number of times the supervisor intervened across 500 episodes.}}{31}{table.5.2}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces Comparison of RUL prediction RMSE on C-MAPSS FD001 against published baselines. Lower RMSE indicates better prediction accuracy. Our ensemble results reflect validation-set performance.}}{36}{table.5.3}%
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Project timeline and milestones.}}{49}{table.A.1}%
-\addvspace {10\p@ }
-\contentsline {table}{\numberline {B.1}{\ignorespaces Experiment 1 complete results: UA vs Blind agent without safety supervisor (500 episodes per noise level).}}{50}{table.B.1}%
-\contentsline {table}{\numberline {B.2}{\ignorespaces Experiment 1 supplementary data: jackpot rates, medians, and statistical significance.}}{50}{table.B.2}%
-\contentsline {table}{\numberline {B.3}{\ignorespaces Experiment 2 complete results: UA vs Blind agent with safety supervisor (500 episodes per noise level).}}{51}{table.B.3}%
-\contentsline {table}{\numberline {B.4}{\ignorespaces Experiment 2 autonomy data: supervisor overrides and autonomous decision rates.}}{51}{table.B.4}%
-\contentsline {table}{\numberline {B.5}{\ignorespaces Annual fleet cost comparison by noise level (full three-layer system, 50 engines, 200 decisions/year).}}{52}{table.B.5}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Experiment~1 results: UA vs Blind agent without safety supervisor. Significance: * $p < 0.05$, ** $p < 0.01$, *** $p < 0.001$, ns = not significant.}}{31}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Experiment~2 results: UA vs Blind agent with safety supervisor active. Override counts indicate the number of times the supervisor intervened across 500 episodes.}}{32}{table.5.2}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Comparison of RUL prediction RMSE on C-MAPSS FD001 against published baselines. Lower RMSE indicates better prediction accuracy. Our ensemble results reflect validation-set performance.}}{38}{table.5.3}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {D.1}{\ignorespaces LSTM deep ensemble training hyperparameters.}}{56}{table.D.1}%
-\contentsline {table}{\numberline {D.2}{\ignorespaces DQN agent and Gymnasium environment hyperparameters.}}{57}{table.D.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {E.1}{\ignorespaces Complete inventory of generated analysis figures and source scripts.}}{60}{table.E.1}%
+\contentsline {table}{\numberline {A.1}{\ignorespaces Project timeline and milestones.}}{54}{table.A.1}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {B.1}{\ignorespaces Experiment 1 complete results: UA vs Blind agent without safety supervisor (500 episodes per noise level).}}{55}{table.B.1}%
+\contentsline {table}{\numberline {B.2}{\ignorespaces Experiment 1 supplementary data: jackpot rates, medians, and statistical significance.}}{55}{table.B.2}%
+\contentsline {table}{\numberline {B.3}{\ignorespaces Experiment 2 complete results: UA vs Blind agent with safety supervisor (500 episodes per noise level).}}{56}{table.B.3}%
+\contentsline {table}{\numberline {B.4}{\ignorespaces Experiment 2 autonomy data: supervisor overrides and autonomous decision rates.}}{56}{table.B.4}%
+\contentsline {table}{\numberline {B.5}{\ignorespaces Annual fleet cost comparison by noise level (full three-layer system, 50 engines, 200 decisions/year).}}{57}{table.B.5}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {table}{\numberline {D.1}{\ignorespaces LSTM deep ensemble training hyperparameters.}}{61}{table.D.1}%
+\contentsline {table}{\numberline {D.2}{\ignorespaces DQN agent and Gymnasium environment hyperparameters.}}{62}{table.D.2}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {E.1}{\ignorespaces Complete inventory of generated analysis figures and source scripts.}}{64}{table.E.1}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {G.1}{\ignorespaces Model-choice justification summary for core architectural components.}}{70}{table.G.1}%

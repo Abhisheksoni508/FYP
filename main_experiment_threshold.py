@@ -30,7 +30,7 @@ from scipy import stats
 from stable_baselines3 import DQN
 
 from src.preprocessing import load_combined_data, calculate_rul, process_data
-from src.gym_env import PdMEnvironment, BlindPdMEnvironment
+from src.gym_env import PdMEnvironment, BlindPdMEnvironment, classify_terminal_reward
 from src.config import *
 
 
@@ -77,10 +77,15 @@ def evaluate(env, policy, num_episodes=200):
             obs, reward, done, _, _ = env.step(action)
             ep_reward += reward
             if done:
-                if reward == -100: fails += 1
-                elif reward == 500: jacks += 1
-                elif reward == 10: safes += 1
-                elif reward == -20: wastes += 1
+                outcome = classify_terminal_reward(reward)
+                if outcome == 'crash':
+                    fails += 1
+                elif outcome == 'jackpot':
+                    jacks += 1
+                elif outcome == 'safe':
+                    safes += 1
+                elif outcome == 'wasteful':
+                    wastes += 1
         rewards.append(ep_reward)
 
     n = len(rewards)

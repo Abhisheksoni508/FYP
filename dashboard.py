@@ -144,7 +144,7 @@ def get_q_values(agent, obs):
     
     Args:
         agent: Trained DQN model (stable_baselines3)
-        obs: Observation array [mean_rul, sigma, trend]
+        obs: Observation array [mean_rul, sigma_now, rolling_sigma, trend]
         
     Returns:
         q_wait: Q-value for action 0 (WAIT)
@@ -221,26 +221,17 @@ def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
     # Old blind agent was trained on 3D obs [mean_rul, 0.0, sensor_trend].
     # UA agent uses full 4D [mean_rul, sigma_now, rolling_sigma, sensor_trend].
     # Detect which format the loaded model expects and pass accordingly.
-    if agent.observation_space.shape == (3,):
-        obs_for_agent = np.array([norm_mean, 0.0, sensor_trend], dtype=np.float32)
-    else:
-        obs_for_agent = obs
-
-    dqn_action, _ = agent.predict(obs_for_agent, deterministic=True)
+    dqn_action, _ = agent.predict(obs, deterministic=True)
     dqn_action = int(dqn_action)
 
     # ── Extract Q-values (for visualisation) ──
     # Same as main_visualize.py lines 77-79
-    q_wait, q_maintain = get_q_values(agent, obs_for_agent)
+    q_wait, q_maintain = get_q_values(agent, obs)
 
     # ── Option 1: Uncertainty Gate ──
     # Only fires for UA agent (blind agent always has norm_std=0, so gate never triggers).
     # If DQN says MAINTAIN but sigma is very high and RUL isn't critically low,
     # suppress the decision — "the prediction is too unreliable to act on right now."
-    was_uncertainty_gated = False
-    if dqn_action == 1 and norm_std > 0.35 and norm_mean > CRITICAL_RUL_NORM:
-        dqn_action = 0
-        was_uncertainty_gated = True
 
     # ── Layer 3: Safety Supervisor ──
     # Imported from gym_env.py safety_override()
@@ -262,7 +253,6 @@ def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
         'dqn_action': dqn_action,                 # 0=WAIT, 1=MAINTAIN
         'final_action': final_action,             # After safety supervisor
         'was_overridden': was_overridden,
-        'was_uncertainty_gated': was_uncertainty_gated,  # Option 1 gate fired
         'q_wait': q_wait,
         'q_maintain': q_maintain,
         'obs': obs,
@@ -401,7 +391,7 @@ def main():
     use_safety = st.sidebar.checkbox(
         "Layer 3: Safety Supervisor",
         value=True,
-        help="When ON, forces maintenance if predicted RUL < 15 cycles AND ensemble is confident (rolling σ < 0.25). UA agent: supervisor ignores noisy false alarms. Blind agent: rolling σ is always 0, so supervisor fires on every low prediction."
+        help="When ON, forces maintenance if predicted RUL is critically low. Normal override uses rolling σ < 0.55 for confidence; a hard-critical fallback still fires below about 5 cycles."
     )
 
     st.sidebar.divider()
@@ -537,8 +527,8 @@ def main():
             cycle_num = cycle_idx - WINDOW_SIZE + 1
             true_rul = result['true_rul']
 
-            # Log non-terminating uncertainty gate event
-            if result.get('was_uncertainty_gated'):
+            # Keep the dashboard aligned with the evaluated pipeline.
+            if False:  # Legacy dashboard-only gate disabled.
                 st.session_state.events.append(
                     f"🛡️ Cycle {cycle_num}: UNCERTAINTY GATE — Suppressed premature MAINTAIN "
                     f"(σ={result['norm_std']:.2f}, pred={result['pred_rul']:.0f})"

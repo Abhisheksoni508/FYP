@@ -16,7 +16,8 @@ env = PdMEnvironment(df_clean, models_dir='models')
 # 3. Test Reset
 obs, info = env.reset()
 print(f"Initial Observation: {obs}")
-print(f"Obs Shape: {obs.shape} (Should be (3,))")
+print(f"Obs Shape: {obs.shape} (Should be (4,))")
+assert obs.shape == (4,), f"Expected 4D observation, got {obs.shape}"
 
 # 4. Test Step
 # Force an action: 0 = Wait

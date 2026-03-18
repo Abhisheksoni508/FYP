@@ -17,7 +17,7 @@ from scipy import stats
 from stable_baselines3 import DQN
 
 from src.preprocessing import load_combined_data, calculate_rul, process_data
-from src.gym_env import PdMEnvironment, safety_override
+from src.gym_env import PdMEnvironment, safety_override, classify_terminal_reward
 from src.config import *
 
 
@@ -41,10 +41,15 @@ def evaluate_agent(env, model, num_episodes=200, use_safety=True):
             obs, reward, done, _, _ = env.step(action)
             ep_reward += reward
             if done:
-                if reward == -100: fails += 1
-                elif reward == 500: jacks += 1
-                elif reward == 10: safes += 1
-                elif reward == -20: wastes += 1
+                outcome = classify_terminal_reward(reward)
+                if outcome == 'crash':
+                    fails += 1
+                elif outcome == 'jackpot':
+                    jacks += 1
+                elif outcome == 'safe':
+                    safes += 1
+                elif outcome == 'wasteful':
+                    wastes += 1
         rewards.append(ep_reward)
     
     ci_95 = 1.96 * np.std(rewards) / np.sqrt(len(rewards))
@@ -69,10 +74,15 @@ def evaluate_baseline(env, threshold=30, num_episodes=200):
             obs, reward, done, _, _ = env.step(action)
             ep_reward += reward
             if done:
-                if reward == -100: fails += 1
-                elif reward == 500: jacks += 1
-                elif reward == 10: safes += 1
-                elif reward == -20: wastes += 1
+                outcome = classify_terminal_reward(reward)
+                if outcome == 'crash':
+                    fails += 1
+                elif outcome == 'jackpot':
+                    jacks += 1
+                elif outcome == 'safe':
+                    safes += 1
+                elif outcome == 'wasteful':
+                    wastes += 1
         rewards.append(ep_reward)
     
     ci_95 = 1.96 * np.std(rewards) / np.sqrt(len(rewards))
@@ -111,7 +121,7 @@ if __name__ == "__main__":
     print(f"{'METRIC':<25} | {'HYBRID AI':<18} | {'BASELINE':<18}")
     print(f"{'-'*65}")
     print(f"{'Avg Reward':<25} | {ai['avg']:.2f} ± {ai['ci_95']:.2f}    | {base['avg']:.2f} ± {base['ci_95']:.2f}")
-    print(f"{'Crashes (-100)':<25} | {ai['fails']:<18} | {base['fails']:<18}")
+    print(f"{('Crashes (' + str(CRASH_PENALTY) + ')'):<25} | {ai['fails']:<18} | {base['fails']:<18}")
     print(f"{'Jackpots (+500)':<25} | {ai['jacks']:<18} | {base['jacks']:<18}")
     print(f"{'Safe Repairs (+10)':<25} | {ai['safes']:<18} | {base['safes']:<18}")
     print(f"{'Wasteful (-20)':<25} | {ai['wastes']:<18} | {base['wastes']:<18}")
@@ -159,7 +169,7 @@ if __name__ == "__main__":
     sig_text = f"p < 0.001 ***" if p_val < 0.001 else f"p = {p_val:.3f}"
     axes[0].text(0.5, max_h + 12, sig_text, ha='center', fontsize=10, fontweight='bold')
 
-    cats = ['Jackpots\n(+500)', 'Safe\n(+10)', 'Wasteful\n(-20)', 'Crashes\n(-100)']
+    cats = ['Jackpots\n(+500+)', 'Safe\n(+10+)', 'Wasteful\n(-20)', f'Crashes\n({CRASH_PENALTY})']
     ai_c = [ai['jacks'], ai['safes'], ai['wastes'], ai['fails']]
     base_c = [base['jacks'], base['safes'], base['wastes'], base['fails']]
     x = np.arange(len(cats))

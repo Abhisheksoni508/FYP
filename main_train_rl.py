@@ -1,7 +1,8 @@
 """
 Train the Uncertainty-Aware DQN Agent with Noise Augmentation.
 
-CRITICAL: This trains with NOISE_PROB=50% noisy episodes so the agent
+CRITICAL: This trains with configurable noisy episodes (currently 70%)
+so the agent
 learns what high uncertainty (sigma) means. Without this, the agent
 has no reason to use the uncertainty signal.
 
@@ -17,7 +18,7 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.monitor import Monitor
 
 from src.preprocessing import load_combined_data, calculate_rul, process_data
-from src.gym_env import PdMEnvironment
+from src.gym_env import PdMEnvironment, classify_terminal_reward
 from src.config import *
 
 
@@ -30,7 +31,7 @@ def train_rl_agent():
     print(f"  Network:        {RL_NET_ARCH}")
     print(f"  Noise Prob:     {NOISE_PROB} ({int(NOISE_PROB*100)}% of episodes)")
     print(f"  Noise Range:    {NOISE_LEVEL_MIN} – {NOISE_LEVEL} (sampled per episode)")
-    print(f"  Uncertainty 5x: {UNCERTAINTY_SCALE}")
+    print(f"  Uncertainty x:  {UNCERTAINTY_SCALE}")
     print(f"  Obs Space:      4D [mean_rul, sigma_now, sigma_rolling, trend]")
     
     # 1. Load Data
@@ -40,14 +41,14 @@ def train_rl_agent():
     df_clean, _ = process_data(df, DROP_SENSORS, DROP_SETTINGS)
     
     # 2. Create Environment WITH noise augmentation
-    # This is the key: 50% of episodes inject noise into sensors,
+    # This is the key: noisy episodes inject noise into sensors,
     # causing ensemble sigma to spike. The agent learns to detect this.
     print(f"\n--- Creating Environment (noise_prob={NOISE_PROB}, variable_noise=True) ---")
     env = Monitor(PdMEnvironment(
         df_clean, 
         models_dir='models',
         noise_prob=NOISE_PROB,       # FROM CONFIG (now 0.7)
-        noise_level=NOISE_LEVEL,     # FROM CONFIG (max 0.15)
+        noise_level=NOISE_LEVEL,     # FROM CONFIG (current max 0.20)
         variable_noise=True          # Option 2: sample noise level per episode
     ))
     
@@ -89,8 +90,11 @@ def train_rl_agent():
             obs, reward, done, _, _ = clean_env.step(action)
             ep_reward += reward
             if done:
-                if reward == 500: jackpots += 1
-                if reward == -100: failures += 1
+                outcome = classify_terminal_reward(reward)
+                if outcome == 'jackpot':
+                    jackpots += 1
+                elif outcome == 'crash':
+                    failures += 1
         rewards.append(ep_reward)
     
     print(f"\n{'='*45}")
@@ -115,8 +119,11 @@ def train_rl_agent():
             obs, reward, done, _, _ = noisy_env.step(action)
             ep_reward += reward
             if done:
-                if reward == 500: jackpots_n += 1
-                if reward == -100: failures_n += 1
+                outcome = classify_terminal_reward(reward)
+                if outcome == 'jackpot':
+                    jackpots_n += 1
+                elif outcome == 'crash':
+                    failures_n += 1
         rewards_n.append(ep_reward)
     
     print(f"\n{'='*45}")

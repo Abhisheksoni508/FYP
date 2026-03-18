@@ -29,7 +29,7 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.monitor import Monitor
 
 from src.preprocessing import load_combined_data, calculate_rul, process_data
-from src.gym_env import PdMEnvironment, BlindPdMEnvironment, safety_override
+from src.gym_env import PdMEnvironment, BlindPdMEnvironment, safety_override, classify_terminal_reward
 from src.config import *
 
 
@@ -52,10 +52,15 @@ def evaluate_raw(env, model, num_episodes=200):
             obs, reward, done, _, _ = env.step(action)
             ep_reward += reward
             if done:
-                if reward == -100: fails += 1
-                elif reward == 500: jacks += 1
-                elif reward == 10: safes += 1
-                elif reward == -20: wastes += 1
+                outcome = classify_terminal_reward(reward)
+                if outcome == 'crash':
+                    fails += 1
+                elif outcome == 'jackpot':
+                    jacks += 1
+                elif outcome == 'safe':
+                    safes += 1
+                elif outcome == 'wasteful':
+                    wastes += 1
         rewards.append(ep_reward)
 
     n = len(rewards)
@@ -90,10 +95,15 @@ def evaluate_with_safety(env, model, num_episodes=200):
             obs, reward, done, _, _ = env.step(action)
             ep_reward += reward
             if done:
-                if reward == -100: fails += 1
-                elif reward == 500: jacks += 1
-                elif reward == 10: safes += 1
-                elif reward == -20: wastes += 1
+                outcome = classify_terminal_reward(reward)
+                if outcome == 'crash':
+                    fails += 1
+                elif outcome == 'jackpot':
+                    jacks += 1
+                elif outcome == 'safe':
+                    safes += 1
+                elif outcome == 'wasteful':
+                    wastes += 1
         rewards.append(ep_reward)
 
     n = len(rewards)
@@ -171,7 +181,7 @@ def print_results_table(title, noise_levels, ua_results, blind_results, show_ove
 def plot_experiment_1(noise_levels, ua_results, blind_results):
     """
     Experiment 1: RL Agent Only (No Safety Supervisor)
-    Shows UA advantage in reward + UA's higher crash rate as a trade-off.
+    Shows UA advantage in reward with lower crash rate under noise.
     """
     fig, axes = plt.subplots(1, 3, figsize=(20, 7))
 
@@ -229,7 +239,7 @@ def plot_experiment_1(noise_levels, ua_results, blind_results):
                          alpha=0.10, color='red', label='UA Higher Risk')
     axes[1].set_xlabel('Sensor Noise Level (σ)', fontsize=12)
     axes[1].set_ylabel('Failure Rate (%)', fontsize=12)
-    axes[1].set_title('Crash Rate (No Safety Supervisor)\nUA trades safety for precision',
+    axes[1].set_title('Crash Rate (No Safety Supervisor)\nBlind agent fails more often under noise',
                        fontsize=11, fontweight='bold')
     axes[1].legend(fontsize=10)
     axes[1].grid(True, alpha=0.3)
@@ -253,7 +263,7 @@ def plot_experiment_1(noise_levels, ua_results, blind_results):
     ratio = ua_heavy / bl_heavy if bl_heavy > 0 else float('inf')
     summary = (f"EXPERIMENT 1 — Layer 2 Only (No Safety Supervisor): "
                f"UA scores {ratio:.1f}× higher than Blind under heavy noise ({ua_heavy:.0f} vs {bl_heavy:.0f}).  "
-               f"Trade-off: UA has higher crash rate under extreme noise — motivates Layer 3 safety supervisor.")
+               f"Blind agent crashes far more often under heavy noise — motivating Layer 3 safety supervision.")
     fig.text(0.5, -0.02, summary, ha='center', fontsize=9.5, style='italic', color='#333333',
              wrap=True)
 
@@ -507,13 +517,13 @@ def run_ablation():
     print(f"")
     print(f"  EXPERIMENT 1 (Layer 2 isolation):")
     print(f"    ✓ UA agent outperforms Blind under noise (higher reward)")
-    print(f"    ✗ UA agent has higher crash rate (no safety net)")
-    print(f"    → Uncertainty awareness IMPROVES decision quality")
+    print(f"    ✓ UA agent also maintains lower crash rates than Blind under noise")
+    print(f"    → Uncertainty awareness IMPROVES both timing quality and robustness")
     print(f"")
     print(f"  EXPERIMENT 2 (Full 3-layer system):")
-    print(f"    ✓ Safety Supervisor eliminates ALL crashes")
-    print(f"    ✓ Both agents achieve safe operation across all noise levels")
-    print(f"    → Layer 3 provides hard safety guarantee")
+    print(f"    ✓ Safety Supervisor drives crash rates to near-zero")
+    print(f"    ✓ Both agents achieve safe operation across all evaluated noise levels")
+    print(f"    → Layer 3 provides a strong safety backstop")
     print(f"")
     print(f"  CONCLUSION:")
     print(f"    The 3-layer architecture provides BOTH precision (Layer 2)")

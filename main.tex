@@ -10,9 +10,12 @@
 \usepackage{setspace}
 \usepackage{booktabs}   % Professional-quality table rules
 \usepackage{array}      % Extended column types for tables
+\usepackage{tabularx}   % Auto-wrapping table columns
 \usepackage{multirow}   % Multi-row cells in tables
 \usepackage{longtable}  % Tables that span multiple pages
 \usepackage{amsmath}    % Mathematical environments and symbols
+\usepackage{amssymb}    % Blackboard bold symbols (e.g., \mathbb)
+\usepackage{xurl}       % Better line breaks in \path/\url text
 \usepackage{tikz}       % Diagrams and figures
 \usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
 \geometry{margin=1in}
@@ -31,6 +34,9 @@
 
 \begin{document}
 
+% Avoid duplicate page anchors between front matter and main matter.
+\hypersetup{pageanchor=false}
+
 
 \begin{titlepage}
     \centering
@@ -39,7 +45,10 @@
     {\large \textbf{FACULTY OF ENGINEERING AND SCIENCE}} \\[0.4cm]
     {\large \textbf{SCHOOL OF COMPUTING AND MATHEMATICAL SCIENCES}} \\[3cm]
 
-    {\LARGE \textbf{A Robust Predictive Maintenance Framework for IoT Systems via Uncertainty-Aware Reinforcement Learning}} \\[0.5cm]
+    {\LARGE\bfseries\parbox{0.9\textwidth}{\centering
+    A Robust Predictive Maintenance\\
+    Framework for IoT Systems via\\
+    Uncertainty-Aware Reinforcement Learning}} \\[0.8cm]
     {\normalsize URL: \url{https://github.com/Abhisheksoni508/FYP}} \\[2cm]
 
     {\large Abhishek Soni} \\[0.2cm]
@@ -47,7 +56,7 @@
 
     Supervisor: Yasmine Arafa \\[1cm]
     
-    \textbf{Word count:} 10,620
+    \textbf{Word count:} 11,962
      \\[2.3cm]
 
     {\Large \textbf{COMP1682 Final Year Individual Project}} \\[0.2cm]
@@ -65,17 +74,15 @@
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0.4pt}
 
-\newpage
-
 % Abstract
-\setcounter{page}{2}
+\setcounter{page}{1}
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 Modern Internet of Things (IoT) systems generate continuous streams of sensor data throughout their operational life, yet deciding exactly when to perform maintenance remains a difficult problem. Scheduling maintenance too early wastes useful asset life and incurs unnecessary cost, while acting too late risks catastrophic failure. The challenge is compounded by the reality that sensors degrade over time, injecting noise into the very data that maintenance decisions depend on. Most existing predictive maintenance systems treat their own predictions as ground truth, leaving them vulnerable to silent failures when sensor quality deteriorates.
 
-This project addressed that gap by developing a three-layer hybrid artificial intelligence framework that combines deep learning, reinforcement learning, and deterministic safety logic for IoT-based predictive maintenance scheduling. The framework is domain-agnostic by design; turbofan engines from the NASA C-MAPSS dataset were used as a demanding, safety-critical benchmark. Layer~1 employed a deep ensemble of five Long Short-Term Memory networks, each trained on a different bootstrap sample of the C-MAPSS data (FD001 and FD002, 360 engines combined). The ensemble predicted Remaining Useful Life while simultaneously quantifying prediction uncertainty through model disagreement. Layer~2 used a Deep Q-Network agent that observed the ensemble mean prediction, instantaneous and rolling uncertainty, and a sensor trend signal. Crucially, the agent was trained with noise augmentation, where seventy per cent of training episodes injected Gaussian sensor noise at varying intensities, teaching the agent that high ensemble disagreement signals unreliable predictions. Layer~3 implemented a two-tier safety supervisor that overrode the agent when the ensemble confidently predicted imminent failure, providing a hard safety guarantee.
+This project addressed that gap by developing a three-layer hybrid artificial intelligence framework that combines deep learning, reinforcement learning, and deterministic safety logic for IoT-based predictive maintenance scheduling. The framework is domain-agnostic by design; turbofan engines from the NASA C-MAPSS dataset were used as a demanding, safety-critical benchmark. Layer~1 employed a deep ensemble of five Long Short-Term Memory networks, each trained on a different bootstrap sample of the C-MAPSS data (FD001 and FD002, 360 engines combined). The ensemble predicted Remaining Useful Life while simultaneously quantifying prediction uncertainty through model disagreement. Layer~2 used a Deep Q-Network agent that observed the ensemble mean prediction, instantaneous and rolling uncertainty, and a sensor trend signal. Crucially, the agent was trained with noise augmentation, where seventy per cent of training episodes injected Gaussian sensor noise at varying intensities, teaching the agent that high ensemble disagreement signals unreliable predictions. Layer~3 implemented a two-tier safety supervisor that overrode the agent when the ensemble confidently predicted imminent failure, providing a deterministic safety backstop.
 
-The framework was evaluated through a rigorous ablation study comprising three experiments across eight noise levels with 500 episodes per condition. When the safety supervisor was removed, the uncertainty-aware agent retained positive reward at heavy noise while a blind control agent, identical but denied the uncertainty signal, collapsed to negative returns. Under the full three-layer system, the safety supervisor eliminated all catastrophic failures for both agents, but the uncertainty-aware agent achieved a seventy per cent autonomous optimal-timing rate compared to forty-three per cent for the blind agent, demonstrating genuine decision-making superiority rather than reliance on the safety net. A financial analysis projected that deploying the uncertainty-aware strategy across a fifty-engine fleet would yield substantial annual cost savings over the blind approach, driven primarily by fewer wasteful early repairs and the complete elimination of unplanned failure events.
+The framework was evaluated through a rigorous ablation study comprising three experiments across eight noise levels with 500 episodes per condition. When the safety supervisor was removed, the uncertainty-aware agent retained positive reward at heavy noise while a blind control agent, identical but denied the uncertainty signal, collapsed to negative returns. Under the full three-layer system, the safety supervisor reduced catastrophic failures to near zero while the uncertainty-aware agent achieved a 70.6\% autonomous optimal-timing rate on clean data compared to 42.8\% for the blind agent, demonstrating genuine decision-making superiority rather than reliance on the safety net. A financial analysis projected average annual fleet savings of \pounds556,950 for a representative fifty-engine deployment, with savings remaining positive at all eight evaluated noise levels.
 
 This work demonstrates that making a reinforcement learning agent explicitly aware of its own prediction uncertainty produces more robust and more autonomous maintenance decisions under realistic sensor degradation, with an architecture that generalises beyond turbofan engines to any IoT-monitored asset where sensor noise threatens decision quality.
 
@@ -137,6 +144,7 @@ I would like to express my gratitude to my project supervisor for their guidance
 \addcontentsline{toc}{chapter}{List of Tables}
 \newpage
 \pagenumbering{arabic}
+\hypersetup{pageanchor=true}
 \pagestyle{fancy}
 
 
@@ -150,7 +158,7 @@ Recent advances in deep learning have made it possible to predict Remaining Usef
 
 \vspace{0.3cm}
 
-This project tackled that problem directly. Rather than building yet another RUL predictor, it developed a complete decision-making framework that knows when it does not know. The system comprised three cooperating layers: a deep learning ensemble that quantified its own prediction uncertainty, a reinforcement learning agent that learned to interpret that uncertainty signal when choosing whether to wait or perform maintenance, and a deterministic safety supervisor that provided a final hard guarantee against catastrophic failure. The result was a framework that performed comparably to conventional systems under ideal conditions, but degraded far more gracefully when sensor noise was present, precisely the scenario that matters most in real-world deployment.
+This project tackled that problem directly. Rather than building yet another RUL predictor, it developed a complete decision-making framework that knows when it does not know. The system comprised three cooperating layers: a deep learning ensemble that quantified its own prediction uncertainty, a reinforcement learning agent that learned to interpret that uncertainty signal when choosing whether to wait or perform maintenance, and a deterministic safety supervisor that provided a final safety backstop against late-stage failure. The result was a framework that performed comparably to conventional systems under ideal conditions, but degraded far more gracefully when sensor noise was present, precisely the scenario that matters most in real-world deployment.
 
 \vspace{0.3cm}
 
@@ -175,7 +183,7 @@ This project addressed that gap by feeding the uncertainty from a deep LSTM ense
 \section{Aims and Objectives}
 \label{sec:objectives}
 
-This project aimed to develop and evaluate a three-layer hybrid artificial intelligence framework that integrates uncertainty-aware deep learning, reinforcement learning, and rule-based safety logic for robust maintenance scheduling of IoT-monitored assets under sensor degradation. The framework was designed to be domain-agnostic: the observation space (normalised RUL, uncertainty, sensor trend, time ratio) and safety supervisor logic contain no asset-specific assumptions. Turbofan engines and the NASA C-MAPSS dataset were chosen as the validation case study because they represent a demanding, safety-critical IoT application with a well-established benchmark, enabling rigorous comparison with published results.
+This project aimed to develop and evaluate a three-layer hybrid artificial intelligence framework that integrates uncertainty-aware deep learning, reinforcement learning, and rule-based safety logic for robust maintenance scheduling of IoT-monitored assets under sensor degradation. The framework was designed to be domain-agnostic: the observation space (normalised RUL, instantaneous uncertainty, rolling uncertainty, and sensor trend) and safety supervisor logic contain no asset-specific assumptions. Turbofan engines and the NASA C-MAPSS dataset were chosen as the validation case study because they represent a demanding, safety-critical IoT application with a well-established benchmark, enabling rigorous comparison with published results.
 
 \vspace{0.3cm}
 
@@ -190,7 +198,7 @@ To achieve this aim, the following objectives were defined:
 
   \item \textbf{Uncertainty-aware DQN agent (Layer~2).} Train a DQN agent with noise augmentation, injecting Gaussian sensor noise during a configurable fraction of training episodes so that the agent learns to condition its decisions on the uncertainty signal. Train a corresponding blind agent that receives identical inputs except with the uncertainty signal zeroed out, serving as a controlled ablation baseline.
 
-  \item \textbf{Safety supervisor (Layer~3).} Implement a deterministic two-tier safety override that forces maintenance when the ensemble confidently predicts imminent failure, providing a hard safety guarantee against catastrophic engine loss.
+  \item \textbf{Safety supervisor (Layer~3).} Implement a deterministic two-tier safety override that forces maintenance when the ensemble confidently predicts imminent failure, providing a strong safety safeguard against catastrophic engine loss.
 
   \item \textbf{Experimental evaluation.} Conduct a comprehensive ablation study across multiple noise intensities, comparing the uncertainty-aware agent against the blind agent both with and without the safety supervisor. Apply Welch's t-test and Cohen's d effect sizes for statistical rigour.
 
@@ -379,7 +387,7 @@ Uncertainty treated as diagnostic only & Where uncertainty is quantified, it is 
 \addlinespace
 RL without uncertainty awareness & Existing RL-based maintenance systems observe the predicted RUL but not the model's confidence in that prediction. & The DQN agent observes both instantaneous and rolling uncertainty signals alongside the RUL prediction. \\
 \addlinespace
-Safety as an afterthought & Safety mechanisms are rarely integrated into the RL evaluation; most work assumes the agent will learn safe behaviour on its own. & A two-tier deterministic safety supervisor provides a hard override guarantee, evaluated as a formal ablation layer. \\
+Safety as an afterthought & Safety mechanisms are rarely integrated into the RL evaluation; most work assumes the agent will learn safe behaviour on its own. & A two-tier deterministic safety supervisor provides an explicit override safeguard, evaluated as a formal ablation layer. \\
 \addlinespace
 No robustness evaluation under sensor degradation & Evaluation is almost always conducted on clean test data; very few studies systematically vary sensor noise. & All experiments are repeated across eight noise levels (0.000--0.175) with 500 episodes per condition. \\
 \bottomrule
@@ -388,11 +396,11 @@ No robustness evaluation under sensor degradation & Evaluation is almost always 
 
 \vspace{0.3cm}
 
-This project was designed to address all five gaps simultaneously. A deep LSTM ensemble (Section~2.2) provided both RUL predictions and a calibrated uncertainty signal. That uncertainty signal was fed directly into a DQN agent (Section~2.3) as part of its observed state, and the agent was trained under noise augmentation so that it learned to condition its behaviour on uncertainty. A two-tier safety supervisor (Section~2.4) provided a deterministic safety guarantee independent of the learned policy. Finally, the entire system was evaluated across eight noise levels in a rigorous ablation study, directly testing robustness under the sensor degradation conditions that the literature has largely neglected.
+This project was designed to address all five gaps simultaneously. A deep LSTM ensemble (Section~2.2) provided both RUL predictions and a calibrated uncertainty signal. That uncertainty signal was fed directly into a DQN agent (Section~2.3) as part of its observed state, and the agent was trained under noise augmentation so that it learned to condition its behaviour on uncertainty. A two-tier safety supervisor (Section~2.4) provided a deterministic safety backstop independent of the learned policy. Finally, the entire system was evaluated across eight noise levels in a rigorous ablation study, directly testing robustness under the sensor degradation conditions that the literature has largely neglected.
 
 \vspace{0.3cm}
 
-The design principles derived from this review, specifically the choice of LSTM as the prediction backbone, deep ensembles as the uncertainty quantification method, DQN as the RL algorithm, noise augmentation as the training strategy, and a deterministic safety shield as the final safety guarantee, are formalised into system requirements in Chapter~3.
+The design principles derived from this review, specifically the choice of LSTM as the prediction backbone, deep ensembles as the uncertainty quantification method, DQN as the RL algorithm, noise augmentation as the training strategy, and a deterministic safety shield as the final safety backstop, are formalised into system requirements in Chapter~3.
 
 
 \chapter{Requirements Analysis and Design}
@@ -431,9 +439,11 @@ Table~\ref{tab:func_req} presents the functional requirements, prioritised using
 
 \begin{table}[h]
 \centering
+\small
 \caption{Functional requirements prioritised using MoSCoW.}
 \label{tab:func_req}
 \renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{>{\raggedright\arraybackslash}p{0.8cm} >{\raggedright\arraybackslash}p{1.5cm} >{\raggedright\arraybackslash}p{8.5cm} >{\raggedright\arraybackslash}p{2cm}}
 \toprule
 \textbf{ID} & \textbf{Priority} & \textbf{Requirement} & \textbf{Objective} \\
@@ -464,9 +474,11 @@ Table~\ref{tab:nonfunc_req} presents the non-functional requirements. These ensu
 
 \begin{table}[h]
 \centering
+\small
 \caption{Non-functional requirements prioritised using MoSCoW.}
 \label{tab:nonfunc_req}
 \renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{>{\raggedright\arraybackslash}p{0.8cm} >{\raggedright\arraybackslash}p{1.5cm} >{\raggedright\arraybackslash}p{9cm} >{\raggedright\arraybackslash}p{1.5cm}}
 \toprule
 \textbf{ID} & \textbf{Priority} & \textbf{Requirement} & \textbf{Source} \\
@@ -541,11 +553,16 @@ The architecture was designed as three loosely coupled layers, each fulfilling a
 
 \subsection{Layer 1: LSTM Deep Ensemble}
 
-The prediction layer comprised five independently trained LSTM networks. Each network consisted of a two-layer LSTM with a hidden dimension of 100 and a dropout rate of 0.2, followed by a single linear output layer that produced a scalar RUL prediction from the last hidden state. The input to each network was a sliding window of 30 consecutive cycles, with each cycle represented by 24 features (21 sensor measurements and 3 operational settings). The RUL target was normalised to the range [0,~1] by dividing by the cap of 125 cycles.
+The prediction layer comprised five independently trained LSTM networks. LSTM was selected because RUL forecasting is sequential and requires modelling temporal dependencies in non-linear degradation trajectories \citep{hochreiter1997long, zheng2017long}. For the available dataset size and real-time inference constraints, a compact LSTM offered a practical trade-off versus heavier alternatives \citep{wu2018remaining, zhang2022transformer}. Each network consisted of a two-layer LSTM with hidden dimension 100 and dropout 0.2, followed by a linear output layer producing scalar RUL from the last hidden state. Inputs were 30-cycle windows of 24 features, and RUL targets were normalised by the 125-cycle cap.
 
 \vspace{0.3cm}
 
-Diversity among ensemble members was achieved through bootstrap sampling: each model was trained on a random 80\% subset of the available engine trajectories, drawn with replacement. This follows the recommendation of \citet{fort2019deep}, who showed that training data diversity, combined with random weight initialisation, is sufficient to produce meaningful disagreement among ensemble members. At inference time, the ensemble produced two signals for each cycle: the mean of the five individual predictions (the point estimate) and the standard deviation across the five predictions (the uncertainty signal). The standard deviation was scaled by a factor of 15 (determined empirically during development) to map the raw range of approximately 0.01--0.10 into a range that was informative for the downstream DQN agent.
+Diversity among ensemble members was achieved through bootstrap sampling: each model was trained on a random 80\% subset with replacement, following \citet{fort2019deep}. Deep ensembles were selected for uncertainty because they are practical and well-calibrated under shift compared with lighter approximations such as MC Dropout \citep{lakshminarayanan2017simple, ovadia2019can}. At inference time, the ensemble produced two signals for each cycle: mean prediction and standard deviation:
+\begin{equation}
+\bar{r}_t = \frac{1}{M}\sum_{m=1}^{M} r_t^{(m)}, \quad
+\sigma_t = \sqrt{\frac{1}{M-1}\sum_{m=1}^{M}\left(r_t^{(m)}-\bar{r}_t\right)^2}
+\end{equation}
+The standard deviation was scaled by a factor of 15 (determined empirically during development) to map the raw range of approximately 0.01--0.10 into a range that was informative for the downstream DQN agent.
 
 \vspace{0.3cm}
 
@@ -612,6 +629,14 @@ The jackpot reward of $+500$ for maintaining within the last 20 cycles was set d
 
 \textbf{DQN architecture and training.} The Q-network was a fully connected network with three hidden layers of 256, 256, and 128 neurons. Training used the Adam optimiser with a learning rate of $3 \times 10^{-4}$, a replay buffer of 150,000 transitions, a discount factor $\gamma = 0.99$, and an $\epsilon$-greedy exploration schedule that decayed from 1.0 to 0.03 over 40\% of the 1.5 million training timesteps. To address the class imbalance inherent in the problem (most of an engine's life is spent in the healthy phase where no maintenance decision matters), 60\% of training episodes were initialised near end-of-life, within the last 50 cycles of a randomly selected engine trajectory. This end-of-life bias ensured that the agent encountered a sufficient number of critical decision points during training.
 
+\vspace{0.3cm}
+
+DQN was chosen over PPO because the action space is binary (WAIT/MAINTAIN), where value-based learning with replay and target networks is sample-efficient and stable \citep{mnih2015human}. PPO remained a valid alternative, but its on-policy updates are typically less sample-efficient in this setting \citep{schulman2017proximal}. The core DQN target and loss are:
+\begin{equation}
+y_t = r_t + \gamma \max_{a'}Q_{\theta^-}(s_{t+1}, a'), \qquad
+\mathcal{L}(\theta)=\mathbb{E}\left[(Q_{\theta}(s_t,a_t)-y_t)^2\right]
+\end{equation}
+
 \subsection{Layer 3: Safety Supervisor}
 
 The safety supervisor implemented a deterministic two-tier override that operated after the DQN agent proposed an action and before that action was executed in the environment.
@@ -625,7 +650,7 @@ The safety supervisor implemented a deterministic two-tier override that operate
 \textbf{Tier 2: Uncertainty-aware override.} If the ensemble mean prediction $\bar{r}_t < 0.12$ (approximately 15 cycles remaining) \emph{and} the rolling uncertainty $\hat{\sigma}_t < 0.55$ (indicating that the ensemble was confident in this low prediction), the supervisor overrode the agent's action to MAINTAIN regardless of what the agent proposed. The uncertainty condition was critical: it prevented the supervisor from firing on noisy dips in the prediction that did not reflect genuine degradation.
 \vspace{0.3cm}
 
-The two-tier design encoded an important asymmetry. At moderately low RUL values, the supervisor deferred to the DQN agent when uncertainty was high, trusting that the agent's uncertainty-aware training equipped it to handle ambiguous situations. At extremely low RUL values, no amount of uncertainty justified further waiting, and the hard override provided an absolute guarantee against catastrophic failure. This design was directly informed by the shielding literature reviewed in Section~2.4 and the defence-in-depth principle mandated by aerospace safety standards \citep{do178c}.
+The two-tier design encoded an important asymmetry. At moderately low RUL values, the supervisor deferred to the DQN agent when uncertainty was high, trusting that the agent's uncertainty-aware training equipped it to handle ambiguous situations. At extremely low RUL values, no amount of uncertainty justified further waiting, and the hard override provided a deterministic last-resort intervention. This design was directly informed by the shielding literature reviewed in Section~2.4 and the defence-in-depth principle mandated by aerospace safety standards \citep{do178c}.
 
 \vspace{0.3cm}
 
@@ -682,31 +707,33 @@ The codebase was developed from scratch in Python~3.9 with no starter code or te
 
 \vspace{0.3cm}
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Repository structure and purpose of each file.}
 \label{tab:repo}
 \renewcommand{\arraystretch}{1.3}
-\begin{tabular}{>{\raggedright\arraybackslash}p{4.5cm} >{\raggedright\arraybackslash}p{8.5cm}}
+\setlength{\tabcolsep}{5pt}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.38\textwidth} >{\raggedright\arraybackslash}X}
 \toprule
 \textbf{File / Directory} & \textbf{Purpose} \\
 \midrule
-\texttt{src/config.py} & Centralised configuration for all hyperparameters (FR1--FR7, NF3). \\
-\texttt{src/preprocessing.py} & Data loading, RUL calculation, normalisation, and sliding-window generation (FR1). \\
-\texttt{src/lstm\_model.py} & LSTM network architecture definition (FR2). \\
-\texttt{src/gym\_env.py} & Gymnasium environment, blind ablation variant, and safety supervisor (FR3, FR5, FR6). \\
-\texttt{main\_train\_ensemble.py} & LSTM ensemble training with bootstrap sampling (FR2). \\
-\texttt{main\_train\_rl.py} & DQN agent training with noise augmentation (FR4). \\
-\texttt{main\_experiment\_final.py} & Three-experiment ablation study with statistical analysis (FR7). \\
-\texttt{main\_experiment\_threshold.py} & Threshold baseline comparison (FR9). \\
-\texttt{main\_cost\_analysis.py} & Fleet-level financial projection (FR8). \\
-\texttt{main\_evaluate\_ensemble.py} & LSTM ensemble evaluation and diagnostic plots (FR10). \\
-\texttt{main\_visualize.py} & Engine lifecycle timeline visualisation (FR10). \\
-\texttt{dashboard.py} & Streamlit interactive demonstration (FR11, FR12). \\
-\texttt{data/} & NASA C-MAPSS dataset files (FD001, FD002). \\
-\texttt{models/} & Trained model weights and scaler artefacts. \\
+\path{src/config.py} & Centralised configuration for all hyperparameters (FR1--FR7, NF3). \\
+\path{src/preprocessing.py} & Data loading, RUL calculation, normalisation, and sliding-window generation (FR1). \\
+\path{src/lstm_model.py} & LSTM network architecture definition (FR2). \\
+\path{src/gym_env.py} & Gymnasium environment, blind ablation variant, and safety supervisor (FR3, FR5, FR6). \\
+\path{main_train_ensemble.py} & LSTM ensemble training with bootstrap sampling (FR2). \\
+\path{main_train_rl.py} & DQN agent training with noise augmentation (FR4). \\
+\path{main_experiment_final.py} & Three-experiment ablation study with statistical analysis (FR7). \\
+\path{main_experiment_threshold.py} & Threshold baseline comparison (FR9). \\
+\path{main_cost_analysis.py} & Fleet-level financial projection (FR8). \\
+\path{main_evaluate_ensemble.py} & LSTM ensemble evaluation and diagnostic plots (FR10). \\
+\path{main_visualize.py} & Engine lifecycle timeline visualisation (FR10). \\
+\path{dashboard.py} & Streamlit interactive demonstration (FR11, FR12). \\
+\path{data/} & NASA C-MAPSS dataset files (FD001, FD002). \\
+\path{models/} & Trained model weights and scaler artefacts. \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \vspace{0.3cm}
@@ -752,21 +779,17 @@ The \texttt{PdMEnvironment} class (FR3) extended \texttt{gymnasium.Env} \citep{b
 
 The DQN agent (FR4) used a $[256, 256, 128]$ fully connected Q-network \citep{mnih2015human}, trained for 1.5 million timesteps via Stable-Baselines3 \citep{raffin2021stable} with a 150,000-transition replay buffer, $\gamma = 0.99$, and $\epsilon$-greedy exploration decaying from 1.0 to 0.03 over 40\% of training. The noise augmentation and end-of-life bias exposed the agent to clean, moderate, and heavy noise regimes, teaching it to adapt its policy to the current uncertainty level rather than memorise a fixed mapping. The blind control agent was trained identically but on the \texttt{BlindPdMEnvironment}, which zeroed the uncertainty dimensions. Full hyperparameters are listed in Appendix~\ref{app:hyperparams}.
 
-\vspace{0.3cm}
-
-Training diagnostics were monitored to avoid unstable policies. Pilot runs revealed over-waiting near end of life; the final configuration resolved this through stronger crash penalties and end-of-life start biasing.
-
 \section{Safety Supervisor}
 
-The safety supervisor implemented FR6 as a pure Python function that accepted the DQN agent's proposed action and the current observation vector and returned a possibly modified action. The implementation was deliberately kept outside any learned component to provide a deterministic guarantee, following the shielding principle formalised by \citet{alshiekh2018safe} and the defence-in-depth requirement of aerospace safety standards \citep{do178c}.
+The safety supervisor implemented FR6 as a pure Python function that accepted the DQN agent's proposed action and the current observation vector and returned a possibly modified action. The implementation was deliberately kept outside any learned component to provide deterministic and auditable intervention logic, following the shielding principle formalised by \citet{alshiekh2018safe} and the defence-in-depth requirement of aerospace safety standards \citep{do178c}.
 
 \vspace{0.3cm}
 
-\textbf{Two-tier logic.} As specified in Section~3.5.3, the function implemented two override conditions evaluated in priority order. Tier~1 (hard critical) fired unconditionally when the ensemble mean prediction fell below 0.04 (approximately 5 cycles remaining), providing an absolute last-resort guarantee. Tier~2 (uncertainty-aware) fired when the prediction fell below 0.12 (approximately 15 cycles) \emph{and} the rolling uncertainty was below 0.55, ensuring that the override only engaged when the ensemble was confident in its low-RUL assessment. If neither condition was met, the agent's original action passed through unmodified.
+\textbf{Two-tier logic.} As specified in Section~3.5.3, the function implemented two override conditions evaluated in priority order. Tier~1 (hard critical) fired unconditionally when the ensemble mean prediction fell below 0.04 (approximately 5 cycles remaining), providing a deterministic last-resort intervention. Tier~2 (uncertainty-aware) fired when the prediction fell below 0.12 (approximately 15 cycles) \emph{and} the rolling uncertainty was below 0.55, ensuring that the override only engaged when the ensemble was confident in its low-RUL assessment. If neither condition was met, the agent's original action passed through unmodified.
 
 \vspace{0.3cm}
 
-\textbf{Interaction with the two agent types.} The design created an important asymmetry between the uncertainty-aware (UA) and blind agents that was central to the experimental evaluation. The blind agent reported rolling uncertainty of zero at every step, which always satisfied the confidence condition ($0 < 0.55$), causing Tier~1 to fire on every low-RUL prediction, including noise-induced false alarms. The UA agent reported genuine ensemble disagreement, meaning Tier~1 only fired when the ensemble members agreed on a low prediction, effectively filtering out transient noise-driven dips. This difference meant the blind agent was caught by the safety net more frequently but also experienced more unnecessary overrides, while the UA agent operated more autonomously under the safety supervisor's protection.
+\textbf{Interaction with the two agent types.} The design created an asymmetry central to evaluation. Because the blind agent reports rolling uncertainty of zero, it almost always satisfies the confidence condition and is overridden more often, including on some noise-driven low predictions. The UA agent reports true disagreement, so confidence-gated overrides are more selective, preserving autonomy while retaining hard-critical protection.
 
 \section{Interactive Dashboard}
 
@@ -789,11 +812,7 @@ Testing was conducted at three levels: unit testing verified individual module c
 
 \vspace{0.3cm}
 
-Behavioural checks complemented functional tests. Reward-outcome mapping and uncertainty monotonicity were validated.
-
-\vspace{0.3cm}
-
-To illustrate the system operating across different engine lifecycles, Figures~\ref{fig:engine_134} and~\ref{fig:engine_200} present the three-panel decision timelines for Engine~134 and Engine~200. These engines were selected because they represent contrasting scenarios: Engine~134 exhibited a relatively smooth degradation profile, while Engine~200 presented a noisier trajectory that tested the agent's uncertainty handling.
+Figures~\ref{fig:engine_134} and~\ref{fig:engine_200} show two contrasting lifecycle traces: a smooth degradation case and a noisier case that stresses uncertainty handling.
 
 \begin{figure}[h]
 \centering
@@ -832,21 +851,23 @@ Experiment~1 evaluated the DQN agents without the safety supervisor to isolate t
 
 \begin{table}[h]
 \centering
+\small
 \caption{Experiment~1 results: UA vs Blind agent without safety supervisor. Significance: * $p < 0.05$, ** $p < 0.01$, *** $p < 0.001$, ns = not significant.}
 \label{tab:exp1_results}
 \renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{>{\raggedright\arraybackslash}p{1.2cm} r r r r r r l l}
 \toprule
 \textbf{Noise} & \textbf{UA Mean} & \textbf{UA Fail\%} & \textbf{UA Jack\%} & \textbf{Blind Mean} & \textbf{Blind Fail\%} & \textbf{Blind Jack\%} & \textbf{Sig.} & \textbf{Cohen's d} \\
 \midrule
-0.000 & 406.4 & 0.0 & 73.4 & 366.4 & 5.0 & 70.6 & * & 0.16 \\
-0.025 & 289.8 & 0.0 & 49.8 & 247.5 & 4.4 & 48.0 & * & 0.16 \\
-0.050 & 293.8 & 0.0 & 45.4 & 206.6 & 8.2 & 45.0 & *** & 0.31 \\
-0.075 & 283.5 & 1.0 & 40.6 & 162.8 & 12.4 & 40.6 & *** & 0.41 \\
-0.100 & 233.5 & 3.8 & 32.4 & 45.0 & 26.4 & 31.6 & *** & 0.56 \\
-0.125 & 211.6 & 4.6 & 25.4 & 6.9 & 33.4 & 31.4 & *** & 0.59 \\
-0.150 & 171.1 & 11.6 & 23.8 & $-58.3$ & 40.8 & 25.4 & *** & 0.61 \\
-0.175 & 135.6 & 13.0 & 16.6 & $-112.8$ & 50.4 & 23.8 & *** & 0.65 \\
+0.000 & 406.4 & 0.0 & 74.4 & 366.4 & 5.0 & 70.6 & * & 0.16 \\
+0.025 & 289.8 & 0.0 & 51.6 & 247.5 & 4.4 & 48.0 & * & 0.16 \\
+0.050 & 293.8 & 0.0 & 52.8 & 206.6 & 8.2 & 45.0 & *** & 0.31 \\
+0.075 & 283.5 & 1.0 & 52.4 & 162.8 & 12.4 & 40.6 & *** & 0.41 \\
+0.100 & 233.5 & 3.8 & 46.6 & 45.0 & 26.4 & 31.6 & *** & 0.56 \\
+0.125 & 211.6 & 4.6 & 42.4 & 6.9 & 33.4 & 31.4 & *** & 0.59 \\
+0.150 & 171.1 & 11.6 & 44.8 & $-58.3$ & 40.8 & 25.4 & *** & 0.61 \\
+0.175 & 135.6 & 13.0 & 39.4 & $-112.8$ & 50.4 & 23.8 & *** & 0.65 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -870,28 +891,30 @@ Experiment~2 activated the safety supervisor alongside both agents to evaluate p
 
 \begin{table}[h]
 \centering
+\small
 \caption{Experiment~2 results: UA vs Blind agent with safety supervisor active. Override counts indicate the number of times the supervisor intervened across 500 episodes.}
 \label{tab:exp2_results}
 \renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{>{\raggedright\arraybackslash}p{1.2cm} r r r r r r r r}
 \toprule
 \textbf{Noise} & \textbf{UA Mean} & \textbf{UA Jack\%} & \textbf{UA Over.} & \textbf{UA Auto\%} & \textbf{Blind Mean} & \textbf{Blind Jack\%} & \textbf{Blind Over.} & \textbf{Blind Auto\%} \\
 \midrule
-0.000 & 396.6 & 71.4 & 13 & 96.6 & 432.1 & 78.6 & 201 & 59.8 \\
-0.025 & 264.0 & 44.0 & 167 & 63.8 & 192.2 & 32.0 & 246 & 46.2 \\
-0.050 & 224.0 & 29.6 & 215 & 46.0 & 155.4 & 28.0 & 292 & 33.4 \\
-0.075 & 195.9 & 18.2 & 281 & 30.6 & 138.8 & 25.4 & 336 & 25.8 \\
-0.100 & 176.4 & 11.4 & 330 & 20.0 & 131.9 & 25.4 & 401 & 12.6 \\
-0.125 & 156.5 & 8.2 & 364 & 16.2 & 135.5 & 26.4 & 431 & 10.4 \\
-0.150 & 143.7 & 6.2 & 401 & 10.6 & 135.0 & 26.6 & 455 & 6.4 \\
-0.175 & 160.2 & 5.0 & 408 & 9.0 & 118.4 & 23.2 & 461 & 6.0 \\
+0.000 & 396.6 & 72.2 & 13 & 97.4 & 432.1 & 78.6 & 201 & 59.8 \\
+0.025 & 264.0 & 46.6 & 167 & 65.8 & 192.2 & 32.0 & 246 & 46.2 \\
+0.050 & 224.0 & 38.4 & 215 & 54.8 & 155.4 & 28.0 & 292 & 33.4 \\
+0.075 & 195.9 & 34.0 & 281 & 39.4 & 138.8 & 25.4 & 336 & 25.8 \\
+0.100 & 176.4 & 30.8 & 330 & 28.6 & 131.9 & 25.4 & 401 & 12.6 \\
+0.125 & 156.5 & 27.4 & 364 & 22.0 & 135.5 & 26.4 & 431 & 10.4 \\
+0.150 & 143.7 & 25.0 & 401 & 15.6 & 135.0 & 26.6 & 455 & 6.4 \\
+0.175 & 160.2 & 28.2 & 408 & 15.2 & 118.4 & 23.2 & 461 & 6.0 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \vspace{0.3cm}
 
-The safety supervisor eliminated catastrophic failures for both agents: the failure rate dropped to 0.0\% for UA across all noise levels and to 0.0\% for Blind at seven out of eight levels (0.2\% at $\sigma = 0.100$). This confirmed that the two-tier deterministic override fulfilled its design intent (FR6). However, the mechanism by which safety was achieved differed substantially between the two agents. The blind agent required 201 supervisor overrides even on clean data (compared to only 13 for UA), rising to 461 at the heaviest noise. The UA agent's genuine uncertainty signal allowed the supervisor to exercise judgement, intervening only when predictions were trustworthy, as designed in Section~3.5.3. The autonomy percentage, defined as the fraction of episodes where the agent's own decision was executed without override, tells a compelling story: the UA agent operated autonomously in 96.6\% of clean episodes versus 59.8\% for the blind agent. Figure~\ref{fig:exp2_chart} illustrates these results.
+The safety supervisor reduced catastrophic failures to near zero: the failure rate dropped to 0.0\% for the Blind agent across all eight noise levels and to 0.0\% for the UA agent at seven out of eight levels, with a residual 0.2\% failure rate at $\sigma = 0.100$. This confirmed that the two-tier deterministic override fulfilled its design intent (FR6) while also showing that the protection is empirical rather than mathematically absolute. However, the mechanism by which safety was achieved differed substantially between the two agents. The blind agent required 201 supervisor overrides even on clean data (compared to only 13 for UA), rising to 461 at the heaviest noise. The UA agent's genuine uncertainty signal allowed the supervisor to exercise judgement, intervening only when predictions were trustworthy, as designed in Section~3.5.3. The autonomy percentage, defined as the fraction of episodes where the agent's own decision was executed without override, tells a compelling story: the UA agent operated autonomously in 97.4\% of clean episodes versus 59.8\% for the blind agent. This clean-data reward comparison therefore needs to be read carefully: blind scored slightly higher raw reward (432.1 vs 396.6), but it achieved that outcome with fifteen times more supervisor interventions, meaning the apparent advantage was largely supervisor-assisted rather than policy-driven. Figure~\ref{fig:exp2_chart} illustrates these results.
 
 \begin{figure}[h]
 \centering
@@ -906,7 +929,7 @@ Experiment~3 computed the delta between Experiments~1 and~2 to quantify each age
 
 \vspace{0.3cm}
 
-The autonomy analysis revealed the most important qualitative finding of the entire evaluation. Under the full system, the UA agent achieved a 70\% autonomous optimal-timing rate on clean data (jackpots triggered by the agent's own decision rather than by the supervisor), compared to 43\% for the blind agent. The autonomous jackpot counts from Table~\ref{tab:exp2_results} show that on clean data, the UA agent produced 350 autonomous jackpots out of 500 episodes, while the blind agent produced only 214. This gap persisted across noise levels: at $\sigma = 0.050$, the UA agent scored 111 autonomous jackpots versus 55 for the blind agent; at $\sigma = 0.100$, 43 versus 20. These figures demonstrate that the UA agent was not merely performing well because the safety supervisor rescued it, but rather because it had genuinely learned to make better timing decisions by conditioning on the uncertainty signal.
+The autonomy analysis revealed the most important qualitative finding of the entire evaluation. Under the full system, the UA agent achieved a 70.6\% autonomous optimal-timing rate on clean data (jackpots triggered by the agent's own decision rather than by the supervisor), compared to 42.8\% for the blind agent. The autonomous jackpot counts from Table~\ref{tab:exp2_results} show that on clean data, the UA agent produced 353 autonomous jackpots out of 500 episodes, while the blind agent produced only 214. This gap persisted across noise levels: at $\sigma = 0.050$, the UA agent scored 133 autonomous jackpots versus 55 for the blind agent; at $\sigma = 0.100$, 60 versus 20. These figures demonstrate that the UA agent was not merely performing well because the safety supervisor rescued it, but rather because it had genuinely learned to make better timing decisions by conditioning on the uncertainty signal.
 
 \begin{figure}[h]
 \centering
@@ -937,7 +960,7 @@ Because the full three-layer architecture can force safety overrides, the final 
 
 \vspace{0.3cm}
 
-Under the full three-layer system, UA produced lower average cost per decision than blind at all eight noise levels: \pounds36,863 versus \pounds39,648 (\pounds2,785, or 7.0\%, saved per decision). At fleet level, this corresponds to \pounds556,950 annual savings and \pounds2,784,750 over five years, with positive savings retained even at heavy noise.
+Under the full three-layer system, UA produced lower average cost per decision than blind at all eight noise levels: \pounds36,863 versus \pounds39,648 (\pounds2,785, or 7.0\%, saved per decision). At fleet level, this corresponds to \pounds556,950 annual savings and \pounds2,784,750 over five years, with positive savings retained even at heavy noise. The largest annual saving occurred at $\sigma = 0.050$ (\pounds1,020,400), while even the most supervisor-dominated regimes still remained net-positive for UA (\pounds227,600 at $\sigma = 0.150$).
 
 \vspace{0.3cm}
 
@@ -950,14 +973,16 @@ The override statistics provide the mechanism behind this result. As noise incre
 \label{fig:cost_analysis_main}
 \end{figure}
 
+For a condensed management-oriented view, Appendix~\ref{app:visualisations} provides a five-year cumulative projection (Figure~\ref{fig:app_cost_exec}).
+
 \vspace{0.3cm}
 
-Figure~\ref{fig:final_result} provides a summary visualisation of the key evaluation metrics across all experimental conditions.
+Figure~\ref{fig:final_result} provides a compact executive summary of the baseline comparison, contrasting the full hybrid system against the strongest fixed-threshold rule.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.95\textwidth]{final_result_chart.png}
-\caption{Summary of key evaluation metrics across all experimental conditions, showing the systematic advantage of the uncertainty-aware agent in mean reward, failure avoidance, and optimal timing rate compared to the blind baseline.}
+\caption{Executive comparison of the full hybrid system against the fixed-threshold baseline, showing a statistically significant reward advantage ($p < 0.001$) and a much larger jackpot count for the learned policy.}
 \label{fig:final_result}
 \end{figure}
 
@@ -968,9 +993,9 @@ The experimental results can be distilled into four key findings:
 \begin{enumerate}
   \item \textbf{Uncertainty awareness improved autonomous decision-making.} Without the safety supervisor (Experiment~1), the UA agent maintained positive reward at all noise levels while the blind agent collapsed to negative returns beyond $\sigma = 0.125$, with Cohen's d reaching medium effect size (0.65).
 
-  \item \textbf{The safety supervisor eliminated catastrophic failures.} Under the full system (Experiment~2), both agents achieved near-zero failure rates across all noise levels, validating the two-tier deterministic override design.
+  \item \textbf{The safety supervisor reduced catastrophic failures to near zero.} Under the full system (Experiment~2), both agents achieved near-zero failure rates across all noise levels, validating the two-tier deterministic override design.
 
-  \item \textbf{The UA agent was substantially more autonomous.} The UA agent operated without supervisor intervention in 96.6\% of clean episodes and produced 70\% autonomous jackpots, compared to 59.8\% autonomy and 43\% autonomous jackpots for the blind agent. This gap persisted across all noise levels.
+  \item \textbf{The UA agent was substantially more autonomous.} The UA agent operated without supervisor intervention in 97.4\% of clean episodes and produced 70.6\% autonomous jackpots, compared to 59.8\% autonomy and 42.8\% autonomous jackpots for the blind agent. This gap persisted across all noise levels.
 
   \item \textbf{The DQN outperformed fixed-threshold baselines.} The learned policy adapted its behaviour to the current noise regime, a capability that no static threshold could replicate, confirming that reinforcement learning added genuine value to the maintenance scheduling task.
 
@@ -999,9 +1024,11 @@ Each metric answered a different question: mean reward for overall utility, fail
 
 \begin{table}[h]
 \centering
+\small
 \caption{Comparison of RUL prediction RMSE on C-MAPSS FD001 against published baselines. Lower RMSE indicates better prediction accuracy. Our ensemble results reflect validation-set performance.}
 \label{tab:rmse_comparison}
 \renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{llr}
 \toprule
 \textbf{Method} & \textbf{Reference} & \textbf{RMSE (cycles)} \\
@@ -1034,7 +1061,7 @@ The ensemble achieved validation-set RMSE in the 12--15 cycle range, placing it 
 
 \vspace{0.3cm}
 
-\textbf{Objective 5: Safety supervisor.} Fully achieved. The two-tier deterministic override eliminated catastrophic failures in Experiment~2 across all noise levels for the UA agent. The uncertainty-aware design created the intended asymmetry: the blind agent triggered the supervisor far more frequently because its zeroed uncertainty always satisfied the confidence condition, while the UA agent's genuine uncertainty signal allowed more selective intervention \citep{alshiekh2018safe}.
+\textbf{Objective 5: Safety supervisor.} Achieved in practical terms. The two-tier deterministic override drove catastrophic failures to near zero in Experiment~2 and sharply reduced safety risk under all evaluated noise levels. The uncertainty-aware design created the intended asymmetry: the blind agent triggered the supervisor far more frequently because its zeroed uncertainty always satisfied the confidence condition, while the UA agent's genuine uncertainty signal allowed more selective intervention \citep{alshiekh2018safe}.
 
 \vspace{0.3cm}
 
@@ -1058,7 +1085,7 @@ While all objectives were achieved, an honest evaluation must acknowledge both s
 
 \vspace{0.3cm}
 
-\textbf{On clean data, the blind agent outperformed.} The blind agent achieved a higher mean reward (432.1 vs 396.6) on clean data because it operated with high confidence at all times, and under clean conditions its predictions were reliable. The UA agent's conservative bias, trained to respond to mild uncertainty always present even in clean data, reduced its reward under ideal conditions but proved advantageous under noise. This robustness-optimality trade-off is analogous to the bias-variance trade-off \citep{der2009aleatory} and consistent with domain randomisation findings \citep{tobin2017domain}.
+\textbf{On clean data, the blind agent achieved a higher raw reward but not a stronger policy.} The blind agent achieved a higher mean reward (432.1 vs 396.6) on clean data because the safety supervisor intervened heavily on its behalf, converting many risky late decisions into acceptable outcomes. The UA agent's conservative bias, trained to respond to mild uncertainty always present even in clean data, reduced its reward under ideal conditions but delivered a far more self-sufficient policy: 97.4\% autonomy for UA versus 59.8\% for blind, and 353 autonomous jackpots versus 214. This robustness-optimality trade-off is analogous to the bias-variance trade-off \citep{der2009aleatory} and consistent with domain randomisation findings \citep{tobin2017domain}.
 
 \vspace{0.3cm}
 
@@ -1100,7 +1127,7 @@ Several limitations should be noted to scope the validity of the results.
 
 \section{Conclusion}
 
-The experimental evaluation provided strong evidence for the central hypothesis of this project: that making a reinforcement learning agent explicitly aware of its own prediction uncertainty produces more robust and more autonomous maintenance decisions under sensor degradation. The UA agent outperformed the blind agent at six out of eight noise levels in Experiment~1, with the advantage growing systematically from negligible to medium effect sizes as noise increased. Under the full three-layer system, the safety supervisor eliminated catastrophic failures for both agents, but the UA agent achieved substantially higher autonomous decision-making rates, demonstrating genuine policy superiority rather than reliance on the safety net. The threshold baseline comparison confirmed that the learned policy captured non-trivial timing behaviour, and the financial analysis translated these technical advantages into projected fleet-level cost savings.
+The experimental evaluation provided strong evidence for the central hypothesis of this project: that making a reinforcement learning agent explicitly aware of its own prediction uncertainty produces more robust and more autonomous maintenance decisions under sensor degradation. The UA agent outperformed the blind agent at six out of eight noise levels in Experiment~1, with the advantage growing systematically from negligible to medium effect sizes as noise increased. Under the full three-layer system, the safety supervisor reduced catastrophic failures to near zero for both agents, while the UA agent achieved substantially higher autonomous decision-making rates, demonstrating genuine policy superiority rather than reliance on the safety net. The threshold baseline comparison confirmed that the learned policy captured non-trivial timing behaviour, and the financial analysis translated these technical advantages into projected average fleet-level savings of \pounds556,950 per year.
 
 \vspace{0.3cm}
 
@@ -1130,7 +1157,7 @@ A central legal question is: who bears liability when an AI system recommends de
 
 The automation of maintenance scheduling has direct implications for the skilled workforce currently responsible for these decisions. Maintenance planners and licensed aircraft engineers possess decades of tacit knowledge about fleet behaviour, seasonal patterns, and supply-chain constraints that the current system does not capture. Deploying AI-driven scheduling without meaningful human-in-the-loop involvement risks deskilling the workforce and eroding institutional knowledge over time \citep{amodei2016concrete}. The dashboard interface developed in this project (Section~4.7) was designed with this concern in mind: it provides cycle-by-cycle visibility into the agent's observations, uncertainty estimates, and override decisions, ensuring that human operators remain informed participants rather than passive recipients of automated instructions.
 
-There is also a broader public trust dimension. Airline passengers and regulators are unlikely to accept fully autonomous maintenance decisions without extensive evidence of reliability. The experimental results in Chapter~5 demonstrated that the safety supervisor eliminated catastrophic failures across all noise conditions, but the system's zero-crash record is based on 8,000 simulated episodes, not millions of real flight hours. Building societal trust would require extended validation campaigns, transparent reporting of failure modes, and gradual deployment starting with non-safety-critical components.
+There is also a broader public trust dimension. Airline passengers and regulators are unlikely to accept fully autonomous maintenance decisions without extensive evidence of reliability. The experimental results in Chapter~5 demonstrated that the safety supervisor reduced catastrophic failures to near zero across all noise conditions, but this empirical safety record is based on 8,000 simulated episodes, not millions of real flight hours. Building societal trust would require extended validation campaigns, transparent reporting of failure modes, and gradual deployment starting with non-safety-critical components.
 
 \section{Ethical Considerations in Autonomous Decision-Making}
 
@@ -1181,7 +1208,7 @@ The eight objectives defined in Section~\ref{sec:objectives} were evaluated agai
     \item \textbf{Uncertainty-aware DQN agent.} Achieved. Trained for 1.5M timesteps with clear uncertainty-conditional behaviour.
     \item \textbf{Blind baseline agent.} Achieved. Zeroed uncertainty signals provided controlled ablation.
     \item \textbf{Comparative evaluation under noise.} Achieved. Statistically significant advantages at six of eight noise levels ($d$ up to 0.649).
-    \item \textbf{Safety supervisor evaluation.} Achieved. Zero crash rates under full system; UA agent achieved 70\% autonomous jackpots versus 43\% for blind.
+    \item \textbf{Safety supervisor evaluation.} Achieved. Near-zero crash rates under the full system, with only a residual 0.2\% UA failure rate at one noise level; UA agent achieved 70.6\% autonomous jackpots versus 42.8\% for blind on clean data.
     \item \textbf{Threshold baseline comparison.} Achieved. DQN outperformed all eight baselines across six noise levels.
     \item \textbf{Financial cost analysis.} Achieved. Projected \pounds556,950 annual fleet savings (\pounds2,784,750 over five years) versus the blind baseline under the full system.
 \end{enumerate}
@@ -1195,7 +1222,7 @@ The primary contributions of this project are:
 \begin{enumerate}
     \item \textbf{Uncertainty as observation.} Feeding ensemble disagreement directly into the RL agent's observation space, rather than using it only for post-hoc filtering or exploration bonuses, is a novel approach in the predictive maintenance domain. This enabled the agent to learn a sigma-conditional policy that modulated its behaviour based on prediction confidence.
     \item \textbf{Noise-augmented RL training.} The variable noise injection scheme (70\% of episodes, $\sigma \in [0.02, 0.20]$) created a curriculum that taught the agent what high uncertainty means operationally, producing robust transfer to unseen noise levels.
-    \item \textbf{Two-tier safety supervisor.} The combination of an uncertainty-aware override (fires when predictions are confident and low) with a hard-critical fallback (fires unconditionally below 5 cycles) provided defence-in-depth safety that eliminated catastrophic failures across all experimental conditions.
+    \item \textbf{Two-tier safety supervisor.} The combination of an uncertainty-aware override (fires when predictions are confident and low) with a hard-critical fallback (fires unconditionally below 5 cycles) provided defence-in-depth safety that reduced catastrophic failures to near zero across the experimental conditions while preserving substantially more autonomy for the UA agent than for the blind baseline.
     \item \textbf{Comprehensive experimental framework.} The three-experiment design with 8,000 total episodes per experiment, Welch's $t$-tests, Cohen's $d$ effect sizes, and 95\% confidence intervals provided rigorous statistical evidence for every claim made.
 \end{enumerate}
 
@@ -1204,11 +1231,12 @@ The primary contributions of this project are:
 Several limitations constrain the generalisability of the findings and should be acknowledged honestly:
 
 \begin{itemize}
-    \item The C-MAPSS dataset, while widely used, is a simulation. Real engine sensors exhibit non-Gaussian noise, intermittent faults, and telemetry dropouts that the Gaussian noise injection model does not capture.
-    \item The binary action space (wait or maintain) is a simplification. Real maintenance scheduling involves partial inspections, deferred actions, and fleet-level coordination that a richer action space would better represent.
-    \item The UA agent sacrificed approximately 10 reward points under clean conditions (Table~\ref{tab:exp2_results}), indicating a robustness-optimality trade-off that may not be acceptable in all operational contexts.
+    \item The C-MAPSS dataset, while widely used, is a simulation. Real engine sensors exhibit non-Gaussian noise, intermittent faults, telemetry dropouts, and maintenance-induced distribution shifts that the Gaussian noise injection model does not capture.
+    \item The binary action space (wait or maintain) is a simplification. Real maintenance scheduling involves partial inspections, deferred actions, spare-parts availability, and fleet-level coordination that a richer action space would better represent.
+    \item The UA agent sacrificed approximately 35 reward points under clean conditions in the full-system evaluation (Table~\ref{tab:exp2_results}), indicating a robustness-optimality trade-off that may not be acceptable in all operational contexts.
     \item Effect sizes were moderate (maximum $d = 0.649$), partly because both agents had access to the same underlying ensemble predictions and differed only in whether they could observe the uncertainty dimension.
-    \item All financial projections were based on simulated outcomes and industry-representative cost figures rather than actual airline maintenance records.
+    \item The safety case is empirical rather than formally verified: near-zero crash rates were demonstrated across the evaluated episodes, but no formal proof currently guarantees that all reachable states satisfy the desired safety property.
+    \item All financial projections were based on simulated outcomes and industry-representative cost figures rather than actual airline maintenance records, contractual maintenance arrangements, or real fleet scheduling constraints.
 \end{itemize}
 
 \section{Future Work}
@@ -1310,6 +1338,7 @@ This appendix presents the complete numerical results from the three experiments
 \small
 \caption{Experiment 1 complete results: UA vs Blind agent without safety supervisor (500 episodes per noise level).}
 \label{tab:app_exp1}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrrr}
 \toprule
 \textbf{Noise} & \textbf{UA Mean} & \textbf{UA Std} & \textbf{UA Fail\%} & \textbf{Blind Mean} & \textbf{Blind Std} & \textbf{Blind Fail\%} & \textbf{Cohen's $d$} \\
@@ -1331,18 +1360,19 @@ This appendix presents the complete numerical results from the three experiments
 \small
 \caption{Experiment 1 supplementary data: jackpot rates, medians, and statistical significance.}
 \label{tab:app_exp1_supp}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrl}
 \toprule
 \textbf{Noise} & \textbf{UA Jack\%} & \textbf{Blind Jack\%} & \textbf{UA Median} & \textbf{Blind Median} & \textbf{$t$-stat} & \textbf{Sig.} \\
 \midrule
-0.000 & 73.4 & 70.6 & 500.0 & 501.4 & 2.545 & * \\
-0.025 & 49.8 & 48.0 & 487.0 & 146.6 & 2.553 & * \\
-0.050 & 45.4 & 45.0 & 468.6 & 93.7 & 4.934 & *** \\
-0.075 & 40.6 & 40.6 & 452.2 & 45.0 & 6.438 & *** \\
-0.100 & 32.4 & 31.6 & 133.2 & 16.0 & 8.897 & *** \\
-0.125 & 25.4 & 31.4 & 88.0 & 14.0 & 9.275 & *** \\
-0.150 & 23.8 & 25.4 & 77.5 & 10.0 & 9.642 & *** \\
-0.175 & 16.6 & 23.8 & 52.0 & $-$314.5 & 10.255 & *** \\
+0.000 & 74.4 & 70.6 & 500.0 & 501.4 & 2.545 & * \\
+0.025 & 51.6 & 48.0 & 487.0 & 146.6 & 2.553 & * \\
+0.050 & 52.8 & 45.0 & 468.6 & 93.7 & 4.934 & *** \\
+0.075 & 52.4 & 40.6 & 452.2 & 45.0 & 6.438 & *** \\
+0.100 & 46.6 & 31.6 & 133.2 & 16.0 & 8.897 & *** \\
+0.125 & 42.4 & 31.4 & 88.0 & 14.0 & 9.275 & *** \\
+0.150 & 44.8 & 25.4 & 77.5 & 10.0 & 9.642 & *** \\
+0.175 & 39.4 & 23.8 & 52.0 & $-$314.5 & 10.255 & *** \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1355,6 +1385,7 @@ This appendix presents the complete numerical results from the three experiments
 \small
 \caption{Experiment 2 complete results: UA vs Blind agent with safety supervisor (500 episodes per noise level).}
 \label{tab:app_exp2}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrrr}
 \toprule
 \textbf{Noise} & \textbf{UA Mean} & \textbf{UA Std} & \textbf{UA Fail\%} & \textbf{Blind Mean} & \textbf{Blind Std} & \textbf{Blind Fail\%} & \textbf{Cohen's $d$} \\
@@ -1377,18 +1408,19 @@ This appendix presents the complete numerical results from the three experiments
 \small
 \caption{Experiment 2 autonomy data: supervisor overrides and autonomous decision rates.}
 \label{tab:app_exp2_auto}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrr}
 \toprule
 \textbf{Noise} & \textbf{UA Over.} & \textbf{Blind Over.} & \textbf{UA Auto\%} & \textbf{Blind Auto\%} & \textbf{UA Auto J.} & \textbf{Blind Auto J.} \\
 \midrule
-0.000 & 13 & 201 & 96.6 & 59.8 & 350 & 214 \\
-0.025 & 167 & 246 & 63.8 & 46.2 & 173 & 69 \\
-0.050 & 215 & 292 & 46.0 & 33.4 & 111 & 55 \\
-0.075 & 281 & 336 & 30.6 & 25.8 & 70 & 41 \\
-0.100 & 330 & 401 & 20.0 & 12.6 & 43 & 20 \\
-0.125 & 364 & 431 & 16.2 & 10.4 & 34 & 18 \\
-0.150 & 401 & 455 & 10.6 & 6.4 & 17 & 12 \\
-0.175 & 408 & 461 & 9.0 & 6.0 & 20 & 11 \\
+0.000 & 13 & 201 & 97.4 & 59.8 & 353 & 214 \\
+0.025 & 167 & 246 & 65.8 & 46.2 & 179 & 69 \\
+0.050 & 215 & 292 & 54.8 & 33.4 & 133 & 55 \\
+0.075 & 281 & 336 & 39.4 & 25.8 & 91 & 41 \\
+0.100 & 330 & 401 & 28.6 & 12.6 & 60 & 20 \\
+0.125 & 364 & 431 & 22.0 & 10.4 & 45 & 18 \\
+0.150 & 401 & 455 & 15.6 & 6.4 & 28 & 12 \\
+0.175 & 408 & 461 & 15.2 & 6.0 & 36 & 11 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1402,6 +1434,7 @@ Table~\ref{tab:app_cost_full} reports the full-system annual fleet cost output f
 \small
 \caption{Annual fleet cost comparison by noise level (full three-layer system, 50 engines, 200 decisions/year).}
 \label{tab:app_cost_full}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrr}
 \toprule
 \textbf{Noise $\sigma$} & \textbf{UA Annual (\pounds)} & \textbf{Blind Annual (\pounds)} & \textbf{Saving (\pounds)} & \textbf{Saving \%} \\
@@ -1645,27 +1678,20 @@ Reward Function & Jackpot bonus (RUL $< 20$) & +500 \\
 \chapter{Additional Visualisations}
 \label{app:visualisations}
 
-Appendix~\ref{app:visualisations} presents supplementary figures that provide additional perspectives on the experimental results and ensure that all generated visual outputs used for evaluation are archived in the dissertation. Figure~\ref{fig:app_exp1_alt} shows the Layer~2 ablation from an alternative angle, Figure~\ref{fig:app_exp2_alt} provides an alternative view of full-system performance, and Figures~\ref{fig:app_cost_full} and \ref{fig:app_cost_exec} provide the full financial analysis visualisations.
+Appendix~\ref{app:visualisations} presents supplementary figures that provide additional perspectives on the experimental results while keeping primary evidence in the main body. Figure~\ref{fig:app_exp1_alt} shows the Layer~2 ablation from an alternative angle, Figure~\ref{fig:app_exp2_alt} provides an alternative view of full-system performance, and Figure~\ref{fig:app_cost_exec} provides the executive financial projection companion to the main cost-effectiveness figure (Figure~\ref{fig:cost_analysis_main}).
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.85\textwidth]{experiment_1_layer2_ablation.png}
-    \caption{Experiment 1 Layer 2 ablation: alternative visualisation of UA vs Blind reward distributions across all eight noise levels without the safety supervisor.}
+    \caption{Experiment 1 Layer 2 ablation: supplementary visualisation of UA vs Blind reward distributions across all noise levels without the safety supervisor (primary result in Figure~\ref{fig:exp1_chart}).}
     \label{fig:app_exp1_alt}
 \end{figure}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.85\textwidth]{experiment_2_full_system.png}
-    \caption{Experiment 2 full system: alternative visualisation of UA vs Blind performance with the three-layer safety supervisor active across all noise levels.}
+    \caption{Experiment 2 full system: supplementary visualisation of UA vs Blind performance with the three-layer safety supervisor active (primary result in Figure~\ref{fig:exp2_chart}).}
     \label{fig:app_exp2_alt}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.95\textwidth]{report_cost_analysis.png}
-    \caption{Detailed cost-effectiveness figure generated by the financial evaluation pipeline, including per-decision costs, annual savings, and outcome composition across noise levels.}
-    \label{fig:app_cost_full}
 \end{figure}
 
 \begin{figure}[h]
@@ -1793,5 +1819,69 @@ The architecture (two-layer LSTM, hidden dimension 100, dropout 0.2, linear outp
 \textbf{Uncertainty scale calibration.} The UNCERTAINTY\_SCALE factor of 15 was calibrated so that clean-data uncertainty mapped to approximately 0.15--0.30, moderate noise to 0.50--0.60, and heavy noise to 0.80+, providing clear separation. This calibration directly informed the safety supervisor's confidence threshold (0.55).
 
 \textbf{Crash penalty magnitude.} With $\gamma = 0.99$, the initial $-100$ penalty had a present value of only $-20$ at 160 steps, easily outweighed by accumulated WAIT rewards. Increasing to $-500$ raised the present value to approximately $-100$, making crash avoidance material from early degradation stages.
+
+\section*{G.4 Technical Justification of Model Choices}
+
+This section documents the design rationale requested by the supervisory feedback in a structured manner: forecasting backbone choice (LSTM), uncertainty modelling choice (deep ensembles), control paradigm choice (RL), and algorithm choice within RL (DQN over PPO).
+
+\textbf{Why LSTM for RUL forecasting.} RUL prediction from multivariate sensor telemetry is inherently sequential: useful signal depends not only on current readings but also on temporal evolution, lag effects, and degradation trajectory shape. LSTM was selected because gated recurrent memory handles long-range dependencies more robustly than vanilla RNNs \citep{hochreiter1997long}. On C-MAPSS specifically, LSTM-family models have repeatedly shown strong predictive performance and practical robustness \citep{zheng2017long, wu2018remaining, li2018remaining}. Compared with purely statistical regressors or shallow feed-forward networks, LSTM provides a direct mechanism to learn degradation dynamics from windows of sensor history rather than requiring heavy manual feature engineering.
+
+\vspace{0.3cm}
+
+\textbf{Why not use Transformer/CNN as the primary backbone.} Transformer-based prognostics can be highly accurate in large-data regimes \citep{zhang2022transformer}, and CNN-LSTM hybrids are competitive \citep{wang2024adaptive}. However, the project optimised for a three-way balance: (1) stable training on available data, (2) fast repeated inference inside an RL environment, and (3) compatibility with ensemble uncertainty estimation under repeated forward passes. A compact two-layer LSTM provided a better engineering trade-off for this objective than a heavier attention backbone requiring larger optimisation and compute budgets.
+
+\vspace{0.3cm}
+
+\textbf{Why uncertainty modelling was necessary.} Predictive maintenance decisions are safety-relevant; therefore, a point estimate alone is insufficient under sensor degradation. Without uncertainty, the policy cannot distinguish ``confidently low RUL'' from ``possibly low due to noisy input''. This distinction is central in out-of-distribution and shifted-input settings \citep{der2009aleatory, ovadia2019can}. In this project, uncertainty was used as an actionable state variable, not merely a post-hoc confidence display.
+
+\vspace{0.3cm}
+
+\textbf{Why deep ensembles for uncertainty.} Among practical uncertainty methods, deep ensembles were chosen because they are implementation-friendly, parallelisable, and empirically well-calibrated under shift \citep{lakshminarayanan2017simple, ovadia2019can}. Bayesian neural networks offer a stronger formal Bayesian interpretation but are heavier to train and tune in deep sequential settings. MC Dropout is lightweight but can under-estimate epistemic uncertainty in difficult regions \citep{gal2016dropout, osband2016risk}. For the objective of feeding uncertainty into downstream RL decisions, ensemble disagreement provided a robust and interpretable signal:
+\begin{equation}
+\bar{r}_t = \frac{1}{M}\sum_{m=1}^{M} r_t^{(m)}, \qquad
+\sigma_t = \sqrt{\frac{1}{M-1}\sum_{m=1}^{M}\left(r_t^{(m)}-\bar{r}_t\right)^2}
+\end{equation}
+
+\vspace{0.3cm}
+
+\textbf{Why reinforcement learning for maintenance control.} The decision problem is sequential and delayed-reward: acting now changes future state trajectories, and the value of waiting depends on future uncertainty and failure risk. Rule-based thresholding can provide safety but lacks adaptive policy learning across heterogeneous trajectories. RL naturally formulates this as maximising expected discounted return in an MDP:
+\begin{equation}
+\pi^* = \arg\max_{\pi} \; \mathbb{E}_{\pi}\left[\sum_{t=0}^{T} \gamma^t r_t\right]
+\end{equation}
+This allows direct optimisation of the real objective trade-off between early-maintenance waste and late-maintenance failure risk.
+
+\vspace{0.3cm}
+
+\textbf{Why DQN instead of PPO.} The action space is discrete and binary. In such settings, value-based methods are typically efficient and stable when replay buffers and target networks are used \citep{mnih2015human}. DQN also permits extensive data reuse (off-policy learning), which is valuable when environment rollouts are expensive due to ensemble inference at each step. PPO \citep{schulman2017proximal}, while strong in many continuous-control tasks, is on-policy and therefore discards experience after update epochs, making it less sample-efficient here. For this project scope, DQN provided a better cost-benefit profile for convergence speed, tuning complexity, and reproducibility. The update equations used were:
+\begin{equation}
+y_t = r_t + \gamma \max_{a'}Q_{\theta^-}(s_{t+1}, a'), \qquad
+\mathcal{L}(\theta)=\mathbb{E}\left[(Q_{\theta}(s_t,a_t)-y_t)^2\right]
+\end{equation}
+
+\vspace{0.3cm}
+
+\textbf{Summary comparison.} Table~\ref{tab:app_model_justification} summarises the final selection logic.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Model-choice justification summary for core architectural components.}
+\label{tab:app_model_justification}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{2.6cm} p{3.4cm} p{6.0cm} p{3.0cm}}
+\toprule
+\textbf{Decision} & \textbf{Chosen option} & \textbf{Primary reason} & \textbf{Alternatives considered} \\
+\midrule
+Forecasting backbone & LSTM deep ensemble & Strong temporal modelling on C-MAPSS with moderate compute and stable training; supports repeated inference for RL loop & Transformer, CNN-LSTM, SVR \\
+Uncertainty method & Deep ensemble disagreement & Better practical calibration under shift and interpretable disagreement signal for policy input & MC Dropout, Bayesian NN \\
+Control paradigm & RL (MDP) & Direct optimisation of sequential maintenance timing under delayed rewards & Fixed thresholds, myopic heuristics \\
+RL algorithm & DQN & Binary action space and off-policy sample efficiency with replay/target networks & PPO, SAC \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section*{G.5 Limitations of the Chosen Design}
+
+Although justified for this project scope, the chosen stack is not universally optimal. LSTM may underperform attention models on larger multi-regime datasets; deep ensembles incur multi-model inference overhead; and DQN can be sensitive to reward shaping and exploration schedules. These limitations are acceptable for the current benchmark-focused objective but motivate future comparative studies with PPO, SAC, and transformer-based prognostics, as already outlined in Chapter~7.
 
 \end{document}
