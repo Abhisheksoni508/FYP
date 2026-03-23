@@ -1884,4 +1884,59 @@ RL algorithm & DQN & Binary action space and off-policy sample efficiency with r
 
 Although justified for this project scope, the chosen stack is not universally optimal. LSTM may underperform attention models on larger multi-regime datasets; deep ensembles incur multi-model inference overhead; and DQN can be sensitive to reward shaping and exploration schedules. These limitations are acceptable for the current benchmark-focused objective but motivate future comparative studies with PPO, SAC, and transformer-based prognostics, as already outlined in Chapter~7.
 
+
+\chapter{Original Contributions}
+\label{app:contributions}
+
+This appendix clarifies the boundary between established tools used as building blocks and the novel design decisions, formulations, and integration mechanisms authored as part of this project.
+
+\section*{H.1 Contributions Matrix}
+
+Table~\ref{tab:app_contributions} distinguishes existing libraries and datasets from the original work contributed by this project.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Existing tools vs.\ original contributions.}
+\label{tab:app_contributions}
+\begin{tabular}{p{5.5cm} p{8.5cm}}
+\toprule
+\textbf{Used (existing tools)} & \textbf{Designed and built (original contributions)} \\
+\midrule
+LSTM architecture (PyTorch) & Ensemble uncertainty $\rightarrow$ RL observation pipeline: routing ensemble disagreement ($\sigma$) as a first-class state variable into the DQN agent \\
+\addlinespace
+DQN algorithm (Stable-Baselines3) & Uncertainty-aware reward shaping formula: the \texttt{uncertainty\_urgency} term ($\sigma \times \max(0, (25 - \text{RUL}) / 3.0)$) that penalises waiting under high disagreement \\
+\addlinespace
+Gymnasium environment framework & Noise augmentation training protocol: variable per-episode Gaussian injection ($\sigma \in [0.02, 0.20]$, 70\% probability) to teach the agent what uncertainty means during training \\
+\addlinespace
+NASA C-MAPSS dataset (FD001 + FD002) & $\sigma$-gated two-tier safety supervisor: confidence-aware override that backs off under high uncertainty (Tier~2) while maintaining an unconditional emergency fallback (Tier~1) \\
+\addlinespace
+MinMaxScaler (scikit-learn) & End-of-life episode biasing strategy: forcing 60\% of training episodes to start in the final 50 cycles to address sparse-reward imbalance \\
+\addlinespace
+Plotly / Streamlit (visualisation) & Four-dimensional observation design: $[\mu_{\text{RUL}}, \sigma_{\text{now}}, \sigma_{\text{rolling}}, \text{trend}]$ separating instantaneous vs.\ smoothed uncertainty for robust decision-making \\
+\addlinespace
+Welch's $t$-test / Cohen's $d$ (SciPy) & Blind ablation methodology: systematic comparison against an architecturally identical agent with $\sigma = 0$ to isolate the value of uncertainty awareness \\
+\addlinespace
+ & Full three-layer integration architecture: connecting ensemble disagreement through reward shaping, observation design, and safety override into a coherent decision pipeline \\
+\addlinespace
+ & Cost-effectiveness translation model: mapping RL reward outcomes to real-world fleet maintenance costs (GBP) with override-aware operational costing \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section*{H.2 Summary of Original Work}
+
+The individual components (LSTM, DQN, Gymnasium, C-MAPSS) are established tools. The contribution of this project lies in \textit{how} they were connected and \textit{what was designed around them}:
+
+\begin{enumerate}
+    \item \textbf{The uncertainty-aware reward function} --- no existing library provides the \texttt{uncertainty\_urgency} shaping term. This formulation was designed, calibrated, and validated as part of this project.
+    \item \textbf{The noise augmentation training protocol} --- the insight that an RL agent must \textit{experience} uncertainty during training to learn from it is a methodological contribution, not a library feature.
+    \item \textbf{The $\sigma$-gated safety supervisor} --- standard safety overrides use fixed thresholds. The two-tier design with confidence gating (backing off when predictions are unreliable) is a novel mechanism.
+    \item \textbf{The end-of-life episode biasing} --- addressing the sparse-reward problem by curriculum-style episode sampling is a training design decision specific to this domain.
+    \item \textbf{The blind ablation framework} --- using an architecturally identical agent with zeroed uncertainty to isolate the exact contribution of $\sigma$-awareness is an experimental design choice, not a library function.
+    \item \textbf{The complete integration} --- routing ensemble disagreement through observation, reward, and safety override into one coherent pipeline required substantial design effort beyond assembling existing parts.
+\end{enumerate}
+
+\noindent The analogy is that of engineering: a civil engineer does not manufacture steel or concrete, but designs the bridge. The libraries are materials; the framework described in this dissertation is the design.
+
 \end{document}

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find 'C:\\\\Users\\\\Abhishek Soni\\\\OneDrive\\\\Desktop\\\\FINAL_FYP' -type f -name *.json -o -name *.md -o -name *.txt -o -name *.yaml -o -name *.yml -o -name *.env* -o -name Dockerfile* -o -name *.lock)",
+      "Bash(find . -type f -name \"*.py\" ! -path \"*/venv/*\" ! -path \"*/.git/*\" -exec wc -l {} +)"
+    ]
+  }
+}
