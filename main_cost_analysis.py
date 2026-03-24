@@ -384,16 +384,15 @@ def plot_executive_summary(noise_levels, ua_results, bl_results,
            color=UA_COLOR, alpha=0.80, edgecolor='white', lw=0.6,
            label='UA Agent — Total Cost')
 
-    # Savings annotation line
+    # Savings annotations above each yearly pair for legibility
     for i, y in enumerate(years):
         saving = savings_cumulative[i]
         bl_h = bl_cumulative[i] / 1_000_000
         ua_h = ua_cumulative[i] / 1_000_000
-        # Draw bracket
-        mid = (bl_h + ua_h) / 2
+        label_y = max(bl_h, ua_h) + 0.15
         ax.annotate(f'£{saving/1_000_000:.2f}M\nsaved',
-                    xy=(y + 0.35, mid), fontsize=9, fontweight='bold',
-                    color=ACCENT_GREEN, ha='left', va='center')
+                    xy=(y + bw, label_y), fontsize=9, fontweight='bold',
+                    color='black', ha='center', va='bottom')
 
     ax.set_xlabel('Year', fontsize=12)
     ax.set_ylabel('Cumulative Maintenance Cost (£ millions)', fontsize=12)

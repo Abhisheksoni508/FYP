@@ -654,7 +654,43 @@ The two-tier design encoded an important asymmetry. At moderately low RUL values
 
 \vspace{0.3cm}
 
-To illustrate how these three layers operate in concert during a single engine lifecycle, Figure~\ref{fig:engine_timeline} presents a representative timeline showing the ensemble prediction, the uncertainty signal, and the agent's decision pressure evolving cycle by cycle as an engine approaches end of life.
+Figure~\ref{fig:supervisor_flow} summarises the Layer~3 decision logic in compact form. This flow makes clear that the supervisor does not replace the DQN policy; it only intercepts decisions when the engine enters either the hard-critical zone or the confidence-gated low-RUL zone.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  node distance=9mm and 11mm,
+  every node/.style={font=\small},
+  block/.style={rectangle, rounded corners, draw=black, thick, align=center, minimum width=3.2cm, minimum height=0.95cm, fill=blue!6},
+  decision/.style={diamond, draw=black, thick, align=center, aspect=2.0, inner sep=1.5pt, fill=orange!10, text width=3.4cm},
+  outcome/.style={rectangle, rounded corners, draw=black, thick, align=center, minimum width=3.5cm, minimum height=0.95cm, fill=green!8},
+  pass/.style={rectangle, rounded corners, draw=black, thick, align=center, minimum width=3.5cm, minimum height=0.95cm, fill=gray!10},
+  line/.style={-{Latex[length=2.5mm]}, thick}
+]
+\node[block] (start) {Layer 2: DQN proposes\\WAIT or MAINTAIN};
+\node[decision, below=of start] (hard) {Mean predicted RUL\\below hard-critical\\threshold?};
+\node[outcome, below left=12mm and 20mm of hard] (force1) {Override to\\MAINTAIN};
+\node[decision, below right=12mm and 20mm of hard] (conf) {Mean predicted RUL\\below confidence-gated\\threshold and rolling\\uncertainty low?};
+\node[outcome, below=of conf] (force2) {Override to\\MAINTAIN};
+\node[pass, below=of hard, yshift=-31mm] (pass) {Pass agent action\\through unchanged};
+\node[block, below=of pass] (end) {Final action\\executed in environment};
+
+\draw[line] (start) -- (hard);
+\draw[line] (hard) -- node[left, font=\scriptsize] {Yes} (force1);
+\draw[line] (hard) -- node[above, font=\scriptsize] {No} (conf);
+\draw[line] (conf) -- node[right, font=\scriptsize] {Yes} (force2);
+\draw[line] (conf) -- node[left, font=\scriptsize] {No} (pass);
+\draw[line] (force1) |- (end);
+\draw[line] (force2) -- (end);
+\draw[line] (pass) -- (end);
+\end{tikzpicture}
+\caption{Safety supervisor decision flow. The DQN agent always proposes the action first. Layer~3 only overrides that proposal in two cases: an unconditional hard-critical state, or a low-RUL state where rolling uncertainty indicates that the ensemble is sufficiently confident in its prediction.}
+\label{fig:supervisor_flow}
+\end{figure}
+
+\vspace{0.3cm}
+
+To illustrate how the three layers operate in concert during a single engine lifecycle, Figure~\ref{fig:engine_timeline} presents a representative timeline showing the ensemble prediction, the uncertainty signal, and the agent's decision pressure evolving cycle by cycle as an engine approaches end of life.
 
 \begin{figure}[h]
 \centering
@@ -960,7 +996,11 @@ Because the full three-layer architecture can force safety overrides, the final 
 
 \vspace{0.3cm}
 
-Under the full three-layer system, UA produced lower average cost per decision than blind at all eight noise levels: \pounds36,863 versus \pounds39,648 (\pounds2,785, or 7.0\%, saved per decision). At fleet level, this corresponds to \pounds556,950 annual savings and \pounds2,784,750 over five years, with positive savings retained even at heavy noise. The largest annual saving occurred at $\sigma = 0.050$ (\pounds1,020,400), while even the most supervisor-dominated regimes still remained net-positive for UA (\pounds227,600 at $\sigma = 0.150$).
+Under the full three-layer system, UA produced lower average cost per decision than blind at all eight noise levels: \pounds36,863 versus \pounds39,648 (\pounds2,785, or 7.0\%, saved per decision). Although the percentage reduction is moderate, it was achieved while improving robustness and reducing supervisor dependence, yielding \pounds556,950 annual savings and \pounds2,784,750 over five years for the representative 50-engine fleet. Savings remained positive at all evaluated noise levels.
+
+\vspace{0.3cm}
+
+Under the same linear scaling assumption, this rises to \pounds5.57M over five years for 100 engines and \pounds11.14M for 200 engines; Appendix~B.3 provides the sensitivity table.
 
 \vspace{0.3cm}
 
@@ -999,7 +1039,7 @@ The experimental results can be distilled into four key findings:
 
   \item \textbf{The DQN outperformed fixed-threshold baselines.} The learned policy adapted its behaviour to the current noise regime, a capability that no static threshold could replicate, confirming that reinforcement learning added genuine value to the maintenance scheduling task.
 
-    \item \textbf{Uncertainty awareness improved fleet-level cost-effectiveness.} Under the calibrated full-system cost model, UA achieved lower annual fleet cost than blind at all eight noise levels, yielding \pounds556,950 annual savings (\pounds2.78M over five years) for the representative 50-engine fleet.
+    \item \textbf{Uncertainty awareness improved fleet-level cost-effectiveness.} Under the calibrated full-system cost model, UA achieved lower annual fleet cost than blind at all eight noise levels, yielding \pounds556,950 annual savings (\pounds2.78M over five years) for the representative 50-engine fleet while also improving robustness and reducing override dependence.
 \end{enumerate}
 
 \section{Evaluation}
@@ -1127,7 +1167,7 @@ Several limitations should be noted to scope the validity of the results.
 
 \section{Conclusion}
 
-The experimental evaluation provided strong evidence for the central hypothesis of this project: that making a reinforcement learning agent explicitly aware of its own prediction uncertainty produces more robust and more autonomous maintenance decisions under sensor degradation. The UA agent outperformed the blind agent at six out of eight noise levels in Experiment~1, with the advantage growing systematically from negligible to medium effect sizes as noise increased. Under the full three-layer system, the safety supervisor reduced catastrophic failures to near zero for both agents, while the UA agent achieved substantially higher autonomous decision-making rates, demonstrating genuine policy superiority rather than reliance on the safety net. The threshold baseline comparison confirmed that the learned policy captured non-trivial timing behaviour, and the financial analysis translated these technical advantages into projected average fleet-level savings of \pounds556,950 per year.
+The experimental evaluation provided strong evidence for the central hypothesis of this project: that making a reinforcement learning agent explicitly aware of its own prediction uncertainty produces more robust and more autonomous maintenance decisions under sensor degradation. The UA agent outperformed the blind agent at six out of eight noise levels in Experiment~1, with the advantage growing systematically from negligible to medium effect sizes as noise increased. Under the full three-layer system, the safety supervisor reduced catastrophic failures to near zero for both agents, while the UA agent achieved substantially higher autonomous decision-making rates, demonstrating genuine policy superiority rather than reliance on the safety net. The threshold baseline comparison confirmed that the learned policy captured non-trivial timing behaviour, and the financial analysis showed that these technical advantages were not merely academic: even an average 7.0\% cost reduction corresponds to \pounds556,950 saved per year for a 50-engine fleet, with the same result scaling to multi-million-pound savings for larger operators.
 
 \vspace{0.3cm}
 
@@ -1449,6 +1489,23 @@ Table~\ref{tab:app_cost_full} reports the full-system annual fleet cost output f
 0.175 & 8,376,000 & 8,883,200 & 507,200 & 5.7 \\
 \midrule
 \textbf{Average} & \textbf{7,372,600} & \textbf{7,929,550} & \textbf{556,950} & \textbf{7.0} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\small
+\caption{Fleet-scaling sensitivity of the average full-system saving, assuming the same per-engine outcome distribution and four maintenance decisions per engine per year.}
+\label{tab:cost_scaling}
+\setlength{\tabcolsep}{7pt}
+\begin{tabular}{rrrr}
+\toprule
+\textbf{Fleet Size} & \textbf{Decisions/Year} & \textbf{Annual Saving (\pounds)} & \textbf{5-Year Saving (\pounds)} \\
+\midrule
+50  & 200 & 556,950   & 2,784,750 \\
+100 & 400 & 1,113,900 & 5,569,500 \\
+200 & 800 & 2,227,800 & 11,139,000 \\
 \bottomrule
 \end{tabular}
 \end{table}
