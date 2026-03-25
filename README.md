@@ -88,4 +88,4 @@ streamlit run dashboard.py           # Interactive demo
 
 ## Requirements
 
-Python 3.9+, PyTorch, Stable-Baselines3, Gymnasium, Streamlit, Plotly, scikit-learn, pandas, matplotlib, scipy.
+Python 3.9+, PyTorch, Stable-Baselines3, Gymnasium, Streamlit, Plotly, scikit-learn, pandas, matplotlib, scipy. 
