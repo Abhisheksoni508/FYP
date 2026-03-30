@@ -1,12 +1,11 @@
 """
 =================================================================
-  REAL-TIME ENGINE HEALTH MONITORING DASHBOARD
+  ENGINE HEALTH MONITORING DASHBOARD v2
   Uncertainty-Aware RL for Predictive Maintenance
 =================================================================
 
-This is the DEMO for your FYP presentation. It creates an interactive
-web dashboard that simulates what a real maintenance engineer would
-see if your system was deployed.
+DEMO for FYP presentation. Interactive web dashboard that simulates
+what a real maintenance engineer would see if this system was deployed.
 
 HOW IT WORKS:
   1. Loads your trained models (LSTM ensemble + DQN agent)
@@ -16,36 +15,20 @@ HOW IT WORKS:
      - Layer 1: LSTM ensemble predicts RUL + uncertainty
      - Layer 2: DQN agent decides WAIT or MAINTAIN
      - Layer 3: Safety supervisor can override
-  5. Shows everything in real-time with live charts
-
-WHERE EVERYTHING COMES FROM:
-  - Model loading: Same as main_visualize.py (loads from models/)
-  - Prediction logic: Same as gym_env.py _get_observation()
-  - Q-value extraction: Same as main_visualize.py simulate_engine()
-  - Safety override: Imported from src.gym_env.safety_override()
-  - Data pipeline: Same as all scripts (load_combined_data → process_data)
+  5. Shows everything with live charts
 
 USAGE:
-  pip install streamlit plotly
   streamlit run dashboard.py
-
-PRESENTATION TIP:
-  Open this on a big screen. Pick an engine. Hit "Start".
-  Let it run. When it gets to low RUL, inject noise.
-  The uncertainty spikes. The safety supervisor intervenes.
-  That's your demo in 2 minutes.
 """
 
 import streamlit as st
 import numpy as np
 import torch
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import time
 import os
 
-# ── Your project imports ──────────────────────────────────────
-# These are the SAME modules your training/evaluation scripts use.
-# The dashboard doesn't duplicate any logic — it imports everything.
 from src.config import *
 from src.preprocessing import load_combined_data, calculate_rul, process_data
 from src.lstm_model import RUL_LSTM
@@ -53,29 +36,11 @@ from src.gym_env import safety_override
 
 
 # =================================================================
-# 1. MODEL LOADING
+# 1. MODEL LOADING (cached)
 # =================================================================
-# These functions are identical to what main_visualize.py and
-# main_evaluate.py use. We load once and cache with @st.cache_resource
-# so models stay in memory between dashboard interactions.
 
 @st.cache_resource
 def load_all_models():
-    """
-    Load LSTM ensemble + DQN agent + preprocessed data.
-    
-    @st.cache_resource means this only runs ONCE, even if the
-    dashboard re-renders. Models stay in memory.
-    
-    Returns:
-        lstm_models: List of 5 LSTM models (same as gym_env._load_ensemble)
-        dqn_agent: Trained DQN policy (same as DQN.load in main_evaluate.py)
-        blind_agent: Trained Blind DQN policy (or None if not found)
-        df_clean: Preprocessed DataFrame (same as all evaluation scripts)
-        df_raw: DataFrame with raw RUL values for ground truth
-    """
-    # ── Load LSTM Ensemble (Layer 1) ──
-    # This is the same loop as gym_env.py lines 49-58
     lstm_models = []
     for i in range(ENSEMBLE_SIZE):
         path = f"models/ensemble_model_{i}.pth"
@@ -83,49 +48,27 @@ def load_all_models():
             model = RUL_LSTM(INPUT_DIM, HIDDEN_DIM, NUM_LAYERS, dropout=DROPOUT)
             model.load_state_dict(torch.load(path, map_location=DEVICE))
             model.to(DEVICE)
-            model.eval()  # Set to inference mode (disables dropout)
+            model.eval()
             lstm_models.append(model)
 
-    # ── Load DQN Agent (Layer 2) ──
-    # Same as main_evaluate.py: DQN.load("models/dqn_pdm_agent")
     from stable_baselines3 import DQN
     dqn_agent = DQN.load("models/dqn_pdm_agent")
 
-    # ── Load Blind Agent (for comparison toggle) ──
-    # Created by main_experiment_ablation.py
     blind_agent = None
     if os.path.exists("models/dqn_blind_agent.zip"):
         blind_agent = DQN.load("models/dqn_blind_agent")
 
-    # ── Load and preprocess data ──
-    # Same pipeline as every script: load → calculate_rul → process
     df = load_combined_data()
     df = calculate_rul(df)
-    df_raw = df.copy()  # Keep raw version for true RUL values
+    df_raw = df.copy()
     df_clean, _ = process_data(df, DROP_SENSORS, DROP_SETTINGS)
 
     return lstm_models, dqn_agent, blind_agent, df_clean, df_raw
 
 
 def predict_ensemble(models, seq_tensor):
-    """
-    Run one sequence through all 5 LSTM models.
-    
-    This is the SAME logic as gym_env.py lines 91-98.
-    Each model outputs a RUL prediction (0-1 normalised).
-    We take the mean (prediction) and std (uncertainty).
-    
-    Args:
-        models: List of 5 trained LSTM models
-        seq_tensor: Shape (1, WINDOW_SIZE, num_features) — one engine's sensor window
-        
-    Returns:
-        mean_pred: Average prediction across models (0-1 normalised)
-        std_pred: Standard deviation across models (raw, before scaling)
-        all_preds: Individual model predictions (for the fan chart)
-    """
     preds = []
-    with torch.no_grad():  # No gradient computation needed for inference
+    with torch.no_grad():
         for model in models:
             pred = model(seq_tensor).item()
             preds.append(pred)
@@ -133,23 +76,6 @@ def predict_ensemble(models, seq_tensor):
 
 
 def get_q_values(agent, obs):
-    """
-    Extract Q-values from the DQN agent's neural network.
-    
-    This is the SAME logic as main_visualize.py lines 77-79.
-    Q(WAIT) = expected future reward if we wait
-    Q(MAINTAIN) = expected future reward if we maintain now
-    
-    The agent picks whichever action has the higher Q-value.
-    
-    Args:
-        agent: Trained DQN model (stable_baselines3)
-        obs: Observation array [mean_rul, sigma_now, rolling_sigma, trend]
-        
-    Returns:
-        q_wait: Q-value for action 0 (WAIT)
-        q_maintain: Q-value for action 1 (MAINTAIN)
-    """
     obs_tensor = torch.FloatTensor(obs).unsqueeze(0).to(agent.device)
     with torch.no_grad():
         q_values = agent.q_net(obs_tensor).cpu().numpy()[0]
@@ -162,96 +88,55 @@ def get_q_values(agent, obs):
 
 def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
                   inject_noise=False, noise_level=0.15, use_safety=True,
-                  sigma_history=None):
-    """
-    Run ONE cycle of the full 3-layer pipeline.
-    
-    This combines logic from:
-    - gym_env.py _get_observation() (Lines 76-105): sensor → LSTM → observation
-    - main_visualize.py simulate_engine() (Lines 72-97): DQN decision + Q-values
-    - gym_env.py safety_override() (Lines 163-175): Layer 3 check
-    
-    Args:
-        engine_data: Preprocessed sensor data for one engine (from df_clean)
-        engine_raw: Raw data with true RUL values (from df_raw)
-        cycle_idx: Current timestep index (starts at WINDOW_SIZE)
-        lstm_models: List of 5 LSTM models
-        agent: DQN agent (UA or Blind)
-        inject_noise: Whether to corrupt sensor readings
-        noise_level: Gaussian noise std (same as NOISE_LEVEL in config.py)
-        use_safety: Whether Layer 3 is active
-        
-    Returns:
-        dict with all information for the dashboard to display
-    """
-    # ── Get sensor features ──
-    # Same column filtering as gym_env.py line 82
+                  sigma_history=None, is_blind=False):
     features = [c for c in engine_data.columns if c not in ['unit', 'time', 'RUL']]
-
-    # ── Extract the sliding window ──
-    # Same as gym_env.py lines 79-83: take last WINDOW_SIZE cycles
     seq = engine_data.iloc[cycle_idx - WINDOW_SIZE:cycle_idx][features].values.copy()
 
-    # ── Optional noise injection ──
-    # Same as gym_env.py lines 86-88
-    # This is what you toggle in the dashboard to show uncertainty spikes
     if inject_noise:
         noise = np.random.normal(0, noise_level, seq.shape)
         seq = np.clip(seq + noise, 0, 1)
 
-    # ── Layer 1: LSTM Ensemble Prediction ──
-    # Same as gym_env.py lines 91-98
     seq_tensor = torch.FloatTensor(seq).unsqueeze(0).to(DEVICE)
     mean_pred, std_pred, individual_preds = predict_ensemble(lstm_models, seq_tensor)
 
-    # ── Build 4D observation vector ──
-    # Matches the new gym_env 4D obs: [mean_rul, sigma_now, sigma_rolling_avg, trend]
     norm_mean = np.clip(mean_pred, 0, 1)
     norm_std = np.clip(std_pred * UNCERTAINTY_SCALE, 0, 1)
     sensor_trend = np.clip(np.mean(seq[-1, :]), 0, 1)
 
-    # Option 3: Rolling sigma average from history passed by caller
     if sigma_history is None:
         sigma_history = [0.0, 0.0, 0.0]
     rolling_sigma = float(np.mean(sigma_history))
 
     obs = np.array([norm_mean, norm_std, rolling_sigma, sensor_trend], dtype=np.float32)
 
-    # ── Layer 2: DQN Decision ──
-    # Old blind agent was trained on 3D obs [mean_rul, 0.0, sensor_trend].
-    # UA agent uses full 4D [mean_rul, sigma_now, rolling_sigma, sensor_trend].
-    # Detect which format the loaded model expects and pass accordingly.
-    dqn_action, _ = agent.predict(obs, deterministic=True)
+    if is_blind:
+        obs_for_agent = obs.copy()
+        obs_for_agent[1] = 0.0
+        obs_for_agent[2] = 0.0
+    else:
+        obs_for_agent = obs
+
+    dqn_action, _ = agent.predict(obs_for_agent, deterministic=True)
     dqn_action = int(dqn_action)
+    q_wait, q_maintain = get_q_values(agent, obs_for_agent)
 
-    # ── Extract Q-values (for visualisation) ──
-    # Same as main_visualize.py lines 77-79
-    q_wait, q_maintain = get_q_values(agent, obs)
-
-    # ── Option 1: Uncertainty Gate ──
-    # Only fires for UA agent (blind agent always has norm_std=0, so gate never triggers).
-    # If DQN says MAINTAIN but sigma is very high and RUL isn't critically low,
-    # suppress the decision — "the prediction is too unreliable to act on right now."
-
-    # ── Layer 3: Safety Supervisor ──
-    # Imported from gym_env.py safety_override()
     final_action = dqn_action
     was_overridden = False
     if use_safety:
-        final_action, was_overridden = safety_override(dqn_action, obs)
+        final_action, was_overridden = safety_override(dqn_action, obs_for_agent)
 
-    # ── Get ground truth ──
     true_rul = engine_raw.iloc[cycle_idx]['RUL']
 
     return {
         'true_rul': true_rul,
-        'pred_rul': max(0, mean_pred * 125.0),          # Convert back to cycles
-        'uncertainty': std_pred * 125.0,          # In cycles
-        'norm_std': norm_std,                     # Normalised (for display)
+        'pred_rul': max(0, mean_pred * 125.0),
+        'uncertainty': std_pred * 125.0,
+        'norm_std': norm_std,
+        'rolling_sigma': rolling_sigma,
         'individual_preds': [max(0, p * 125.0) for p in individual_preds],
         'sensor_trend': sensor_trend,
-        'dqn_action': dqn_action,                 # 0=WAIT, 1=MAINTAIN
-        'final_action': final_action,             # After safety supervisor
+        'dqn_action': dqn_action,
+        'final_action': final_action,
         'was_overridden': was_overridden,
         'q_wait': q_wait,
         'q_maintain': q_maintain,
@@ -264,615 +149,1037 @@ def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
 # =================================================================
 
 def main():
-    # ── Page Configuration ──
     st.set_page_config(
         page_title="Engine Health Monitor",
-        page_icon="🔧",
+        page_icon="⚙️",
         layout="wide"
     )
 
-    # ── Custom CSS for a cleaner, more professional look ──
+    # ── CSS ──
     st.markdown("""
     <style>
-        /* Main title styling */
-        .main-title {
-            font-size: 2.6rem;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+        /* Global */
+        .stApp { background: #0a0e1a; }
+        .block-container { padding-top: 1.5rem; }
+
+        /* Header */
+        .dash-header {
+            background: linear-gradient(135deg, #0f1629 0%, #1a1f3a 50%, #0d1117 100%);
+            border: 1px solid rgba(99, 140, 255, 0.15);
+            border-radius: 16px;
+            padding: 20px 28px;
+            margin-bottom: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+        .dash-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+        }
+        .dash-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.8rem;
             font-weight: 800;
-            color: #a0a0de;
-            margin-bottom: 0;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            letter-spacing: -0.5px;
         }
-        .sub-title {
-            font-size: 0.95rem;
-            color: #8888aa;
-            margin-top: -8px;
-            margin-bottom: 20px;
+        .dash-subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 2px;
         }
+
+        /* Layer badges */
+        .layer-strip {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .layer-chip {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+        }
+        .chip-l1 { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+        .chip-l2 { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+        .chip-l3 { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .chip-active { box-shadow: 0 0 8px rgba(99,140,255,0.4); }
 
         /* Status cards */
-        .status-card {
-            padding: 16px 10px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
         }
-        .status-safe     { background: linear-gradient(135deg, #d4edda, #b8dfc5); border: 2px solid #28a745; }
-        .status-warning  { background: linear-gradient(135deg, #fff3cd, #ffe58a); border: 2px solid #ffc107; }
-        .status-danger   { background: linear-gradient(135deg, #f8d7da, #f0b8bc); border: 2px solid #dc3545; }
-        .status-override { background: linear-gradient(135deg, #e8daef, #c9a8e0); border: 2px solid #8e44ad; }
-        .status-maintained { background: linear-gradient(135deg, #d1ecf1, #a8d8e4); border: 2px solid #17a2b8; }
+        @media (max-width: 900px) {
+            .metric-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #131829, #1a2040);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 14px 12px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+        }
+        .mc-safe::before     { background: #22c55e; }
+        .mc-warning::before  { background: #eab308; }
+        .mc-danger::before   { background: #ef4444; }
+        .mc-info::before     { background: #3b82f6; }
+        .mc-purple::before   { background: #a855f7; }
+        .mc-cyan::before     { background: #06b6d4; }
 
-        .status-label { font-size: 0.75rem; color: #222; font-weight: 700;
-                        text-transform: uppercase; letter-spacing: 0.6px; }
-        .status-value { font-size: 1.9rem; color: #111; font-weight: 800; margin: 6px 0; }
-        .status-sub   { font-size: 0.72rem; color: #444; }
+        .mc-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .mc-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin: 4px 0 2px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mc-value-safe    { color: #4ade80; }
+        .mc-value-warning { color: #fbbf24; }
+        .mc-value-danger  { color: #f87171; }
+        .mc-value-info    { color: #60a5fa; }
+        .mc-value-purple  { color: #c084fc; }
+        .mc-value-cyan    { color: #22d3ee; }
+        .mc-sub {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.68rem;
+            color: #475569;
+        }
+
+        /* Pipeline flow */
+        .pipeline-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 12px 0 16px 0;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #0f1629, #151d35);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 12px;
+        }
+        .pipe-node {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 120px;
+        }
+        .pipe-arrow {
+            color: #334155;
+            font-size: 1.2rem;
+            margin: 0 6px;
+        }
+        .pn-active { box-shadow: 0 0 12px rgba(99,140,255,0.3); }
+        .pn-l1 { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+        .pn-l2 { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+        .pn-l3 { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+        .pn-out { background: rgba(168,85,247,0.12); color: #c084fc; border: 1px solid rgba(168,85,247,0.25); }
 
         /* Event log */
         .event-log {
-            background: #0d0d1e;
-            color: #00e676;
-            font-family: 'Courier New', monospace;
-            padding: 14px 16px;
+            background: #080c18;
+            border: 1px solid rgba(255,255,255,0.05);
             border-radius: 10px;
-            border: 1px solid #1e1e3a;
-            max-height: 210px;
+            padding: 12px 16px;
+            max-height: 200px;
             overflow-y: auto;
-            font-size: 0.78rem;
-            line-height: 1.7;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            line-height: 1.85;
+        }
+        .ev-jackpot  { color: #4ade80; }
+        .ev-safe     { color: #60a5fa; }
+        .ev-override { color: #c084fc; }
+        .ev-crash    { color: #f87171; }
+        .ev-early    { color: #fbbf24; }
+        .ev-info     { color: #64748b; }
+
+        /* Outcome banner */
+        .outcome-banner {
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 10px;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+        }
+        .ob-jackpot  { background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.05)); border: 1px solid rgba(34,197,94,0.3); }
+        .ob-safe     { background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.05)); border: 1px solid rgba(59,130,246,0.3); }
+        .ob-override { background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.05)); border: 1px solid rgba(168,85,247,0.3); }
+        .ob-crash    { background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05)); border: 1px solid rgba(239,68,68,0.3); }
+        .ob-early    { background: linear-gradient(135deg, rgba(234,179,8,0.15), rgba(234,179,8,0.05)); border: 1px solid rgba(234,179,8,0.3); }
+        .ob-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; }
+        .ob-detail { font-size: 0.82rem; color: #94a3b8; }
+
+        /* Progress bar */
+        .progress-container {
+            background: #131829;
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .progress-bar-bg {
+            background: #1e293b;
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+        .progress-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
         }
 
-        /* Layer indicator badges */
-        .layer-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin: 2px 4px;
-            letter-spacing: 0.3px;
+        /* Sidebar */
+        section[data-testid="stSidebar"] {
+            background: #0d1117;
+            border-right: 1px solid rgba(255,255,255,0.05);
         }
-        .layer-1 { background: #2980b9; color: white; }
-        .layer-2 { background: #27ae60; color: white; }
-        .layer-3 { background: #c0392b; color: white; }
+        section[data-testid="stSidebar"] .stMarkdown h1,
+        section[data-testid="stSidebar"] .stMarkdown h2,
+        section[data-testid="stSidebar"] .stMarkdown h3 {
+            color: #e2e8f0;
+        }
+
+        /* Summary stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .stat-item {
+            background: #131829;
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 8px;
+            padding: 10px 12px;
+            text-align: center;
+        }
+        .stat-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.62rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-top: 2px;
+        }
     </style>
     """, unsafe_allow_html=True)
 
-    # ── Title ──
-    st.markdown('<p class="main-title">🔧 Engine Health Monitoring Dashboard</p>', unsafe_allow_html=True)
-    st.markdown('<p class="sub-title">Uncertainty-Aware Reinforcement Learning for Predictive Maintenance</p>', unsafe_allow_html=True)
-
-    # ── Layer Architecture Indicator ──
+    # ── Header ──
     st.markdown("""
-    <div style="margin-bottom: 15px;">
-        <span class="layer-badge layer-1">Layer 1: LSTM Ensemble</span>
-        <span class="layer-badge layer-2">Layer 2: DQN Agent</span>
-        <span class="layer-badge layer-3">Layer 3: Safety Supervisor</span>
+    <div class="dash-header">
+        <p class="dash-title">⚙️ Engine Health Monitoring Dashboard</p>
+        <p class="dash-subtitle">Uncertainty-Aware Reinforcement Learning for Predictive Maintenance &nbsp;|&nbsp; 3-Layer Hybrid AI System</p>
+        <div class="layer-strip">
+            <span class="layer-chip chip-l1">L1 · LSTM Ensemble</span>
+            <span class="layer-chip chip-l2">L2 · DQN Agent</span>
+            <span class="layer-chip chip-l3">L3 · Safety Supervisor</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # ── Load Models (cached — only runs once) ──
+    # ── Load Models ──
     with st.spinner("Loading trained models..."):
         lstm_models, dqn_agent, blind_agent, df_clean, df_raw = load_all_models()
 
     # =============================================================
-    # SIDEBAR — Controls
+    # SIDEBAR
     # =============================================================
-    st.sidebar.header("🎛️ Simulation Controls")
+    st.sidebar.markdown("### Simulation Controls")
 
-    # Engine selection
-    # Get all unique engines and their lifecycle lengths
     all_units = sorted(df_clean['unit'].unique())
     unit_lengths = {u: len(df_clean[df_clean['unit'] == u]) for u in all_units}
 
-    # Show some useful engine options
-    st.sidebar.markdown("**Select Engine**")
+    st.sidebar.markdown("**Engine Selection**")
     engine_id = st.sidebar.selectbox(
-        "Engine Unit ID",
+        "Engine Unit",
         all_units,
         index=all_units.index(134) if 134 in all_units else 0,
-        format_func=lambda u: f"Engine {u}  ({unit_lengths[u]} cycles, {'FD001' if u <= 100 else 'FD002'})"
+        format_func=lambda u: f"Engine {u}  ({unit_lengths[u]} cyc, {'FD001' if u <= 100 else 'FD002'})"
     )
 
     st.sidebar.divider()
-
-    # ── Layer Toggles ──
     st.sidebar.markdown("**Layer Controls**")
 
-    # Agent selection (UA vs Blind)
-    # This is the key comparison from Experiment 1
     agent_type = st.sidebar.radio(
         "Layer 2: Agent Type",
         ["Uncertainty-Aware (UA)", "Blind (No σ)"],
-        help="UA agent uses uncertainty (σ) in its decisions. Blind agent ignores it."
+        help="UA agent uses uncertainty in decisions. Blind agent ignores it."
     )
 
-    # Safety supervisor toggle
-    # This is what Experiment 2 tests
     use_safety = st.sidebar.checkbox(
         "Layer 3: Safety Supervisor",
         value=True,
-        help="When ON, forces maintenance if predicted RUL is critically low. Normal override uses rolling σ < 0.55 for confidence; a hard-critical fallback still fires below about 5 cycles."
+        help="Forces maintenance when predicted RUL is critically low and ensemble is confident."
     )
 
     st.sidebar.divider()
-
-    # ── Noise Controls ──
-    st.sidebar.markdown("**Sensor Noise Injection**")
-    inject_noise = st.sidebar.checkbox(
-        "🔊 Inject Sensor Noise",
-        value=False,
+    st.sidebar.markdown("**Sensor Noise**")
+    inject_noise = st.sidebar.checkbox("Inject Sensor Noise", value=False)
+    noise_level = st.sidebar.slider(
+        "Noise Level (σ)", 0.01, 0.10, 0.05, 0.01,
+        disabled=not inject_noise,
         help="Simulates sensor degradation. Watch uncertainty spike!"
     )
-    noise_level = st.sidebar.slider(
-        "Noise Level (σ)",
-        0.01, 0.10, 0.05, 0.01,
-        disabled=not inject_noise,
-        help="Low (0.03–0.06): UA advantage visible. High (0.09–0.10): both agents struggle."
-    )
 
     st.sidebar.divider()
+    speed = st.sidebar.slider("Simulation Speed (sec/cycle)", 0.05, 1.0, 0.25, 0.05)
 
-    # ── Speed Control ──
-    speed = st.sidebar.slider(
-        "⏩ Simulation Speed",
-        0.05, 1.0, 0.3, 0.05,
-        help="Seconds per cycle. Lower = faster."
+    # Comparison mode
+    st.sidebar.divider()
+    st.sidebar.markdown("**Advanced**")
+    comparison_mode = st.sidebar.checkbox(
+        "Side-by-Side Comparison",
+        value=False,
+        help="Run UA and Blind agents simultaneously on the same engine"
     )
 
-    # ── Select the correct agent ──
-    if agent_type == "Blind (No σ)" and blind_agent is not None:
+    # Select agent
+    is_blind = agent_type == "Blind (No σ)"
+    if is_blind and blind_agent is not None:
         active_agent = blind_agent
     else:
         active_agent = dqn_agent
-        if agent_type == "Blind (No σ)" and blind_agent is None:
-            st.sidebar.warning("Blind agent not found. Run main_experiment_ablation.py first.")
+        if is_blind and blind_agent is None:
+            st.sidebar.warning("Blind agent not found.")
 
     # =============================================================
-    # SESSION STATE — Simulation memory
+    # SESSION STATE
     # =============================================================
-    # Streamlit re-runs the entire script on every interaction.
-    # st.session_state persists data between re-runs.
-
     if 'running' not in st.session_state:
         st.session_state.running = False
     if 'history' not in st.session_state:
         st.session_state.history = []
+    if 'history_blind' not in st.session_state:
+        st.session_state.history_blind = []
     if 'events' not in st.session_state:
         st.session_state.events = []
+    if 'events_blind' not in st.session_state:
+        st.session_state.events_blind = []
     if 'outcome' not in st.session_state:
         st.session_state.outcome = None
+    if 'outcome_blind' not in st.session_state:
+        st.session_state.outcome_blind = None
     if 'current_engine' not in st.session_state:
         st.session_state.current_engine = None
     if 'sigma_history' not in st.session_state:
-        st.session_state.sigma_history = [0.0, 0.0, 0.0]   # Option 3: rolling sigma
+        st.session_state.sigma_history = [0.0, 0.0, 0.0]
+    if 'sigma_history_blind' not in st.session_state:
+        st.session_state.sigma_history_blind = [0.0, 0.0, 0.0]
+    if 'noise_seed' not in st.session_state:
+        st.session_state.noise_seed = None
 
     # Reset if engine changed
     if st.session_state.current_engine != engine_id:
-        st.session_state.history = []
-        st.session_state.events = []
-        st.session_state.outcome = None
+        for key in ['history', 'history_blind', 'events', 'events_blind',
+                     'outcome', 'outcome_blind']:
+            st.session_state[key] = [] if 'history' in key or 'events' in key else None
         st.session_state.running = False
         st.session_state.current_engine = engine_id
         st.session_state.sigma_history = [0.0, 0.0, 0.0]
+        st.session_state.sigma_history_blind = [0.0, 0.0, 0.0]
+        st.session_state.noise_seed = None
 
-    # ── Control Buttons ──
-    col_btn1, col_btn2, col_btn3 = st.columns(3)
-    with col_btn1:
-        start = st.button("▶️ Start Simulation", use_container_width=True, type="primary")
-    with col_btn2:
-        stop = st.button("⏹️ Stop", use_container_width=True)
-    with col_btn3:
-        reset = st.button("🔄 Reset", use_container_width=True)
+    # ── Buttons ──
+    col_b1, col_b2, col_b3 = st.columns(3)
+    with col_b1:
+        start = st.button("▶  Start Simulation", use_container_width=True, type="primary")
+    with col_b2:
+        stop = st.button("⏹  Stop", use_container_width=True)
+    with col_b3:
+        reset = st.button("↺  Reset", use_container_width=True)
 
     if start:
         st.session_state.running = True
+        if st.session_state.noise_seed is None:
+            st.session_state.noise_seed = np.random.randint(0, 100000)
     if stop:
         st.session_state.running = False
     if reset:
-        st.session_state.history = []
-        st.session_state.events = []
+        for key in ['history', 'history_blind', 'events', 'events_blind']:
+            st.session_state[key] = []
         st.session_state.outcome = None
+        st.session_state.outcome_blind = None
         st.session_state.running = False
         st.session_state.sigma_history = [0.0, 0.0, 0.0]
+        st.session_state.sigma_history_blind = [0.0, 0.0, 0.0]
+        st.session_state.noise_seed = None
         st.rerun()
 
-    # =============================================================
-    # MAIN DISPLAY — Placeholders for live updates
-    # =============================================================
-    # We create empty containers that get updated each cycle.
-    # This is how Streamlit does "real-time" updates.
+    # ── Placeholders ──
+    progress_ph = st.empty()
+    pipeline_ph = st.empty()
+    metric_ph = st.empty()
+    chart_ph = st.empty()
+    bottom_ph = st.empty()
 
-    # Row 1: Status cards
-    metric_placeholder = st.empty()
-
-    # Row 2: Charts
-    chart_placeholder = st.empty()
-
-    # Row 3: Q-values + Event log
-    bottom_placeholder = st.empty()
-
-    # =============================================================
-    # SIMULATION LOOP
-    # =============================================================
-
-    # Get engine data
+    # ── Engine data ──
     engine_data = df_clean[df_clean['unit'] == engine_id].reset_index(drop=True)
     engine_raw = df_raw[df_raw['unit'] == engine_id].reset_index(drop=True)
     max_cycles = len(engine_data)
 
+    # =============================================================
+    # SIMULATION LOOP
+    # =============================================================
     rendered_in_loop = False
-    if st.session_state.running and st.session_state.outcome is None:
-        # Start from where we left off (or from WINDOW_SIZE)
+
+    # Determine if we should keep running
+    # In comparison mode, keep going until BOTH agents have outcomes
+    use_comparison = comparison_mode and blind_agent is not None
+    primary_done = st.session_state.outcome is not None
+    blind_done = st.session_state.outcome_blind is not None
+    should_run = st.session_state.running and (
+        not primary_done or (use_comparison and not blind_done)
+    )
+
+    if should_run:
         start_idx = WINDOW_SIZE + len(st.session_state.history)
 
         for cycle_idx in range(start_idx, max_cycles):
             if not st.session_state.running:
                 break
 
-            # ── Run one cycle through the full 3-layer pipeline ──
-            result = run_one_cycle(
-                engine_data, engine_raw, cycle_idx,
-                lstm_models, active_agent,
-                inject_noise=inject_noise,
-                noise_level=noise_level,
-                use_safety=use_safety,
-                sigma_history=list(st.session_state.sigma_history)
-            )
-            # Update sigma history for next cycle (Option 3)
-            st.session_state.sigma_history.pop(0)
-            st.session_state.sigma_history.append(result['norm_std'])
-            st.session_state.history.append(result)
+            # Set noise seed for reproducibility in comparison mode
+            if inject_noise and st.session_state.noise_seed is not None:
+                np.random.seed(st.session_state.noise_seed + cycle_idx)
 
-            # ── Log events ──
-            cycle_num = cycle_idx - WINDOW_SIZE + 1
-            true_rul = result['true_rul']
-
-            # Keep the dashboard aligned with the evaluated pipeline.
-            if False:  # Legacy dashboard-only gate disabled.
-                st.session_state.events.append(
-                    f"🛡️ Cycle {cycle_num}: UNCERTAINTY GATE — Suppressed premature MAINTAIN "
-                    f"(σ={result['norm_std']:.2f}, pred={result['pred_rul']:.0f})"
+            # ── Primary agent (skip if already done) ──
+            if st.session_state.outcome is None:
+                result = run_one_cycle(
+                    engine_data, engine_raw, cycle_idx,
+                    lstm_models, active_agent,
+                    inject_noise=inject_noise,
+                    noise_level=noise_level,
+                    use_safety=use_safety,
+                    sigma_history=list(st.session_state.sigma_history),
+                    is_blind=is_blind
                 )
+                st.session_state.sigma_history.pop(0)
+                st.session_state.sigma_history.append(result['norm_std'])
+                st.session_state.history.append(result)
+            else:
+                # Primary is done but we're still running for blind agent
+                # Append a copy of the last result to keep cycle counts aligned
+                result = st.session_state.history[-1]
 
-            if result['was_overridden']:
-                st.session_state.events.append(
-                    f"⚠️ Cycle {cycle_num}: SAFETY OVERRIDE — Forced maintenance "
-                    f"(pred RUL={result['pred_rul']:.0f}, true RUL={true_rul:.0f})"
+            # ── Comparison: Blind agent (if enabled) ──
+            if use_comparison and st.session_state.outcome_blind is None:
+                if inject_noise and st.session_state.noise_seed is not None:
+                    np.random.seed(st.session_state.noise_seed + cycle_idx)
+
+                result_b = run_one_cycle(
+                    engine_data, engine_raw, cycle_idx,
+                    lstm_models, blind_agent,
+                    inject_noise=inject_noise,
+                    noise_level=noise_level,
+                    use_safety=use_safety,
+                    sigma_history=list(st.session_state.sigma_history_blind),
+                    is_blind=True
                 )
-                st.session_state.outcome = 'safety_override'
+                st.session_state.sigma_history_blind.pop(0)
+                st.session_state.sigma_history_blind.append(result_b['norm_std'])
+                st.session_state.history_blind.append(result_b)
+
+                # Log blind events
+                cycle_num = cycle_idx - WINDOW_SIZE + 1
+                if result_b['was_overridden']:
+                    st.session_state.events_blind.append(
+                        ('override', f"Cycle {cycle_num}: SAFETY OVERRIDE (true RUL={result_b['true_rul']:.0f})")
+                    )
+                    st.session_state.outcome_blind = 'safety_override'
+                elif result_b['final_action'] == 1:
+                    true_b = result_b['true_rul']
+                    lbl = 'jackpot' if true_b <= 20 else ('safe' if true_b <= 50 else 'early')
+                    st.session_state.events_blind.append(
+                        (lbl, f"Cycle {cycle_num}: {lbl.upper()} (true RUL={true_b:.0f})")
+                    )
+                    st.session_state.outcome_blind = f'dqn_{lbl}'
+                elif cycle_idx >= max_cycles - 1:
+                    st.session_state.events_blind.append(
+                        ('crash', f"Cycle {cycle_num}: ENGINE FAILURE")
+                    )
+                    st.session_state.outcome_blind = 'crash'
+
+            # ── Log primary events ──
+            if st.session_state.outcome is None:
+                cycle_num = cycle_idx - WINDOW_SIZE + 1
+                true_rul = result['true_rul']
+
+                if result['was_overridden']:
+                    st.session_state.events.append(
+                        ('override', f"Cycle {cycle_num}: SAFETY OVERRIDE — Forced maintenance "
+                         f"(pred={result['pred_rul']:.0f}, true={true_rul:.0f})")
+                    )
+                    st.session_state.outcome = 'safety_override'
+                    if not use_comparison or st.session_state.outcome_blind is not None:
+                        st.session_state.running = False
+                elif result['final_action'] == 1:
+                    if true_rul <= 20:
+                        label, etype = "JACKPOT", 'jackpot'
+                    elif true_rul <= 50:
+                        label, etype = "SAFE", 'safe'
+                    else:
+                        label, etype = "EARLY (wasteful)", 'early'
+                    st.session_state.events.append(
+                        (etype, f"Cycle {cycle_num}: {label} — DQN triggered "
+                         f"(pred={result['pred_rul']:.0f}, true={true_rul:.0f})")
+                    )
+                    st.session_state.outcome = 'dqn_maintain'
+                    if not use_comparison or st.session_state.outcome_blind is not None:
+                        st.session_state.running = False
+                elif cycle_idx >= max_cycles - 1:
+                    st.session_state.events.append(
+                        ('crash', f"Cycle {cycle_num}: ENGINE FAILURE — No maintenance triggered!")
+                    )
+                    st.session_state.outcome = 'crash'
+                    st.session_state.running = False
+
+            # Check if both done in comparison mode
+            if use_comparison and st.session_state.outcome is not None and st.session_state.outcome_blind is not None:
                 st.session_state.running = False
-            elif result['final_action'] == 1:
-                # DQN chose to maintain on its own
-                if true_rul <= 20:
-                    label = "🎯 JACKPOT"
-                elif true_rul <= 50:
-                    label = "✅ SAFE"
-                else:
-                    label = "⚡ EARLY (wasteful)"
-                st.session_state.events.append(
-                    f"{label} — Cycle {cycle_num}: DQN triggered maintenance "
-                    f"(pred={result['pred_rul']:.0f}, true={true_rul:.0f})"
-                )
-                st.session_state.outcome = 'dqn_maintain'
-                st.session_state.running = False
-            elif cycle_idx >= max_cycles - 1:
-                st.session_state.events.append(
-                    f"💥 Cycle {cycle_num}: ENGINE FAILURE — No maintenance triggered!"
-                )
-                st.session_state.outcome = 'crash'
-                st.session_state.running = False
 
-            # ── Update the dashboard display ──
+            # ── Render ──
             render_dashboard(
-                st.session_state.history,
-                st.session_state.events,
-                st.session_state.outcome,
-                metric_placeholder,
-                chart_placeholder,
-                bottom_placeholder,
-                agent_type,
-                use_safety,
-                inject_noise
+                st.session_state.history, st.session_state.events,
+                st.session_state.outcome, st.session_state.history_blind,
+                st.session_state.events_blind, st.session_state.outcome_blind,
+                progress_ph, pipeline_ph, metric_ph, chart_ph, bottom_ph,
+                agent_type, use_safety, inject_noise, max_cycles,
+                comparison_mode and blind_agent is not None
             )
             rendered_in_loop = True
 
             if not st.session_state.running:
                 break
-
             time.sleep(speed)
 
-    # Render current state (for when simulation is paused/stopped but not just run)
+    # Static render
     if st.session_state.history and not rendered_in_loop:
         render_dashboard(
-            st.session_state.history,
-            st.session_state.events,
-            st.session_state.outcome,
-            metric_placeholder,
-            chart_placeholder,
-            bottom_placeholder,
-            agent_type,
-            use_safety,
-            inject_noise
+            st.session_state.history, st.session_state.events,
+            st.session_state.outcome, st.session_state.history_blind,
+            st.session_state.events_blind, st.session_state.outcome_blind,
+            progress_ph, pipeline_ph, metric_ph, chart_ph, bottom_ph,
+            agent_type, use_safety, inject_noise, max_cycles,
+            comparison_mode and blind_agent is not None
         )
     elif not st.session_state.history:
-        # Only show the "not started" message when no simulation has run yet
-        metric_placeholder.info(
-            f"🔧 Engine {engine_id} loaded ({max_cycles} cycles). "
+        st.info(
+            f"⚙️ Engine {engine_id} loaded ({max_cycles} cycles, "
+            f"{'FD001' if engine_id <= 100 else 'FD002'}). "
             f"Press **Start Simulation** to begin."
         )
 
 
 # =================================================================
-# 4. RENDERING FUNCTIONS
+# 4. RENDERING
 # =================================================================
 
-def render_dashboard(history, events, outcome,
-                     metric_ph, chart_ph, bottom_ph,
-                     agent_type, use_safety, inject_noise):
-    """
-    Render the full dashboard display.
-    Called every cycle during simulation.
-    """
+def render_dashboard(history, events, outcome, history_blind, events_blind,
+                     outcome_blind, progress_ph, pipeline_ph, metric_ph,
+                     chart_ph, bottom_ph, agent_type, use_safety,
+                     inject_noise, max_cycles, show_comparison):
     latest = history[-1]
     n = len(history)
+    total_usable = max_cycles - WINDOW_SIZE
 
-    # ── ROW 1: Status Cards ──
+    # ── Progress Bar ──
+    pct = min(n / total_usable * 100, 100)
+    if latest['true_rul'] > 50:
+        bar_color = "#22c55e"
+    elif latest['true_rul'] > 20:
+        bar_color = "#eab308"
+    else:
+        bar_color = "#ef4444"
+
+    with progress_ph.container():
+        st.markdown(f"""
+        <div class="progress-container">
+            <div class="progress-label">
+                <span>Engine Lifecycle</span>
+                <span>Cycle {n} / {total_usable} &nbsp;({pct:.0f}%)</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width: {pct}%; background: {bar_color};"></div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ── Pipeline Flow ──
+    l1_active = "pn-active"
+    l2_active = "pn-active"
+    l3_active = "pn-active" if latest['was_overridden'] else ""
+    out_action = "MAINTAIN" if latest['final_action'] == 1 else "WAIT"
+    out_color = "#4ade80" if latest['final_action'] == 1 else "#60a5fa"
+    dqn_label = "MAINTAIN" if latest['dqn_action'] == 1 else "WAIT"
+    safety_label = "OVERRIDE!" if latest['was_overridden'] else ("ON" if use_safety else "OFF")
+    pred_val = latest['pred_rul']
+    unc_val = latest['uncertainty']
+
+    with pipeline_ph.container():
+        st.markdown(f"""
+        <div class="pipeline-flow">
+            <div class="pipe-node pn-l1 {l1_active}">
+                SENSORS<br>
+                <span style="font-size:0.6rem;opacity:0.7">30x24 window</span>
+            </div>
+            <span class="pipe-arrow">&rarr;</span>
+            <div class="pipe-node pn-l1 {l1_active}">
+                L1: LSTM x5<br>
+                <span style="font-size:0.6rem;opacity:0.7">RUL={pred_val:.0f} sig={unc_val:.1f}</span>
+            </div>
+            <span class="pipe-arrow">&rarr;</span>
+            <div class="pipe-node pn-l2 {l2_active}">
+                L2: DQN<br>
+                <span style="font-size:0.6rem;opacity:0.7">{dqn_label}</span>
+            </div>
+            <span class="pipe-arrow">&rarr;</span>
+            <div class="pipe-node pn-l3 {l3_active}">
+                L3: Safety<br>
+                <span style="font-size:0.6rem;opacity:0.7">{safety_label}</span>
+            </div>
+            <span class="pipe-arrow">&rarr;</span>
+            <div class="pipe-node pn-out pn-active">
+                OUTPUT<br>
+                <span style="font-size:0.6rem;color:{out_color}">{out_action}</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ── Metric Cards ──
+    pred_rul = latest['pred_rul']
+    true_rul = latest['true_rul']
+    unc = latest['uncertainty']
+    rolling_s = latest['rolling_sigma']
+    pred_err = abs(pred_rul - true_rul)
+
+    def rul_style(val):
+        if val > 50: return "mc-safe", "mc-value-safe"
+        elif val > 20: return "mc-warning", "mc-value-warning"
+        else: return "mc-danger", "mc-value-danger"
+
+    def unc_style(val):
+        if val < 3: return "mc-safe", "mc-value-safe"
+        elif val < 8: return "mc-warning", "mc-value-warning"
+        else: return "mc-danger", "mc-value-danger"
+
+    pc, pv = rul_style(pred_rul)
+    tc, tv = rul_style(true_rul)
+    uc, uv = unc_style(unc)
+
+    action_text = "MAINTAIN" if latest['dqn_action'] == 1 else "WAIT"
+    dqn_card_class = "mc-warning" if latest['dqn_action'] == 1 else "mc-info"
+    dqn_value_class = "mc-value-warning" if latest['dqn_action'] == 1 else "mc-value-info"
+    agent_label = "UA" if "UA" in agent_type else "Blind"
+
+    if outcome == 'safety_override':
+        status, sc, sv = "OVERRIDE", "mc-purple", "mc-value-purple"
+    elif outcome == 'crash':
+        status, sc, sv = "CRASHED", "mc-danger", "mc-value-danger"
+    elif outcome == 'dqn_maintain':
+        status, sc, sv = "DONE", "mc-cyan", "mc-value-cyan"
+    else:
+        status, sc, sv = "RUNNING", "mc-safe", "mc-value-safe"
+
     with metric_ph.container():
-        c1, c2, c3, c4, c5 = st.columns(5)
-
-        # Card 1: Predicted RUL
-        pred_rul = latest['pred_rul']
-        if pred_rul > 50:
-            card_class = "status-safe"
-        elif pred_rul > 20:
-            card_class = "status-warning"
-        else:
-            card_class = "status-danger"
-
-        c1.markdown(f"""
-        <div class="status-card {card_class}">
-            <div class="status-label">Predicted RUL</div>
-            <div class="status-value">{pred_rul:.0f}</div>
-            <div class="status-sub">cycles remaining</div>
+        st.markdown(f"""
+        <div class="metric-grid">
+            <div class="metric-card {pc}">
+                <div class="mc-label">Predicted RUL</div>
+                <div class="mc-value {pv}">{pred_rul:.0f}</div>
+                <div class="mc-sub">cycles remaining</div>
+            </div>
+            <div class="metric-card {tc}">
+                <div class="mc-label">True RUL</div>
+                <div class="mc-value {tv}">{true_rul:.0f}</div>
+                <div class="mc-sub">ground truth</div>
+            </div>
+            <div class="metric-card {uc}">
+                <div class="mc-label">Uncertainty</div>
+                <div class="mc-value {uv}">{unc:.1f}</div>
+                <div class="mc-sub">ensemble disagreement</div>
+            </div>
+            <div class="metric-card mc-info">
+                <div class="mc-label">Rolling Sigma</div>
+                <div class="mc-value mc-value-info">{rolling_s:.2f}</div>
+                <div class="mc-sub">3-cycle average</div>
+            </div>
+            <div class="metric-card {dqn_card_class}">
+                <div class="mc-label">DQN Decision</div>
+                <div class="mc-value {dqn_value_class}">{action_text}</div>
+                <div class="mc-sub">{agent_label} Agent</div>
+            </div>
+            <div class="metric-card {sc}">
+                <div class="mc-label">System Status</div>
+                <div class="mc-value {sv}">{status}</div>
+                <div class="mc-sub">cycle {n}</div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
-        # Card 2: True RUL (ground truth)
-        true_rul = latest['true_rul']
-        if true_rul > 50:
-            card_class = "status-safe"
-        elif true_rul > 20:
-            card_class = "status-warning"
-        else:
-            card_class = "status-danger"
-
-        c2.markdown(f"""
-        <div class="status-card {card_class}">
-            <div class="status-label">True RUL</div>
-            <div class="status-value">{true_rul:.0f}</div>
-            <div class="status-sub">actual cycles left</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Card 3: Uncertainty
-        unc = latest['uncertainty']
-        if unc < 3:
-            card_class = "status-safe"
-        elif unc < 8:
-            card_class = "status-warning"
-        else:
-            card_class = "status-danger"
-
-        c3.markdown(f"""
-        <div class="status-card {card_class}">
-            <div class="status-label">Uncertainty (σ)</div>
-            <div class="status-value">{unc:.1f}</div>
-            <div class="status-sub">ensemble disagreement</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Card 4: DQN Decision
-        action_text = "MAINTAIN" if latest['dqn_action'] == 1 else "WAIT"
-        action_class = "status-warning" if latest['dqn_action'] == 1 else "status-safe"
-        c4.markdown(f"""
-        <div class="status-card {action_class}">
-            <div class="status-label">DQN Decision</div>
-            <div class="status-value">{action_text}</div>
-            <div class="status-sub">{"UA Agent" if "UA" in agent_type else "Blind Agent"}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Card 5: System Status
-        if outcome == 'safety_override':
-            card_class = "status-override"
-            status = "OVERRIDE"
-            sub = "Safety supervisor intervened"
-        elif outcome == 'dqn_maintain':
-            card_class = "status-maintained"
-            status = "MAINTAINED"
-            sub = f"True RUL was {latest['true_rul']:.0f}"
-        elif outcome == 'crash':
-            card_class = "status-danger"
-            status = "CRASHED"
-            sub = "Engine failed!"
-        elif latest['was_overridden']:
-            card_class = "status-override"
-            status = "OVERRIDE"
-            sub = "Layer 3 activated"
-        else:
-            card_class = "status-safe"
-            status = "RUNNING"
-            sub = f"Cycle {n}/{n + WINDOW_SIZE}"
-
-        c5.markdown(f"""
-        <div class="status-card {card_class}">
-            <div class="status-label">System Status</div>
-            <div class="status-value">{status}</div>
-            <div class="status-sub">{sub}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # ── ROW 2: Live Charts ──
+    # ── Charts ──
     with chart_ph.container():
-        cycles        = list(range(1, n + 1))
-        true_ruls     = [h['true_rul']    for h in history]
-        pred_ruls     = [h['pred_rul']    for h in history]
+        cycles = list(range(1, n + 1))
+        true_ruls = [h['true_rul'] for h in history]
+        pred_ruls = [h['pred_rul'] for h in history]
         uncertainties = [h['uncertainty'] for h in history]
+        sigmas = [h['norm_std'] for h in history]
+        rolling_sigmas = [h['rolling_sigma'] for h in history]
 
-        # ── Chart 1: RUL Prediction ──
+        # ══════════════════════════════════════════════
+        # CHART 1: RUL Prediction with Individual Models
+        # ══════════════════════════════════════════════
         upper = [p + 2 * u for p, u in zip(pred_ruls, uncertainties)]
         lower = [max(0, p - 2 * u) for p, u in zip(pred_ruls, uncertainties)]
 
         fig1 = go.Figure()
 
-        # Uncertainty band (±2σ) — fill between upper and lower
+        # Uncertainty band
         fig1.add_trace(go.Scatter(
             x=cycles, y=upper, mode='lines', line=dict(width=0),
             showlegend=False, hoverinfo='skip'
         ))
         fig1.add_trace(go.Scatter(
             x=cycles, y=lower, mode='lines', line=dict(width=0),
-            fill='tonexty', fillcolor='rgba(52,152,219,0.18)',
-            name='±2σ Uncertainty', hoverinfo='skip'
+            fill='tonexty', fillcolor='rgba(96,165,250,0.12)',
+            name='±2σ Band', hoverinfo='skip'
         ))
 
-        # Predicted RUL
+        # Individual model predictions (ghost lines)
+        model_colors = ['#1e40af', '#1d4ed8', '#2563eb', '#3b82f6', '#60a5fa']
+        for m_idx in range(ENSEMBLE_SIZE):
+            model_preds = [h['individual_preds'][m_idx] for h in history]
+            fig1.add_trace(go.Scatter(
+                x=cycles, y=model_preds, mode='lines',
+                line=dict(color=model_colors[m_idx], width=0.8),
+                opacity=0.25,
+                name=f'LSTM {m_idx+1}',
+                showlegend=(m_idx == 0),
+                legendgroup='individual',
+            ))
+        # Rename first one for legend
+        fig1.data[-ENSEMBLE_SIZE].name = 'Individual LSTMs'
+
+        # Predicted RUL (ensemble mean)
         fig1.add_trace(go.Scatter(
             x=cycles, y=pred_ruls, mode='lines',
-            line=dict(color='#5dade2', width=2.5),
-            name='Predicted RUL (Layer 1)'
+            line=dict(color='#60a5fa', width=2.5),
+            name='Predicted RUL'
         ))
 
         # True RUL
         fig1.add_trace(go.Scatter(
             x=cycles, y=true_ruls, mode='lines',
-            line=dict(color='#ecf0f1', width=2, dash='dash'),
-            name='True RUL (Ground Truth)'
+            line=dict(color='#e2e8f0', width=2, dash='dash'),
+            name='True RUL'
         ))
 
-        # Maintenance trigger marker
-        if outcome is not None and outcome != 'crash':
-            marker_color = '#9b59b6' if outcome == 'safety_override' else '#2ecc71'
+        # Comparison: Blind prediction overlay
+        if show_comparison and history_blind:
+            blind_preds = [h['pred_rul'] for h in history_blind]
             fig1.add_trace(go.Scatter(
-                x=[n], y=[pred_ruls[-1]], mode='markers',
-                marker=dict(size=14, color=marker_color, symbol='star',
-                            line=dict(width=2, color='white')),
-                name='Maintenance Triggered'
+                x=list(range(1, len(blind_preds) + 1)), y=blind_preds,
+                mode='lines', line=dict(color='#f87171', width=2, dash='dot'),
+                name='Blind Agent Pred'
             ))
 
-        # Reference zones (no built-in annotation — use add_annotation to avoid overlap)
-        fig1.add_hrect(y0=0, y1=20, fillcolor="rgba(231,76,60,0.07)", line_width=0)
-        fig1.add_hline(y=20, line_dash="dot",  line_color="rgba(231,76,60,0.75)",  line_width=1.5)
-        fig1.add_hline(y=15, line_dash="dash", line_color="rgba(155,89,182,0.75)", line_width=1.5)
+        # Maintenance marker
+        if outcome is not None and outcome != 'crash':
+            marker_color = '#a855f7' if outcome == 'safety_override' else '#4ade80'
+            fig1.add_trace(go.Scatter(
+                x=[n], y=[pred_ruls[-1]], mode='markers',
+                marker=dict(size=16, color=marker_color, symbol='star',
+                            line=dict(width=2, color='white')),
+                name='Maintenance'
+            ))
 
-        # Staggered annotations so they don't collide
-        fig1.add_annotation(
-            xref="paper", x=0.99, y=21, yref="y",
+        # Zones
+        fig1.add_hrect(y0=0, y1=20, fillcolor="rgba(239,68,68,0.06)", line_width=0)
+        fig1.add_hline(y=20, line_dash="dot", line_color="rgba(239,68,68,0.5)", line_width=1.5)
+        fig1.add_hline(y=15, line_dash="dash", line_color="rgba(168,85,247,0.5)", line_width=1)
+        fig1.add_annotation(xref="paper", x=0.99, y=21, yref="y",
             text="Jackpot Zone (RUL < 20)", showarrow=False,
             xanchor="right", yanchor="bottom",
-            font=dict(size=10, color="rgba(231,76,60,0.9)")
-        )
-        fig1.add_annotation(
-            xref="paper", x=0.99, y=14, yref="y",
-            text="Safety Threshold (15)", showarrow=False,
+            font=dict(size=9, color="rgba(248,113,113,0.8)"))
+        fig1.add_annotation(xref="paper", x=0.99, y=14, yref="y",
+            text="Safety Threshold", showarrow=False,
             xanchor="right", yanchor="top",
-            font=dict(size=10, color="rgba(155,89,182,0.9)")
-        )
+            font=dict(size=9, color="rgba(168,85,247,0.8)"))
 
         fig1.update_layout(
-            title=dict(text="RUL Prediction with Uncertainty Band",
-                       x=0.5, xanchor="center", font=dict(size=15)),
-            height=430,
+            title=dict(text="Layer 1 — RUL Prediction with Uncertainty Band",
+                       x=0.5, xanchor="center", font=dict(size=14, color='#94a3b8')),
+            height=380,
             template="plotly_dark",
-            legend=dict(
-                orientation="h", x=0.5, xanchor="center",
-                y=-0.18, yanchor="top",
-                bgcolor="rgba(0,0,0,0)", font=dict(size=12)
-            ),
-            margin=dict(l=60, r=20, t=55, b=70),
-            xaxis=dict(title="Cycle", showgrid=True, gridcolor="rgba(255,255,255,0.06)"),
-            yaxis=dict(title="RUL (cycles)", showgrid=True, gridcolor="rgba(255,255,255,0.06)"),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
+            legend=dict(orientation="h", x=0.5, xanchor="center", y=-0.22,
+                        bgcolor="rgba(0,0,0,0)", font=dict(size=10)),
+            margin=dict(l=55, r=20, t=50, b=65),
+            xaxis=dict(title="Cycle", gridcolor="rgba(255,255,255,0.03)"),
+            yaxis=dict(title="RUL (cycles)", gridcolor="rgba(255,255,255,0.03)"),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         )
         st.plotly_chart(fig1, use_container_width=True)
 
-        # ── Chart 2: Q-Values ──
-        q_waits    = [h['q_wait']    for h in history]
-        q_maintains = [h['q_maintain'] for h in history]
-        q_diff = [m - w for w, m in zip(q_waits, q_maintains)]
+        # ══════════════════════════════════════════════
+        # CHART 2 & 3: Uncertainty + Q-Values side by side
+        # ══════════════════════════════════════════════
+        col_c2, col_c3 = st.columns(2)
 
-        fig2 = go.Figure()
-        fig2.add_trace(go.Scatter(
-            x=cycles, y=q_diff, mode='lines',
-            line=dict(color='#e74c3c', width=2),
-            name='Q(MAINTAIN) − Q(WAIT)',
-            fill='tozeroy', fillcolor='rgba(231,76,60,0.12)'
-        ))
-        fig2.add_hline(y=0, line_color="rgba(255,255,255,0.25)", line_dash="solid")
+        with col_c2:
+            # Uncertainty chart
+            fig2 = go.Figure()
+            fig2.add_trace(go.Scatter(
+                x=cycles, y=sigmas, mode='lines',
+                line=dict(color='#f59e0b', width=2),
+                name='σ (instantaneous)',
+                fill='tozeroy', fillcolor='rgba(245,158,11,0.08)'
+            ))
+            fig2.add_trace(go.Scatter(
+                x=cycles, y=rolling_sigmas, mode='lines',
+                line=dict(color='#ef4444', width=2, dash='dash'),
+                name='σ (rolling avg)'
+            ))
+            fig2.add_hline(y=0.55, line_dash="dot",
+                           line_color="rgba(168,85,247,0.5)", line_width=1)
+            fig2.add_annotation(xref="paper", x=0.99, y=0.56, yref="y",
+                text="Supervisor σ threshold (0.55)", showarrow=False,
+                xanchor="right", yanchor="bottom",
+                font=dict(size=8, color="rgba(168,85,247,0.7)"))
 
-        fig2.update_layout(
-            title=dict(text="DQN Q-Values — Agent Reasoning  (positive = prefers MAINTAIN)",
-                       x=0.5, xanchor="center", font=dict(size=13)),
-            height=230,
-            template="plotly_dark",
-            legend=dict(
-                orientation="h", x=0.5, xanchor="center",
-                y=-0.35, yanchor="top",
-                bgcolor="rgba(0,0,0,0)", font=dict(size=12)
-            ),
-            margin=dict(l=60, r=20, t=45, b=60),
-            xaxis=dict(title="Cycle", showgrid=True, gridcolor="rgba(255,255,255,0.06)"),
-            yaxis=dict(title="Q-Value Diff", showgrid=True, gridcolor="rgba(255,255,255,0.06)"),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-        )
-        st.plotly_chart(fig2, use_container_width=True)
+            fig2.update_layout(
+                title=dict(text="Ensemble Uncertainty (σ)",
+                           x=0.5, xanchor="center", font=dict(size=13, color='#94a3b8')),
+                height=250,
+                template="plotly_dark",
+                legend=dict(orientation="h", x=0.5, xanchor="center", y=-0.35,
+                            bgcolor="rgba(0,0,0,0)", font=dict(size=10)),
+                margin=dict(l=50, r=15, t=45, b=55),
+                xaxis=dict(title="Cycle", gridcolor="rgba(255,255,255,0.03)"),
+                yaxis=dict(title="σ (scaled)", range=[0, 1.05], gridcolor="rgba(255,255,255,0.03)"),
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            )
+            st.plotly_chart(fig2, use_container_width=True)
 
-    # ── ROW 3: Event Log + Info ──
+        with col_c3:
+            # Q-value chart
+            q_waits = [h['q_wait'] for h in history]
+            q_maintains = [h['q_maintain'] for h in history]
+            q_diff = [m - w for w, m in zip(q_waits, q_maintains)]
+
+            fig3 = go.Figure()
+            # Color fill: green when positive (prefers maintain), red when negative
+            pos_fill = [max(0, d) for d in q_diff]
+            neg_fill = [min(0, d) for d in q_diff]
+
+            fig3.add_trace(go.Scatter(
+                x=cycles, y=q_diff, mode='lines',
+                line=dict(color='#22d3ee', width=2),
+                name='Q(MAINTAIN) − Q(WAIT)',
+            ))
+            fig3.add_trace(go.Scatter(
+                x=cycles, y=pos_fill, mode='lines',
+                line=dict(width=0), fill='tozeroy',
+                fillcolor='rgba(34,197,94,0.12)',
+                showlegend=False, hoverinfo='skip'
+            ))
+            fig3.add_trace(go.Scatter(
+                x=cycles, y=neg_fill, mode='lines',
+                line=dict(width=0), fill='tozeroy',
+                fillcolor='rgba(239,68,68,0.08)',
+                showlegend=False, hoverinfo='skip'
+            ))
+            fig3.add_hline(y=0, line_color="rgba(255,255,255,0.15)")
+
+            fig3.update_layout(
+                title=dict(text="Layer 2 — DQN Decision Pressure",
+                           x=0.5, xanchor="center", font=dict(size=13, color='#94a3b8')),
+                height=250,
+                template="plotly_dark",
+                legend=dict(orientation="h", x=0.5, xanchor="center", y=-0.35,
+                            bgcolor="rgba(0,0,0,0)", font=dict(size=10)),
+                margin=dict(l=50, r=15, t=45, b=55),
+                xaxis=dict(title="Cycle", gridcolor="rgba(255,255,255,0.03)"),
+                yaxis=dict(title="Q-Value Diff", gridcolor="rgba(255,255,255,0.03)"),
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            )
+            st.plotly_chart(fig3, use_container_width=True)
+
+    # ── Bottom: Event Log + Stats/Outcome ──
     with bottom_ph.container():
-        col_log, col_info = st.columns([3, 2])
+        if show_comparison:
+            col_left, col_mid, col_right = st.columns([2, 2, 2])
+        else:
+            col_left, col_right = st.columns([3, 2])
+            col_mid = None
 
-        with col_log:
-            st.markdown("**📋 Event Log**")
+        # Event Log
+        with col_left:
+            st.markdown(f"**Event Log** {'(UA Agent)' if show_comparison else ''}")
             if events:
                 log_html = "<div class='event-log'>"
-                for e in reversed(events[-10:]):  # Show last 10 events
-                    log_html += f"{e}<br>"
+                for etype, msg in reversed(events[-8:]):
+                    css = f"ev-{etype}"
+                    icon = {'jackpot': '◆', 'safe': '●', 'override': '▲',
+                            'crash': '✕', 'early': '◇', 'info': '·'}.get(etype, '·')
+                    log_html += f"<span class='{css}'>{icon} {msg}</span><br>"
                 log_html += "</div>"
                 st.markdown(log_html, unsafe_allow_html=True)
             else:
-                st.markdown("<div class='event-log'>Waiting for events...</div>",
+                st.markdown("<div class='event-log'><span class='ev-info'>Awaiting events...</span></div>",
                            unsafe_allow_html=True)
 
-        with col_info:
-            st.markdown("**Active Configuration**")
-            st.markdown(f"""
-            | Setting | Value |
-            |---------|-------|
-            | Agent | {'**UA** (uses σ)' if 'UA' in agent_type else '**Blind** (ignores σ)'} |
-            | Safety Supervisor | {'✅ ON' if use_safety else '❌ OFF'} |
-            | Noise Injection | {'🔊 ON (σ={uncertainties[-1] if uncertainties else 0:.1f})' if inject_noise else '🔇 OFF'} |
-            | Cycles Elapsed | {n} |
-            | Prediction Error | {abs(pred_ruls[-1] - true_ruls[-1]):.1f} cycles |
-            """)
-
-            # Show outcome summary if simulation ended
-            if outcome == 'safety_override':
-                st.success(f"🛡️ **Safety Supervisor saved the engine!** "
-                          f"Intervened at true RUL = {latest['true_rul']:.0f} cycles.")
-            elif outcome == 'dqn_maintain':
-                if latest['true_rul'] <= 20:
-                    st.success(f"🎯 **JACKPOT!** DQN triggered at true RUL = {latest['true_rul']:.0f}. "
-                              f"Optimal timing!")
-                elif latest['true_rul'] <= 50:
-                    st.info(f"✅ **Safe repair** at true RUL = {latest['true_rul']:.0f}. "
-                           f"Acceptable timing.")
+        # Blind event log (comparison mode)
+        if show_comparison and col_mid is not None:
+            with col_mid:
+                st.markdown("**Event Log** (Blind Agent)")
+                if events_blind:
+                    log_html = "<div class='event-log'>"
+                    for etype, msg in reversed(events_blind[-8:]):
+                        css = f"ev-{etype}"
+                        icon = {'jackpot': '◆', 'safe': '●', 'override': '▲',
+                                'crash': '✕', 'early': '◇'}.get(etype, '·')
+                        log_html += f"<span class='{css}'>{icon} {msg}</span><br>"
+                    log_html += "</div>"
+                    st.markdown(log_html, unsafe_allow_html=True)
                 else:
-                    st.warning(f"⚡ **Early repair** at true RUL = {latest['true_rul']:.0f}. "
-                              f"Wasteful but safe.")
-            elif outcome == 'crash':
-                st.error("💥 **ENGINE FAILURE!** No maintenance was triggered in time.")
+                    st.markdown("<div class='event-log'><span class='ev-info'>Awaiting events...</span></div>",
+                               unsafe_allow_html=True)
+
+        # Stats & Outcome
+        with col_right:
+            # Summary stats
+            if n > 1:
+                avg_err = np.mean([abs(h['pred_rul'] - h['true_rul']) for h in history])
+                avg_sigma = np.mean([h['uncertainty'] for h in history])
+                overrides = sum(1 for h in history if h['was_overridden'])
+                max_sigma = max(h['uncertainty'] for h in history)
+
+                st.markdown(f"""
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Avg Error</div>
+                        <div class="stat-val">{avg_err:.1f}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Avg σ</div>
+                        <div class="stat-val">{avg_sigma:.1f}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Peak σ</div>
+                        <div class="stat-val">{max_sigma:.1f}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Overrides</div>
+                        <div class="stat-val">{overrides}</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            # Outcome banner
+            if outcome is not None:
+                true_at_end = history[-1]['true_rul']
+
+                if outcome == 'safety_override':
+                    ob_class, ob_title_text = "ob-override", "SAFETY OVERRIDE"
+                    ob_detail = f"Supervisor intervened at true RUL = {true_at_end:.0f} cycles"
+                elif outcome == 'crash':
+                    ob_class, ob_title_text = "ob-crash", "ENGINE FAILURE"
+                    ob_detail = "No maintenance was triggered in time"
+                elif outcome == 'dqn_maintain':
+                    if true_at_end <= 20:
+                        ob_class, ob_title_text = "ob-jackpot", "JACKPOT"
+                        ob_detail = f"Optimal timing! True RUL = {true_at_end:.0f} cycles"
+                    elif true_at_end <= 50:
+                        ob_class, ob_title_text = "ob-safe", "SAFE REPAIR"
+                        ob_detail = f"Acceptable timing at true RUL = {true_at_end:.0f}"
+                    else:
+                        ob_class, ob_title_text = "ob-early", "EARLY REPAIR"
+                        ob_detail = f"Wasteful — true RUL was still {true_at_end:.0f}"
+                else:
+                    ob_class, ob_title_text = "ob-safe", "COMPLETED"
+                    ob_detail = ""
+
+                st.markdown(f"""
+                <div class="outcome-banner {ob_class}">
+                    <div class="ob-title">{ob_title_text}</div>
+                    <div class="ob-detail">{ob_detail}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                # Comparison outcome
+                if show_comparison and outcome_blind is not None:
+                    blind_true = history_blind[-1]['true_rul'] if history_blind else 0
+                    if outcome_blind == 'safety_override':
+                        b_class, b_title = "ob-override", "BLIND: OVERRIDE"
+                        b_detail = f"Supervisor saved blind agent at RUL = {blind_true:.0f}"
+                    elif outcome_blind == 'crash':
+                        b_class, b_title = "ob-crash", "BLIND: CRASHED"
+                        b_detail = "Blind agent failed to trigger maintenance"
+                    else:
+                        if blind_true <= 20:
+                            b_class, b_title = "ob-jackpot", "BLIND: JACKPOT"
+                        elif blind_true <= 50:
+                            b_class, b_title = "ob-safe", "BLIND: SAFE"
+                        else:
+                            b_class, b_title = "ob-early", "BLIND: EARLY"
+                        b_detail = f"True RUL = {blind_true:.0f}"
+
+                    st.markdown(f"""
+                    <div class="outcome-banner {b_class}" style="margin-top:8px;">
+                        <div class="ob-title" style="font-size:1rem;">{b_title}</div>
+                        <div class="ob-detail">{b_detail}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 
 # =================================================================
