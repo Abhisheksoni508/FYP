@@ -968,7 +968,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
             yaxis=dict(title="RUL (cycles)", gridcolor="rgba(255,255,255,0.03)"),
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         )
-        st.plotly_chart(fig1, use_container_width=True)
+        st.plotly_chart(fig1, use_container_width=True, key="chart_rul")
 
         # ══════════════════════════════════════════════
         # CHART 2 & 3: Uncertainty + Q-Values side by side
@@ -1008,7 +1008,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
                 yaxis=dict(title="σ (scaled)", range=[0, 1.05], gridcolor="rgba(255,255,255,0.03)"),
                 paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             )
-            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(fig2, use_container_width=True, key="chart_sigma")
 
         with col_c3:
             # Q-value chart
@@ -1052,7 +1052,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
                 yaxis=dict(title="Q-Value Diff", gridcolor="rgba(255,255,255,0.03)"),
                 paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             )
-            st.plotly_chart(fig3, use_container_width=True)
+            st.plotly_chart(fig3, use_container_width=True, key="chart_qvalue")
 
     # ── Bottom: Event Log + Stats/Outcome ──
     with bottom_ph.container():
