@@ -554,6 +554,7 @@ def main():
         st.session_state.sigma_history = [0.0, 0.0, 0.0]
         st.session_state.sigma_history_blind = [0.0, 0.0, 0.0]
         st.session_state.noise_seed = None
+        st.session_state.render_count = 0
         st.rerun()
 
     # ── Placeholders ──
@@ -729,7 +730,9 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
                      outcome_blind, progress_ph, pipeline_ph, metric_ph,
                      chart_ph, bottom_ph, agent_type, use_safety,
                      inject_noise, max_cycles, show_comparison):
-    _k = len(history)  # unique key suffix per render cycle
+    # Monotonic per-call counter to guarantee unique chart keys across reruns
+    st.session_state.render_count = st.session_state.get('render_count', 0) + 1
+    _k = st.session_state.render_count
     latest = history[-1]
     n = len(history)
     total_usable = max_cycles - WINDOW_SIZE
