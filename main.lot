@@ -26,15 +26,15 @@
 \contentsline {table}{\numberline {B.7}{\ignorespaces DQN vs PPO algorithm comparison (uncertainty-aware, no safety supervisor, 300 episodes per condition).}}{76}{table.B.7}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {D.1}{\ignorespaces LSTM deep ensemble training hyperparameters.}}{82}{table.D.1}%
-\contentsline {table}{\numberline {D.2}{\ignorespaces DQN agent and Gymnasium environment hyperparameters.}}{83}{table.D.2}%
+\contentsline {table}{\numberline {D.1}{\ignorespaces LSTM deep ensemble training hyperparameters.}}{83}{table.D.1}%
+\contentsline {table}{\numberline {D.2}{\ignorespaces DQN agent and Gymnasium environment hyperparameters.}}{84}{table.D.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {E.1}{\ignorespaces Complete inventory of generated analysis figures and source scripts.}}{86}{table.E.1}%
+\contentsline {table}{\numberline {E.1}{\ignorespaces Complete inventory of generated analysis figures and source scripts.}}{87}{table.E.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {F.1}{\ignorespaces Automated test results by test class (\texttt {pytest test\_system.py -v}). All tests executed on the final codebase with trained model artefacts present.}}{88}{table.F.1}%
-\contentsline {table}{\numberline {F.2}{\ignorespaces Integration and system-level verification checks, combining automated (\texttt {pytest}) and manual validation.}}{89}{table.F.2}%
+\contentsline {table}{\numberline {F.1}{\ignorespaces Automated test results by test class (\texttt {pytest test\_system.py -v}). All tests executed on the final codebase with trained model artefacts present.}}{89}{table.F.1}%
+\contentsline {table}{\numberline {F.2}{\ignorespaces Integration and system-level verification checks, combining automated (\texttt {pytest}) and manual validation.}}{90}{table.F.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {G.1}{\ignorespaces Wall-clock performance benchmarks for the major computational stages.}}{94}{table.G.1}%
-\contentsline {table}{\numberline {G.2}{\ignorespaces Model-choice justification summary for core architectural components.}}{97}{table.G.2}%
+\contentsline {table}{\numberline {G.1}{\ignorespaces Wall-clock performance benchmarks for the major computational stages.}}{95}{table.G.1}%
+\contentsline {table}{\numberline {G.2}{\ignorespaces Model-choice justification summary for core architectural components.}}{98}{table.G.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {H.1}{\ignorespaces Existing tools vs.\ original contributions.}}{100}{table.H.1}%
+\contentsline {table}{\numberline {H.1}{\ignorespaces Existing tools vs.\ original contributions.}}{101}{table.H.1}%

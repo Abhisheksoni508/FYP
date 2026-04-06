@@ -87,9 +87,9 @@
 \contentsline {section}{\numberline {7.6}Reflective Statement}{64}{section.7.6}%
 \contentsline {chapter}{\numberline {A}Project Proposal}{70}{appendix.A}%
 \contentsline {chapter}{\numberline {B}Extended Experiment Data}{73}{appendix.B}%
-\contentsline {chapter}{\numberline {C}Key Source Code}{78}{appendix.C}%
-\contentsline {chapter}{\numberline {D}Hyperparameter Configuration}{82}{appendix.D}%
-\contentsline {chapter}{\numberline {E}Additional Visualisations}{84}{appendix.E}%
-\contentsline {chapter}{\numberline {F}Testing Documentation}{87}{appendix.F}%
-\contentsline {chapter}{\numberline {G}Extended Implementation Details}{92}{appendix.G}%
-\contentsline {chapter}{\numberline {H}Original Contributions}{98}{appendix.H}%
+\contentsline {chapter}{\numberline {C}Key Source Code}{79}{appendix.C}%
+\contentsline {chapter}{\numberline {D}Hyperparameter Configuration}{83}{appendix.D}%
+\contentsline {chapter}{\numberline {E}Additional Visualisations}{85}{appendix.E}%
+\contentsline {chapter}{\numberline {F}Testing Documentation}{88}{appendix.F}%
+\contentsline {chapter}{\numberline {G}Extended Implementation Details}{93}{appendix.G}%
+\contentsline {chapter}{\numberline {H}Original Contributions}{99}{appendix.H}%

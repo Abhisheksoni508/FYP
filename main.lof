@@ -25,14 +25,14 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {B.1}{\ignorespaces Algorithm comparison: DQN vs PPO, both uncertainty-aware, evaluated without the safety supervisor across four noise levels. PPO achieved higher jackpot rates but also higher failure rates, reflecting a more aggressive learned policy. Both algorithms retained positive mean reward under noise, confirming the generality of the uncertainty-awareness mechanism.}}{77}{figure.B.1}%
-\contentsline {figure}{\numberline {B.2}{\ignorespaces Statistical analysis of DQN vs PPO comparison. Left: per-noise reward delta with significance markers (* $p < 0.05$, *** $p < 0.001$, n.s.\ not significant). Centre: Cohen's $d$ effect sizes with conventional thresholds. Right: jackpot rate (bars) and failure rate ($\times $ markers) by algorithm and noise level.}}{77}{figure.B.2}%
+\contentsline {figure}{\numberline {B.2}{\ignorespaces Statistical analysis of DQN vs PPO comparison. Left: per-noise reward delta with significance markers (* $p < 0.05$, *** $p < 0.001$, n.s.\ not significant). Centre: Cohen's $d$ effect sizes with conventional thresholds. Right: jackpot rate (bars) and failure rate ($\times $ markers) by algorithm and noise level.}}{78}{figure.B.2}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {E.1}{\ignorespaces Experiment 1 Layer 2 ablation: supplementary visualisation of UA vs Blind reward distributions across all noise levels without the safety supervisor (primary result in Figure~\ref {fig:exp1_chart}).}}{84}{figure.E.1}%
-\contentsline {figure}{\numberline {E.2}{\ignorespaces Experiment 2 full system: supplementary visualisation of UA vs Blind performance with the three-layer safety supervisor active (primary result in Figure~\ref {fig:exp2_chart}).}}{85}{figure.E.2}%
-\contentsline {figure}{\numberline {E.3}{\ignorespaces Executive five-year cost projection for the representative 50-engine fleet, comparing cumulative UA and blind maintenance expenditure.}}{85}{figure.E.3}%
+\contentsline {figure}{\numberline {E.1}{\ignorespaces Experiment 1 Layer 2 ablation: supplementary visualisation of UA vs Blind reward distributions across all noise levels without the safety supervisor (primary result in Figure~\ref {fig:exp1_chart}).}}{85}{figure.E.1}%
+\contentsline {figure}{\numberline {E.2}{\ignorespaces Experiment 2 full system: supplementary visualisation of UA vs Blind performance with the three-layer safety supervisor active (primary result in Figure~\ref {fig:exp2_chart}).}}{86}{figure.E.2}%
+\contentsline {figure}{\numberline {E.3}{\ignorespaces Executive five-year cost projection for the representative 50-engine fleet, comparing cumulative UA and blind maintenance expenditure.}}{86}{figure.E.3}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {F.1}{\ignorespaces Automated test suite summary. Left: test case counts by class, with all 29 cases passing. Right: coverage distribution by system component, showing emphasis on the decision layer (28\%) and safety supervisor (24\%).}}{88}{figure.F.1}%
+\contentsline {figure}{\numberline {F.1}{\ignorespaces Automated test suite summary. Left: test case counts by class, with all 29 cases passing. Right: coverage distribution by system component, showing emphasis on the decision layer (28\%) and safety supervisor (24\%).}}{89}{figure.F.1}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
