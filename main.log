@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.10)  6 APR 2026 19:12
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.10)  6 APR 2026 19:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -961,13 +961,13 @@ Chapter 2.
 [7
 
 ] [8] [9] [10] [11]
-<ensemble_evaluation_1_prediction.png, id=903, 1034.1837pt x 514.5624pt>
+<ensemble_evaluation_1_prediction.png, id=904, 1034.1837pt x 514.5624pt>
 File: ensemble_evaluation_1_prediction.png Graphic file (type png)
 <use ensemble_evaluation_1_prediction.png>
 Package pdftex.def Info: ensemble_evaluation_1_prediction.png  used on input li
 ne 353.
 (pdftex.def)             Requested size: 385.02547pt x 191.5707pt.
-<ensemble_evaluation_3_uncertainty.png, id=904, 1126.6893pt x 441.5697pt>
+<ensemble_evaluation_3_uncertainty.png, id=905, 1126.6893pt x 441.5697pt>
 File: ensemble_evaluation_3_uncertainty.png Graphic file (type png)
 <use ensemble_evaluation_3_uncertainty.png>
 Package pdftex.def Info: ensemble_evaluation_3_uncertainty.png  used on input l
@@ -1022,7 +1022,7 @@ Overfull \hbox (52.46613pt too wide) in paragraph at lines 586--587
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [22]
-<ensemble_evaluation_2_error.png, id=1036, 1148.73164pt x 441.5697pt>
+<ensemble_evaluation_2_error.png, id=1037, 1148.73164pt x 441.5697pt>
 File: ensemble_evaluation_2_error.png Graphic file (type png)
 <use ensemble_evaluation_2_error.png>
 Package pdftex.def Info: ensemble_evaluation_2_error.png  used on input line 60
@@ -1044,7 +1044,7 @@ Overfull \hbox (79.33597pt too wide) in paragraph at lines 710--711
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<final_engine_50_timeline.png, id=1073, 968.05666pt x 858.5676pt>
+<final_engine_50_timeline.png, id=1074, 968.05666pt x 858.5676pt>
 File: final_engine_50_timeline.png Graphic file (type png)
 <use final_engine_50_timeline.png>
 Package pdftex.def Info: final_engine_50_timeline.png  used on input line 720.
@@ -1061,19 +1061,19 @@ Chapter 4.
 [32
 
 ] [33] [34]
-<uncertainty_vs_error.png, id=1149, 1011.78pt x 361.35pt>
+<uncertainty_vs_error.png, id=1150, 1011.78pt x 361.35pt>
 File: uncertainty_vs_error.png Graphic file (type png)
 <use uncertainty_vs_error.png>
 Package pdftex.def Info: uncertainty_vs_error.png  used on input line 942.
 (pdftex.def)             Requested size: 385.02547pt x 137.5074pt.
  [35 <./uncertainty_vs_error.png>] [36] [37]
-<report_summary_dashboard.png, id=1190, 1436.4867pt x 807.015pt>
+<report_summary_dashboard.png, id=1191, 1436.4867pt x 807.015pt>
 File: report_summary_dashboard.png Graphic file (type png)
 <use report_summary_dashboard.png>
 Package pdftex.def Info: report_summary_dashboard.png  used on input line 983.
 (pdftex.def)             Requested size: 430.31812pt x 241.74925pt.
  [38 <./report_summary_dashboard.png>]
-<final_engine_134_timeline.png, id=1200, 967.6953pt x 858.5676pt>
+<final_engine_134_timeline.png, id=1201, 967.6953pt x 858.5676pt>
 File: final_engine_134_timeline.png Graphic file (type png)
 <use final_engine_134_timeline.png>
 Package pdftex.def Info: final_engine_134_timeline.png  used on input line 1001
@@ -1083,7 +1083,7 @@ Package pdftex.def Info: final_engine_134_timeline.png  used on input line 1001
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<final_engine_200_timeline.png, id=1201, 967.33395pt x 858.5676pt>
+<final_engine_200_timeline.png, id=1202, 967.33395pt x 858.5676pt>
 File: final_engine_200_timeline.png Graphic file (type png)
 <use final_engine_200_timeline.png>
 Package pdftex.def Info: final_engine_200_timeline.png  used on input line 1008
@@ -1098,7 +1098,7 @@ Chapter 5.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<report_exp1_layer2_isolation.png, id=1222, 1290.9831pt x 405.6756pt>
+<report_exp1_layer2_isolation.png, id=1223, 1290.9831pt x 405.6756pt>
 File: report_exp1_layer2_isolation.png Graphic file (type png)
 <use report_exp1_layer2_isolation.png>
 Package pdftex.def Info: report_exp1_layer2_isolation.png  used on input line 1
@@ -1114,13 +1114,13 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [43 <./report_exp1_layer2_isolation.png>]
-<report_exp2_full_system.png, id=1238, 1292.1876pt x 405.6756pt>
+<report_exp2_full_system.png, id=1239, 1292.1876pt x 405.6756pt>
 File: report_exp2_full_system.png Graphic file (type png)
 <use report_exp2_full_system.png>
 Package pdftex.def Info: report_exp2_full_system.png  used on input line 1103.
 (pdftex.def)             Requested size: 430.31812pt x 135.099pt.
  [44 <./report_exp2_full_system.png>]
-<report_exp3_safety_contribution.png, id=1246, 1291.224pt x 405.6756pt>
+<report_exp3_safety_contribution.png, id=1247, 1291.224pt x 405.6756pt>
 File: report_exp3_safety_contribution.png Graphic file (type png)
 <use report_exp3_safety_contribution.png>
 Package pdftex.def Info: report_exp3_safety_contribution.png  used on input lin
@@ -1128,19 +1128,19 @@ e 1117.
 (pdftex.def)             Requested size: 430.31812pt x 135.19185pt.
 
 [45 <./report_exp3_safety_contribution.png>]
-<experiment_3_threshold_baseline.png, id=1253, 1292.54895pt x 520.344pt>
+<experiment_3_threshold_baseline.png, id=1254, 1292.54895pt x 520.344pt>
 File: experiment_3_threshold_baseline.png Graphic file (type png)
 <use experiment_3_threshold_baseline.png>
 Package pdftex.def Info: experiment_3_threshold_baseline.png  used on input lin
 e 1128.
 (pdftex.def)             Requested size: 430.31812pt x 173.23055pt.
  [46 <./experiment_3_threshold_baseline.png>]
-<report_cost_analysis.png, id=1259, 1147.1658pt x 891.5709pt>
+<report_cost_analysis.png, id=1260, 1147.1658pt x 891.5709pt>
 File: report_cost_analysis.png Graphic file (type png)
 <use report_cost_analysis.png>
 Package pdftex.def Info: report_cost_analysis.png  used on input line 1152.
 (pdftex.def)             Requested size: 430.31812pt x 334.4335pt.
-<final_result_chart.png, id=1263, 1011.78pt x 433.62pt>
+<final_result_chart.png, id=1264, 1011.78pt x 433.62pt>
 File: final_result_chart.png Graphic file (type png)
 <use final_result_chart.png>
 Package pdftex.def Info: final_result_chart.png  used on input line 1164.
@@ -1192,13 +1192,13 @@ Overfull \hbox (26.71992pt too wide) in paragraph at lines 1576--1590
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [74] [75]
-<report_ppo_vs_dqn.png, id=1498, 930.5967pt x 734.0223pt>
+<report_ppo_vs_dqn.png, id=1499, 930.5967pt x 734.0223pt>
 File: report_ppo_vs_dqn.png Graphic file (type png)
 <use report_ppo_vs_dqn.png>
 Package pdftex.def Info: report_ppo_vs_dqn.png  used on input line 1673.
 (pdftex.def)             Requested size: 430.31812pt x 339.4128pt.
  [76]
-<report_ppo_statistical.png, id=1504, 1075.1367pt x 335.8146pt>
+<report_ppo_statistical.png, id=1505, 1075.1367pt x 335.8146pt>
 File: report_ppo_statistical.png Graphic file (type png)
 <use report_ppo_statistical.png>
 Package pdftex.def Info: report_ppo_statistical.png  used on input line 1682.
@@ -1217,13 +1217,13 @@ Appendix D.
 
 ] [84]
 Appendix E.
-<experiment_1_layer2_ablation.png, id=1548, 1436.7276pt x 521.7894pt>
+<experiment_1_layer2_ablation.png, id=1549, 1436.7276pt x 521.7894pt>
 File: experiment_1_layer2_ablation.png Graphic file (type png)
 <use experiment_1_layer2_ablation.png>
 Package pdftex.def Info: experiment_1_layer2_ablation.png  used on input line 1
 914.
 (pdftex.def)             Requested size: 385.02547pt x 139.82608pt.
-<experiment_2_full_system.png, id=1551, 1436.7276pt x 521.7894pt>
+<experiment_2_full_system.png, id=1552, 1436.7276pt x 521.7894pt>
 File: experiment_2_full_system.png Graphic file (type png)
 <use experiment_2_full_system.png>
 Package pdftex.def Info: experiment_2_full_system.png  used on input line 1921.
@@ -1232,7 +1232,7 @@ Package pdftex.def Info: experiment_2_full_system.png  used on input line 1921.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<report_cost_executive_summary.png, id=1554, 858.3267pt x 425.1885pt>
+<report_cost_executive_summary.png, id=1555, 858.3267pt x 425.1885pt>
 File: report_cost_executive_summary.png Graphic file (type png)
 <use report_cost_executive_summary.png>
 Package pdftex.def Info: report_cost_executive_summary.png  used on input line 
@@ -1261,7 +1261,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 [88
 
 ]
-<report_test_results.png, id=1577, 927.465pt x 317.2653pt>
+<report_test_results.png, id=1578, 927.465pt x 317.2653pt>
 File: report_test_results.png Graphic file (type png)
 <use report_test_results.png>
 Package pdftex.def Info: report_test_results.png  used on input line 2003.
@@ -1378,17 +1378,13 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
 Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: F1367A9F691E62CD67D56032E738BA19;17239.
  ) 
 Here is how much of TeX's memory you used:
  24545 strings out of 467872
  461150 string characters out of 5414483
- 907594 words of memory out of 5000000
+ 907743 words of memory out of 5000000
  52674 multiletter control sequences out of 15000+600000
  643530 words of font info for 100 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1423,9 +1419,9 @@ iKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/Abhishek Soni/AppData
 /Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb><C:/Users/Abhi
 shek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msb
 m10.pfb>
-Output written on main.pdf (115 pages, 8009559 bytes).
+Output written on main.pdf (115 pages, 8009842 bytes).
 PDF statistics:
- 1858 PDF objects out of 2073 (max. 8388607)
+ 1859 PDF objects out of 2073 (max. 8388607)
  349 named destinations out of 1000 (max. 500000)
  878 words of extra memory for PDF output out of 10000 (max. 10000000)
 
