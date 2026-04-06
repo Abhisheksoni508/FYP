@@ -9,3 +9,4 @@ scipy
 joblib 
 streamlit
 plotly
+pytest
