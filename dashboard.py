@@ -729,6 +729,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
                      outcome_blind, progress_ph, pipeline_ph, metric_ph,
                      chart_ph, bottom_ph, agent_type, use_safety,
                      inject_noise, max_cycles, show_comparison):
+    _k = len(history)  # unique key suffix per render cycle
     latest = history[-1]
     n = len(history)
     total_usable = max_cycles - WINDOW_SIZE
@@ -968,7 +969,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
             yaxis=dict(title="RUL (cycles)", gridcolor="rgba(255,255,255,0.03)"),
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         )
-        st.plotly_chart(fig1, use_container_width=True, key="chart_rul")
+        st.plotly_chart(fig1, use_container_width=True, key=f"chart_rul_{_k}")
 
         # ══════════════════════════════════════════════
         # CHART 2 & 3: Uncertainty + Q-Values side by side
@@ -1008,7 +1009,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
                 yaxis=dict(title="σ (scaled)", range=[0, 1.05], gridcolor="rgba(255,255,255,0.03)"),
                 paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             )
-            st.plotly_chart(fig2, use_container_width=True, key="chart_sigma")
+            st.plotly_chart(fig2, use_container_width=True, key=f"chart_sigma_{_k}")
 
         with col_c3:
             # Q-value chart
@@ -1052,7 +1053,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
                 yaxis=dict(title="Q-Value Diff", gridcolor="rgba(255,255,255,0.03)"),
                 paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             )
-            st.plotly_chart(fig3, use_container_width=True, key="chart_qvalue")
+            st.plotly_chart(fig3, use_container_width=True, key=f"chart_qvalue_{_k}")
 
     # ── Bottom: Event Log + Stats/Outcome ──
     with bottom_ph.container():
