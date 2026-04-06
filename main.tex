@@ -1982,19 +1982,19 @@ Table~\ref{tab:unit_test_results} summarises the automated test outcomes by clas
 \toprule
 \textbf{Test Class} & \textbf{Cases} & \textbf{Result} \\
 \midrule
-\texttt{TestDataPipeline} — loading, RUL cap, normalisation, unit offset & 5 & 5/5 Pass \\
-\texttt{TestLSTMModel} — shape, range, loading, diversity & 4 & 4/4 Pass \\
-\texttt{TestEnvironment} — observations, actions, noise, blind variant & 7 & 7/7 Pass \\
-\texttt{TestRewardFunction} — jackpot, crash, safe, wasteful classification & 4 & 4/4 Pass \\
-\texttt{TestSafetySupervisor} — Tier 1, Tier 2, $\sigma$ gate, edge cases & 6 & 6/6 Pass \\
-\texttt{TestIntegration} — episode completion, reproducibility, agent loading & 3 & 3/3 Pass \\
+\texttt{TestDataPipeline}: loading, RUL cap, normalisation, unit offset & 5 & 5/5 Pass \\
+\texttt{TestLSTMModel}: shape, range, loading, diversity & 4 & 4/4 Pass \\
+\texttt{TestEnvironment}: observations, actions, noise, blind variant & 7 & 7/7 Pass \\
+\texttt{TestRewardFunction}: jackpot, crash, safe, wasteful classification & 4 & 4/4 Pass \\
+\texttt{TestSafetySupervisor}: Tier 1, Tier 2, $\sigma$ gate, edge cases & 6 & 6/6 Pass \\
+\texttt{TestIntegration}: episode completion, reproducibility, agent loading & 3 & 3/3 Pass \\
 \midrule
 \multicolumn{1}{r}{\textbf{Total}} & \textbf{29} & \textbf{29/29 Pass} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Figure~\ref{fig:test_results} visualises the test distribution across system components. The suite achieves coverage of all three architectural layers, with the heaviest testing concentrated on the environment (Layer~2) and safety supervisor (Layer~3) — the two components where correctness is most critical for safe operation.
+Figure~\ref{fig:test_results} visualises the test distribution across system components. The suite achieves coverage of all three architectural layers, with the heaviest testing concentrated on the environment (Layer~2) and safety supervisor (Layer~3): the two components where correctness is most critical for safe operation.
 
 \begin{figure}[h]
 \centering
@@ -2250,12 +2250,12 @@ Welch's $t$-test / Cohen's $d$ (SciPy) & Blind ablation methodology: systematic 
 The individual components (LSTM, DQN, Gymnasium, C-MAPSS) are established tools. The contribution of this project lies in \textit{how} they were connected and \textit{what was designed around them}:
 
 \begin{enumerate}
-    \item \textbf{The uncertainty-aware reward function} --- no existing library provides the \texttt{uncertainty\_urgency} shaping term. This formulation was designed, calibrated, and validated as part of this project.
-    \item \textbf{The noise augmentation training protocol} --- the insight that an RL agent must \textit{experience} uncertainty during training to learn from it is a methodological contribution, not a library feature.
-    \item \textbf{The $\sigma$-gated safety supervisor} --- standard safety overrides use fixed thresholds. The two-tier design with confidence gating (backing off when predictions are unreliable) is a novel mechanism.
-    \item \textbf{The end-of-life episode biasing} --- addressing the sparse-reward problem by curriculum-style episode sampling is a training design decision specific to this domain.
-    \item \textbf{The blind ablation framework} --- using an architecturally identical agent with zeroed uncertainty to isolate the exact contribution of $\sigma$-awareness is an experimental design choice, not a library function.
-    \item \textbf{The complete integration} --- routing ensemble disagreement through observation, reward, and safety override into one coherent pipeline required substantial design effort beyond assembling existing parts.
+    \item \textbf{The uncertainty-aware reward function}: no existing library provides the \texttt{uncertainty\_urgency} shaping term. This formulation was designed, calibrated, and validated as part of this project.
+    \item \textbf{The noise augmentation training protocol}: the insight that an RL agent must \textit{experience} uncertainty during training to learn from it is a methodological contribution, not a library feature.
+    \item \textbf{The $\sigma$-gated safety supervisor}: standard safety overrides use fixed thresholds. The two-tier design with confidence gating (backing off when predictions are unreliable) is a novel mechanism.
+    \item \textbf{The end-of-life episode biasing}: addressing the sparse-reward problem by curriculum-style episode sampling is a training design decision specific to this domain.
+    \item \textbf{The blind ablation framework}: using an architecturally identical agent with zeroed uncertainty to isolate the exact contribution of $\sigma$-awareness is an experimental design choice, not a library function.
+    \item \textbf{The complete integration}: routing ensemble disagreement through observation, reward, and safety override into one coherent pipeline required substantial design effort beyond assembling existing parts.
 \end{enumerate}
 
 \noindent The analogy is that of engineering: a civil engineer does not manufacture steel or concrete, but designs the bridge. The libraries are materials; the framework described in this dissertation is the design.
