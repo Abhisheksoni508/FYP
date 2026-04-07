@@ -9,32 +9,32 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {4.1}{\ignorespaces Repository structure and purpose of each file.}}{33}{table.4.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Experiment~1 results: UA vs Blind agent without safety supervisor. Significance: * $p < 0.05$, ** $p < 0.01$, *** $p < 0.001$, ns = not significant.}}{43}{table.5.1}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces Experiment~2 results: UA vs Blind agent with safety supervisor active. Override counts indicate the number of times the supervisor intervened across 500 episodes.}}{44}{table.5.2}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces Comparison of RUL prediction RMSE on C-MAPSS FD001 against published baselines. Lower RMSE indicates better prediction accuracy. Our ensemble results reflect validation-set performance.}}{50}{table.5.3}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Experiment~1 results: UA vs Blind agent without safety supervisor. Significance: * $p < 0.05$, ** $p < 0.01$, *** $p < 0.001$, ns = not significant.}}{45}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Experiment~2 results: UA vs Blind agent with safety supervisor active. Override counts indicate the number of times the supervisor intervened across 500 episodes.}}{46}{table.5.2}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Comparison of RUL prediction RMSE on C-MAPSS FD001 against published baselines. Lower RMSE indicates better prediction accuracy. Our ensemble results reflect validation-set performance.}}{52}{table.5.3}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Project timeline and milestones.}}{72}{table.A.1}%
+\contentsline {table}{\numberline {A.1}{\ignorespaces Project timeline and milestones.}}{74}{table.A.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {B.1}{\ignorespaces Experiment 1 complete results: UA vs Blind agent without safety supervisor (500 episodes per noise level).}}{73}{table.B.1}%
-\contentsline {table}{\numberline {B.2}{\ignorespaces Experiment 1 supplementary data: jackpot rates, medians, and statistical significance.}}{74}{table.B.2}%
-\contentsline {table}{\numberline {B.3}{\ignorespaces Experiment 2 complete results: UA vs Blind agent with safety supervisor (500 episodes per noise level).}}{74}{table.B.3}%
-\contentsline {table}{\numberline {B.4}{\ignorespaces Experiment 2 autonomy data: supervisor overrides and autonomous decision rates.}}{75}{table.B.4}%
-\contentsline {table}{\numberline {B.5}{\ignorespaces Annual fleet cost comparison by noise level (full three-layer system, 50 engines, 200 decisions/year).}}{75}{table.B.5}%
-\contentsline {table}{\numberline {B.6}{\ignorespaces Fleet-scaling sensitivity of the average full-system saving, assuming the same per-engine outcome distribution and four maintenance decisions per engine per year.}}{75}{table.B.6}%
-\contentsline {table}{\numberline {B.7}{\ignorespaces DQN vs PPO algorithm comparison (uncertainty-aware, no safety supervisor, 300 episodes per condition).}}{76}{table.B.7}%
+\contentsline {table}{\numberline {B.1}{\ignorespaces Experiment 1 complete results: UA vs Blind agent without safety supervisor (500 episodes per noise level).}}{75}{table.B.1}%
+\contentsline {table}{\numberline {B.2}{\ignorespaces Experiment 1 supplementary data: jackpot rates, medians, and statistical significance.}}{76}{table.B.2}%
+\contentsline {table}{\numberline {B.3}{\ignorespaces Experiment 2 complete results: UA vs Blind agent with safety supervisor (500 episodes per noise level).}}{76}{table.B.3}%
+\contentsline {table}{\numberline {B.4}{\ignorespaces Experiment 2 autonomy data: supervisor overrides and autonomous decision rates.}}{77}{table.B.4}%
+\contentsline {table}{\numberline {B.5}{\ignorespaces Annual fleet cost comparison by noise level (full three-layer system, 50 engines, 200 decisions/year).}}{77}{table.B.5}%
+\contentsline {table}{\numberline {B.6}{\ignorespaces Fleet-scaling sensitivity of the average full-system saving, assuming the same per-engine outcome distribution and four maintenance decisions per engine per year.}}{77}{table.B.6}%
+\contentsline {table}{\numberline {B.7}{\ignorespaces DQN vs PPO algorithm comparison (uncertainty-aware, no safety supervisor, 300 episodes per condition).}}{78}{table.B.7}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {D.1}{\ignorespaces LSTM deep ensemble training hyperparameters.}}{83}{table.D.1}%
-\contentsline {table}{\numberline {D.2}{\ignorespaces DQN agent and Gymnasium environment hyperparameters.}}{84}{table.D.2}%
+\contentsline {table}{\numberline {D.1}{\ignorespaces LSTM deep ensemble training hyperparameters.}}{85}{table.D.1}%
+\contentsline {table}{\numberline {D.2}{\ignorespaces DQN agent and Gymnasium environment hyperparameters.}}{86}{table.D.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {E.1}{\ignorespaces Complete inventory of generated analysis figures and source scripts.}}{87}{table.E.1}%
+\contentsline {table}{\numberline {E.1}{\ignorespaces Complete inventory of generated analysis figures and source scripts.}}{89}{table.E.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {F.1}{\ignorespaces Automated test results by test class (\texttt {pytest test\_system.py -v}). All tests executed on the final codebase with trained model artefacts present.}}{89}{table.F.1}%
-\contentsline {table}{\numberline {F.2}{\ignorespaces Integration and system-level verification checks, combining automated (\texttt {pytest}) and manual validation.}}{90}{table.F.2}%
+\contentsline {table}{\numberline {F.1}{\ignorespaces Automated test results by test class (\texttt {pytest test\_system.py -v}). All tests executed on the final codebase with trained model artefacts present.}}{91}{table.F.1}%
+\contentsline {table}{\numberline {F.2}{\ignorespaces Integration and system-level verification checks, combining automated (\texttt {pytest}) and manual validation.}}{92}{table.F.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {G.1}{\ignorespaces Wall-clock performance benchmarks for the major computational stages.}}{95}{table.G.1}%
-\contentsline {table}{\numberline {G.2}{\ignorespaces Model-choice justification summary for core architectural components.}}{98}{table.G.2}%
+\contentsline {table}{\numberline {G.1}{\ignorespaces Wall-clock performance benchmarks for the major computational stages.}}{101}{table.G.1}%
+\contentsline {table}{\numberline {G.2}{\ignorespaces Model-choice justification summary for core architectural components.}}{104}{table.G.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {H.1}{\ignorespaces Existing tools vs.\ original contributions.}}{101}{table.H.1}%
+\contentsline {table}{\numberline {H.1}{\ignorespaces Existing tools vs.\ original contributions.}}{107}{table.H.1}%

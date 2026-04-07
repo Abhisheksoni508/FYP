@@ -1,6 +1,8 @@
 \documentclass[12pt,a4paper]{report}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{float}
+\graphicspath{{figures/}}
 \usepackage{hyperref}
 \usepackage{fancyhdr}
 \usepackage{geometry}
@@ -928,6 +930,32 @@ Figure~\ref{fig:component_diagram} presents the end-to-end inference and decisio
 \caption{End-to-end inference and decision pipeline showing all three architectural layers. The purple arrows trace the uncertainty signal ($\sigma$) from its origin in ensemble disagreement through four distinct pathways: (1)~direct observation input, (2)~rolling average for smoothed trend, (3)~reward shaping penalty for waiting under high uncertainty, and (4)~confidence gate for the safety supervisor's Tier~2 override. The dashed path from the noise injection block is active only during training.}
 \label{fig:component_diagram}
 \end{figure}
+
+\subsection*{Step-by-Step Walkthrough}
+
+To make Figure~\ref{fig:component_diagram} concrete, this section walks through what happens to a single engine cycle as it travels from raw sensor reading to a final maintenance decision. Every numbered step corresponds to one block in the diagram.
+
+\begin{enumerate}
+    \item \textbf{A new cycle's sensor reading arrives.} The engine reports 24 numbers: 21 physical sensor measurements (temperatures, pressures, fan speeds) and 3 operational settings (altitude, throttle, Mach). At this point the values are in their original physical units and on wildly different scales, so they cannot yet be fed into a neural network.
+
+    \item \textbf{Normalisation.} The reading is passed through the saved \texttt{MinMaxScaler} (fitted once during training) which squashes every feature into the $[0, 1]$ range. The same scaler is always reused so that what the model saw during training matches what it sees in deployment.
+
+    \item \textbf{Sliding window assembly.} The system stitches the new normalised reading onto the previous 29 cycles to form a $30 \times 24$ matrix. This gives the LSTMs a short rolling history of the engine's recent behaviour rather than just one isolated snapshot, which is essential for spotting degradation trends.
+
+    \item \textbf{(Training only) Noise injection.} During training --- and only training --- 70\% of episodes have a small Gaussian noise added on top of the window. This is the trick that teaches the system what unreliable data looks like. At deployment time this block is switched off entirely.
+
+    \item \textbf{Five LSTMs predict the RUL in parallel.} The window is fed simultaneously into all five ensemble members. Each LSTM was trained on a slightly different bootstrap sample of the data, so they have learned slightly different ``opinions'' of what healthy and degraded engines look like. Each one outputs its own estimate of how many cycles the engine has left.
+
+    \item \textbf{Aggregate the five opinions.} The five predictions are reduced into two numbers: their average ($\bar{r}_t$, the system's best guess of the remaining life) and their standard deviation ($\sigma_t$, how much they disagree). The disagreement is the uncertainty signal --- when the LSTMs disagree, the system knows its prediction is shaky.
+
+    \item \textbf{Build the observation vector.} The DQN agent doesn't just see the raw RUL guess. It sees four signals packed into one observation: the mean RUL, the current cycle's $\sigma$, a 3-cycle rolling average of $\sigma$ (to smooth out one-off spikes), and a sensor trend term that summarises whether overall sensor activity is rising or falling. These four numbers together tell the agent both what it predicts and how confident it should be.
+
+    \item \textbf{The DQN proposes an action.} The observation goes through a 3-layer MLP that outputs two Q-values: one for WAIT and one for MAINTAIN. The agent picks whichever is higher. This is the Layer~2 decision.
+
+    \item \textbf{The safety supervisor gets a veto.} Before the action is executed, it passes through Layer~3. If the DQN said MAINTAIN, the supervisor lets it through unchanged. If it said WAIT, the supervisor checks two safety rules: \emph{Tier~1} forces MAINTAIN if RUL is critically low (under 5 cycles) regardless of confidence, and \emph{Tier~2} forces MAINTAIN if RUL is low (under 15 cycles) \emph{and} the rolling $\sigma$ is below the confidence threshold. This $\sigma$-gate is what makes the supervisor smart: it only intervenes when the prediction is trustworthy.
+
+    \item \textbf{The final action is executed.} Whatever action survives the supervisor (whether the DQN's original choice or a forced override) is the maintenance decision for this cycle. If the action is MAINTAIN the episode ends and the system computes the outcome reward; if it is WAIT the engine advances one cycle and the whole loop starts again from step~1.
+\end{enumerate}
 
 \section{Data Pipeline}
 
@@ -2068,6 +2096,40 @@ The Streamlit dashboard (Section~4.7) was tested manually by the author and demo
 \end{itemize}
 
 The supervisor demonstration confirmed that the interface clearly communicated the system's decision-making process and that the three-panel visualisation made the interaction between prediction uncertainty and agent behaviour intuitive to a non-specialist observer. The primary feedback received was to ensure the status panel clearly distinguished between agent-initiated and supervisor-initiated maintenance actions, which was implemented in the final version through colour-coded status indicators.
+
+Figures~\ref{fig:dash_sidebyside}--\ref{fig:dash_heavynoise} present four representative dashboard sessions captured during testing. Each scenario isolates a different aspect of the three-layer architecture: side-by-side agent comparison, optimal autonomous timing, supervisor intervention, and behaviour under heavy noise on the more challenging FD002 subset.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{dashboard_01_sidebyside_top.png}\\[2pt]
+    \includegraphics[width=0.92\textwidth]{dashboard_01_sidebyside_bot.png}
+    \caption[Side-by-side dashboard comparison: UA vs Blind on Engine 50]{Side-by-side comparison on Engine~50 (FD001, 198 cycles) with sensor noise $\sigma = 0.05$ and the safety supervisor disabled. The Uncertainty-Aware (UA) agent autonomously triggers \textsc{safe} maintenance at cycle~144 (predicted RUL~$=1$, true RUL~$=24$), while the Blind agent panics at cycle~41 with a true RUL of 125 cycles --- an extreme \textsc{early} failure. The Layer~2 decision pressure trace (right) shows the UA agent steadily building toward $Q(\text{MAINTAIN}) - Q(\text{WAIT}) > 0$ as the engine degrades.}
+    \label{fig:dash_sidebyside}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{dashboard_02_jackpot_top.png}\\[2pt]
+    \includegraphics[width=0.92\textwidth]{dashboard_02_jackpot_bot.png}
+    \caption[Optimal autonomous decision (\textsc{jackpot}) on Engine 24]{Layer~2 (DQN) maintaining within the optimal RUL${<}20$ window with zero supervisor overrides. Engine~24 (FD001, 147 cycles), clean sensor data, UA agent. Maintenance is triggered at cycle~102 with predicted RUL~$=17$ and true RUL~$=15$ --- a textbook \textsc{jackpot}. The ensemble disagreement trace remains well below the supervisor threshold (0.55) throughout, demonstrating that the agent is making the decision on its own merits rather than under safety-net coercion.}
+    \label{fig:dash_jackpot}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{dashboard_03_override_top.png}\\[2pt]
+    \includegraphics[width=0.92\textwidth]{dashboard_03_override_bot.png}
+    \caption[Layer 3 safety supervisor intervention on the Blind agent]{Safety supervisor firing on the Blind agent. Engine~1 (FD001, 192 cycles), Blind agent, supervisor enabled, sensor noise $\sigma = 0.07$. The Blind agent would have continued waiting (Q-value difference negative throughout), but the supervisor forces \textsc{maintain} at cycle~49 because the LSTM ensemble's averaged prediction has dropped below the critical threshold (predicted RUL~$=6$). True RUL was 113 cycles --- a wasteful but safe override, exactly the failure mode that motivates a $\sigma$-aware Layer~2 in the first place.}
+    \label{fig:dash_override}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{dashboard_04_heavynoise_top.png}\\[2pt]
+    \includegraphics[width=0.92\textwidth]{dashboard_04_heavynoise_bot.png}
+    \caption[UA agent under heavy noise on FD002]{UA agent on Engine~134 from FD002 (205 cycles, six operating conditions) with heavy sensor noise $\sigma = 0.10$. Despite ensemble uncertainty saturating near 1.0 throughout the lifecycle (peak $\Sigma = 49.8$), the UA agent still achieves a perfect \textsc{jackpot} at cycle~175 (predicted RUL~$=0$, true RUL~$=0$) without supervisor assistance. This validates the noise-augmentation training strategy: high-$\sigma$ episodes during training taught the agent to commit decisively even when its inputs are unreliable, rather than freezing or panic-maintaining.}
+    \label{fig:dash_heavynoise}
+\end{figure}
 
 \section*{F.5 Reproducibility Runbook (All Tests and Plots)}
 

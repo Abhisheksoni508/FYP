@@ -45,51 +45,51 @@
 \contentsline {section}{\numberline {3.6}Conclusions}{28}{section.3.6}%
 \contentsline {chapter}{\numberline {4}Implementation}{32}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Code Repository Outline}{32}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Data Pipeline}{35}{section.4.2}%
-\contentsline {section}{\numberline {4.3}LSTM Ensemble Training}{35}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Gymnasium Reinforcement Learning Environment}{36}{section.4.4}%
-\contentsline {section}{\numberline {4.5}DQN Agent Training}{37}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Safety Supervisor}{37}{section.4.6}%
-\contentsline {section}{\numberline {4.7}Interactive Dashboard}{38}{section.4.7}%
-\contentsline {section}{\numberline {4.8}Implementation Challenges}{39}{section.4.8}%
-\contentsline {section}{\numberline {4.9}Testing}{39}{section.4.9}%
-\contentsline {section}{\numberline {4.10}Conclusion}{40}{section.4.10}%
-\contentsline {chapter}{\numberline {5}Results and Evaluation}{42}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Results}{42}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Experiment 1: Layer 2 Isolation}{42}{subsection.5.1.1}%
-\contentsline {subsection}{\numberline {5.1.2}Experiment 2: Full Three-Layer System}{43}{subsection.5.1.2}%
-\contentsline {subsection}{\numberline {5.1.3}Experiment 3: Autonomy and Safety Contribution Analysis}{45}{subsection.5.1.3}%
-\contentsline {subsection}{\numberline {5.1.4}Threshold Baseline Comparison}{46}{subsection.5.1.4}%
-\contentsline {subsection}{\numberline {5.1.5}Financial Impact Analysis}{46}{subsection.5.1.5}%
-\contentsline {subsection}{\numberline {5.1.6}Results Summary}{48}{subsection.5.1.6}%
-\contentsline {section}{\numberline {5.2}Evaluation}{49}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Evaluation Criteria}{49}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Achievement of Project Objectives}{50}{subsection.5.2.2}%
-\contentsline {subsection}{\numberline {5.2.3}Critical Assessment}{52}{subsection.5.2.3}%
-\contentsline {subsection}{\numberline {5.2.4}Comparison with Existing Work}{53}{subsection.5.2.4}%
-\contentsline {subsection}{\numberline {5.2.5}Limitations}{53}{subsection.5.2.5}%
-\contentsline {section}{\numberline {5.3}Conclusion}{54}{section.5.3}%
-\contentsline {chapter}{\numberline {6}Legal, Social, Ethical and Professional Issues}{55}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Data Protection and Privacy}{55}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Aerospace Safety Regulation and Certification}{56}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Liability and Accountability}{56}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Social Impact and Workforce Implications}{57}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Ethical Considerations in Autonomous Decision-Making}{57}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Professional Standards}{58}{section.6.6}%
-\contentsline {section}{\numberline {6.7}Commercial Deployment Considerations}{59}{section.6.7}%
-\contentsline {section}{\numberline {6.8}Conclusion}{59}{section.6.8}%
-\contentsline {chapter}{\numberline {7}Conclusion}{60}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Summary of Work}{60}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Achievement of Objectives}{61}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Key Contributions}{62}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Limitations}{62}{section.7.4}%
-\contentsline {section}{\numberline {7.5}Future Work}{63}{section.7.5}%
-\contentsline {section}{\numberline {7.6}Reflective Statement}{64}{section.7.6}%
-\contentsline {chapter}{\numberline {A}Project Proposal}{70}{appendix.A}%
-\contentsline {chapter}{\numberline {B}Extended Experiment Data}{73}{appendix.B}%
-\contentsline {chapter}{\numberline {C}Key Source Code}{79}{appendix.C}%
-\contentsline {chapter}{\numberline {D}Hyperparameter Configuration}{83}{appendix.D}%
-\contentsline {chapter}{\numberline {E}Additional Visualisations}{85}{appendix.E}%
-\contentsline {chapter}{\numberline {F}Testing Documentation}{88}{appendix.F}%
-\contentsline {chapter}{\numberline {G}Extended Implementation Details}{93}{appendix.G}%
-\contentsline {chapter}{\numberline {H}Original Contributions}{99}{appendix.H}%
+\contentsline {section}{\numberline {4.2}Data Pipeline}{36}{section.4.2}%
+\contentsline {section}{\numberline {4.3}LSTM Ensemble Training}{37}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Gymnasium Reinforcement Learning Environment}{38}{section.4.4}%
+\contentsline {section}{\numberline {4.5}DQN Agent Training}{39}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Safety Supervisor}{39}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Interactive Dashboard}{40}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Implementation Challenges}{41}{section.4.8}%
+\contentsline {section}{\numberline {4.9}Testing}{41}{section.4.9}%
+\contentsline {section}{\numberline {4.10}Conclusion}{42}{section.4.10}%
+\contentsline {chapter}{\numberline {5}Results and Evaluation}{44}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Results}{44}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Experiment 1: Layer 2 Isolation}{44}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Experiment 2: Full Three-Layer System}{45}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Experiment 3: Autonomy and Safety Contribution Analysis}{47}{subsection.5.1.3}%
+\contentsline {subsection}{\numberline {5.1.4}Threshold Baseline Comparison}{48}{subsection.5.1.4}%
+\contentsline {subsection}{\numberline {5.1.5}Financial Impact Analysis}{48}{subsection.5.1.5}%
+\contentsline {subsection}{\numberline {5.1.6}Results Summary}{50}{subsection.5.1.6}%
+\contentsline {section}{\numberline {5.2}Evaluation}{51}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Evaluation Criteria}{51}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Achievement of Project Objectives}{52}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Critical Assessment}{54}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Comparison with Existing Work}{55}{subsection.5.2.4}%
+\contentsline {subsection}{\numberline {5.2.5}Limitations}{55}{subsection.5.2.5}%
+\contentsline {section}{\numberline {5.3}Conclusion}{56}{section.5.3}%
+\contentsline {chapter}{\numberline {6}Legal, Social, Ethical and Professional Issues}{57}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Data Protection and Privacy}{57}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Aerospace Safety Regulation and Certification}{58}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Liability and Accountability}{58}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Social Impact and Workforce Implications}{59}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Ethical Considerations in Autonomous Decision-Making}{59}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Professional Standards}{60}{section.6.6}%
+\contentsline {section}{\numberline {6.7}Commercial Deployment Considerations}{61}{section.6.7}%
+\contentsline {section}{\numberline {6.8}Conclusion}{61}{section.6.8}%
+\contentsline {chapter}{\numberline {7}Conclusion}{62}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Summary of Work}{62}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Achievement of Objectives}{63}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Key Contributions}{64}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Limitations}{64}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Future Work}{65}{section.7.5}%
+\contentsline {section}{\numberline {7.6}Reflective Statement}{66}{section.7.6}%
+\contentsline {chapter}{\numberline {A}Project Proposal}{72}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Extended Experiment Data}{75}{appendix.B}%
+\contentsline {chapter}{\numberline {C}Key Source Code}{81}{appendix.C}%
+\contentsline {chapter}{\numberline {D}Hyperparameter Configuration}{85}{appendix.D}%
+\contentsline {chapter}{\numberline {E}Additional Visualisations}{87}{appendix.E}%
+\contentsline {chapter}{\numberline {F}Testing Documentation}{90}{appendix.F}%
+\contentsline {chapter}{\numberline {G}Extended Implementation Details}{99}{appendix.G}%
+\contentsline {chapter}{\numberline {H}Original Contributions}{105}{appendix.H}%
