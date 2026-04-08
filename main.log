@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.10)  7 APR 2026 10:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.10)  8 APR 2026 19:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**"c:/Users/Abhishek Soni/OneDrive/Desktop/FINAL_FYP/main.tex"
-(c:/Users/Abhishek Soni/OneDrive/Desktop/FINAL_FYP/main.tex
+**./main.tex
+(main.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
 
@@ -926,7 +926,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 [1
 
 ]
-<figures/greenwich_logo.png, id=402, 216.81pt x 79.2561pt>
+<figures/greenwich_logo.png, id=406, 216.81pt x 79.2561pt>
 File: figures/greenwich_logo.png Graphic file (type png)
 <use figures/greenwich_logo.png>
 Package pdftex.def Info: figures/greenwich_logo.png  used on input line 115.
@@ -965,59 +965,64 @@ Package hyperref Info: Option `pageanchor' set `true' on input line 210.
 Chapter 1.
 [1
 
-] [2] [3] [4] [5] [6]
+] [2] [3] [4] [5]
 Chapter 2.
-[7
+[6
 
-] [8] [9] [10] [11]
-<figures/ensemble_evaluation_1_prediction.png, id=913, 1034.1837pt x 514.5624pt
+] [7] [8] [9]
+<figures/ensemble_evaluation_1_prediction.png, id=936, 1034.1837pt x 514.5624pt
 >
 File: figures/ensemble_evaluation_1_prediction.png Graphic file (type png)
 <use figures/ensemble_evaluation_1_prediction.png>
 Package pdftex.def Info: figures/ensemble_evaluation_1_prediction.png  used on 
-input line 355.
+input line 349.
 (pdftex.def)             Requested size: 385.02547pt x 191.5707pt.
-<figures/ensemble_evaluation_3_uncertainty.png, id=914, 1126.6893pt x 441.5697p
+ [10]
+<figures/ensemble_evaluation_3_uncertainty.png, id=944, 1126.6893pt x 441.5697p
 t>
 File: figures/ensemble_evaluation_3_uncertainty.png Graphic file (type png)
 <use figures/ensemble_evaluation_3_uncertainty.png>
 Package pdftex.def Info: figures/ensemble_evaluation_3_uncertainty.png  used on
- input line 362.
+ input line 356.
 (pdftex.def)             Requested size: 385.02547pt x 150.89981pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[12 <./figures/ensemble_evaluation_1_prediction.png>] [13 <./figures/ensemble_e
-valuation_3_uncertainty.png>] [14] [15] [16] [17] [18] [19]
-Chapter 3.
-[20
+[11 <./figures/ensemble_evaluation_1_prediction.png>] [12 <./figures/ensemble_e
+valuation_3_uncertainty.png>] [13] [14]
 
-] [21]
-Overfull \hbox (0.96092pt too wide) in paragraph at lines 490--490
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[15] [16]
+Chapter 3.
+[17
+
+]
+Overfull \hbox (0.96092pt too wide) in paragraph at lines 475--475
 []|\OT1/cmr/bx/n/10.95 Priority|  
  []
 
 
-Overfull \hbox (3.39609pt too wide) in paragraph at lines 502--502
+Overfull \hbox (3.39609pt too wide) in paragraph at lines 487--487
 []|\OT1/cmr/m/n/10.95 FR10|  
  []
 
 
-Overfull \hbox (3.39609pt too wide) in paragraph at lines 504--504
+Overfull \hbox (3.39609pt too wide) in paragraph at lines 489--489
 []|\OT1/cmr/m/n/10.95 FR11|  
  []
 
 
-Overfull \hbox (3.39609pt too wide) in paragraph at lines 505--505
+Overfull \hbox (3.39609pt too wide) in paragraph at lines 490--490
 []|\OT1/cmr/m/n/10.95 FR12|  
  []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-
-Overfull \hbox (0.96092pt too wide) in paragraph at lines 524--524
+[18]
+Overfull \hbox (0.96092pt too wide) in paragraph at lines 509--509
 []|\OT1/cmr/bx/n/10.95 Priority|  
  []
 
@@ -1025,422 +1030,543 @@ Overfull \hbox (0.96092pt too wide) in paragraph at lines 524--524
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Overfull \hbox (52.46613pt too wide) in paragraph at lines 588--589
+Overfull \hbox (52.46613pt too wide) in paragraph at lines 573--574
  [][] 
  []
 
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[22]
-<figures/ensemble_evaluation_2_error.png, id=1046, 1148.73164pt x 441.5697pt>
+[19]
+<figures/ensemble_evaluation_2_error.png, id=1094, 1148.73164pt x 441.5697pt>
 File: figures/ensemble_evaluation_2_error.png Graphic file (type png)
 <use figures/ensemble_evaluation_2_error.png>
 Package pdftex.def Info: figures/ensemble_evaluation_2_error.png  used on input
- line 610.
+ line 598.
 (pdftex.def)             Requested size: 385.02547pt x 148.00256pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[23]
+[20] [21 <./figures/ensemble_evaluation_2_error.png>]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[24 <./figures/ensemble_evaluation_2_error.png>] [25]
-Overfull \hbox (79.33597pt too wide) in paragraph at lines 712--713
+[22]
+Overfull \hbox (79.33597pt too wide) in paragraph at lines 702--703
  [][] 
  []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<figures/final_engine_50_timeline.png, id=1083, 968.05666pt x 858.5676pt>
+<figures/final_engine_50_timeline.png, id=1133, 968.05666pt x 858.5676pt>
 File: figures/final_engine_50_timeline.png Graphic file (type png)
 <use figures/final_engine_50_timeline.png>
 Package pdftex.def Info: figures/final_engine_50_timeline.png  used on input li
-ne 722.
+ne 712.
 (pdftex.def)             Requested size: 430.31812pt x 381.6487pt.
+[23]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[26]
+[24]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[27] [28 <./figures/final_engine_50_timeline.png>] [29] [30] [31]
+[25 <./figures/final_engine_50_timeline.png>] [26] [27] [28] [29]
 Chapter 4.
-[32
+[30
 
-] [33] [34] [35] [36]
-<figures/uncertainty_vs_error.png, id=1179, 1011.78pt x 361.35pt>
+] [31] [32] [33] [34]
+<figures/uncertainty_vs_error.png, id=1236, 1011.78pt x 361.35pt>
 File: figures/uncertainty_vs_error.png Graphic file (type png)
 <use figures/uncertainty_vs_error.png>
 Package pdftex.def Info: figures/uncertainty_vs_error.png  used on input line 9
-70.
+60.
 (pdftex.def)             Requested size: 385.02547pt x 137.5074pt.
- [37 <./figures/uncertainty_vs_error.png>] [38]
-[39]
-<figures/report_summary_dashboard.png, id=1219, 1436.4867pt x 807.015pt>
+ [35 <./figures/uncertainty_vs_error.png>] [36]
+[37]
+<figures/report_summary_dashboard.png, id=1277, 1436.4867pt x 807.015pt>
 File: figures/report_summary_dashboard.png Graphic file (type png)
 <use figures/report_summary_dashboard.png>
 Package pdftex.def Info: figures/report_summary_dashboard.png  used on input li
-ne 1011.
+ne 1001.
 (pdftex.def)             Requested size: 430.31812pt x 241.74925pt.
- [40 <./figures/report_summary_dashboard.png>]
-<figures/final_engine_134_timeline.png, id=1229, 967.6953pt x 858.5676pt>
+ [38 <./figures/report_summary_dashboard.png>]
+<figures/final_engine_134_timeline.png, id=1287, 967.6953pt x 858.5676pt>
 File: figures/final_engine_134_timeline.png Graphic file (type png)
 <use figures/final_engine_134_timeline.png>
 Package pdftex.def Info: figures/final_engine_134_timeline.png  used on input l
-ine 1029.
+ine 1019.
 (pdftex.def)             Requested size: 430.31812pt x 381.79282pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<figures/final_engine_200_timeline.png, id=1230, 967.33395pt x 858.5676pt>
+<figures/final_engine_200_timeline.png, id=1288, 967.33395pt x 858.5676pt>
 File: figures/final_engine_200_timeline.png Graphic file (type png)
 <use figures/final_engine_200_timeline.png>
 Package pdftex.def Info: figures/final_engine_200_timeline.png  used on input l
-ine 1036.
+ine 1026.
 (pdftex.def)             Requested size: 430.31812pt x 381.93692pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[41] [42 <./figures/final_engine_134_timeline.png>] [43 <./figures/final_engine
+[39] [40 <./figures/final_engine_134_timeline.png>] [41 <./figures/final_engine
 _200_timeline.png>]
 Chapter 5.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<figures/report_exp1_layer2_isolation.png, id=1251, 1290.9831pt x 405.6756pt>
+<figures/report_exp1_layer2_isolation.png, id=1309, 1290.9831pt x 405.6756pt>
 File: figures/report_exp1_layer2_isolation.png Graphic file (type png)
 <use figures/report_exp1_layer2_isolation.png>
 Package pdftex.def Info: figures/report_exp1_layer2_isolation.png  used on inpu
-t line 1091.
+t line 1081.
 (pdftex.def)             Requested size: 430.31812pt x 135.2228pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[44
+[42
 
 ]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[45 <./figures/report_exp1_layer2_isolation.png>]
-<figures/report_exp2_full_system.png, id=1267, 1292.1876pt x 405.6756pt>
+[43 <./figures/report_exp1_layer2_isolation.png>]
+<figures/report_exp2_full_system.png, id=1325, 1292.1876pt x 405.6756pt>
 File: figures/report_exp2_full_system.png Graphic file (type png)
 <use figures/report_exp2_full_system.png>
 Package pdftex.def Info: figures/report_exp2_full_system.png  used on input lin
-e 1131.
+e 1121.
 (pdftex.def)             Requested size: 430.31812pt x 135.099pt.
- [46 <./figures/report_exp2_full_system.png>]
-<figures/report_exp3_safety_contribution.png, id=1275, 1291.224pt x 405.6756pt>
+ [44 <./figures/report_exp2_full_system.png>]
+<figures/report_exp3_safety_contribution.png, id=1332, 1291.224pt x 405.6756pt>
 
 File: figures/report_exp3_safety_contribution.png Graphic file (type png)
 <use figures/report_exp3_safety_contribution.png>
 Package pdftex.def Info: figures/report_exp3_safety_contribution.png  used on i
-nput line 1145.
+nput line 1138.
 (pdftex.def)             Requested size: 430.31812pt x 135.19185pt.
- [47 <./figures/report_exp3_safety_contribution.png>]
-<figures/experiment_3_threshold_baseline.png, id=1283, 1292.54895pt x 520.344pt
+<figures/experiment_3_threshold_baseline.png, id=1334, 1292.54895pt x 520.344pt
 >
 File: figures/experiment_3_threshold_baseline.png Graphic file (type png)
 <use figures/experiment_3_threshold_baseline.png>
 Package pdftex.def Info: figures/experiment_3_threshold_baseline.png  used on i
-nput line 1156.
+nput line 1149.
 (pdftex.def)             Requested size: 430.31812pt x 173.23055pt.
- [48 <./figures/experiment_3_threshold_baseline.png>]
-<figures/report_cost_analysis.png, id=1289, 1147.1658pt x 891.5709pt>
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[45 <./figures/report_exp3_safety_contribution.png>] [46 <./figures/experiment_
+3_threshold_baseline.png>]
+<figures/report_cost_analysis.png, id=1345, 1147.1658pt x 891.5709pt>
 File: figures/report_cost_analysis.png Graphic file (type png)
 <use figures/report_cost_analysis.png>
 Package pdftex.def Info: figures/report_cost_analysis.png  used on input line 1
-180.
+173.
 (pdftex.def)             Requested size: 430.31812pt x 334.4335pt.
-<figures/final_result_chart.png, id=1293, 1011.78pt x 433.62pt>
+<figures/final_result_chart.png, id=1349, 1011.78pt x 433.62pt>
 File: figures/final_result_chart.png Graphic file (type png)
 <use figures/final_result_chart.png>
-Package pdftex.def Info: figures/final_result_chart.png  used on input line 119
-2.
+Package pdftex.def Info: figures/final_result_chart.png  used on input line 118
+5.
 (pdftex.def)             Requested size: 430.31812pt x 184.42169pt.
- [49 <./figures/report_cost_analysis.png>] [50 <./figures/final_result_chart.pn
-g>] [51]
-Overfull \hbox (4.894pt too wide) in paragraph at lines 1238--1254
- [][] 
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[47 <./figures/report_cost_analysis.png>] [48 <./figures/final_result_chart.png
+>]
+Overfull \hbox (7.42863pt too wide) in paragraph at lines 1217--1217
+[]|\OT1/cmr/bx/n/10.95 Obj.|  
  []
 
-[52] [53] [54] [55] [56]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[49] [50] [51] [52] [53]
 Chapter 6.
-[57
+[54
 
-] [58] [59] [60] [61]
+] [55] [56] [57] [58]
 Chapter 7.
-[62
+[59
 
-] [63] [64]
-Underfull \hbox (badness 1810) in paragraph at lines 1427--1428
+] [60]
+Underfull \hbox (badness 1810) in paragraph at lines 1388--1389
 []\OT1/cmr/m/n/12 All fi-nan-cial pro-jec-tions were based on sim-u-lated out-c
 omes and industry-
  []
 
-[65] [66] (main.bbl [67
+[61] [62] [63] (main.bbl [64
 
-] [68] [69] [70]) [71]
+] [65] [66] [67]) [68]
 Appendix A.
-[72
+[69
 
 ]
-Overfull \hbox (3.03896pt too wide) in paragraph at lines 1496--1511
+Overfull \hbox (3.03896pt too wide) in paragraph at lines 1461--1476
  [][] 
  []
 
-[73] [74]
+[70] [71]
 Appendix B.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[75
+[72
 
 ]
-Overfull \hbox (26.71992pt too wide) in paragraph at lines 1604--1618
+Overfull \hbox (26.71992pt too wide) in paragraph at lines 1569--1583
  [][] 
  []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[76] [77]
-<figures/report_ppo_vs_dqn.png, id=1528, 930.5967pt x 734.0223pt>
+[73] [74]
+<figures/report_ppo_vs_dqn.png, id=1564, 930.5967pt x 734.0223pt>
 File: figures/report_ppo_vs_dqn.png Graphic file (type png)
 <use figures/report_ppo_vs_dqn.png>
-Package pdftex.def Info: figures/report_ppo_vs_dqn.png  used on input line 1701
+Package pdftex.def Info: figures/report_ppo_vs_dqn.png  used on input line 1666
 .
 (pdftex.def)             Requested size: 430.31812pt x 339.4128pt.
- [78]
-<figures/report_ppo_statistical.png, id=1534, 1075.1367pt x 335.8146pt>
+ [75]
+<figures/report_ppo_statistical.png, id=1570, 1075.1367pt x 335.8146pt>
 File: figures/report_ppo_statistical.png Graphic file (type png)
 <use figures/report_ppo_statistical.png>
 Package pdftex.def Info: figures/report_ppo_statistical.png  used on input line
- 1710.
+ 1675.
 (pdftex.def)             Requested size: 430.31812pt x 134.40544pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[79 <./figures/report_ppo_vs_dqn.png>] [80 <./figures/report_ppo_statistical.pn
+[76 <./figures/report_ppo_vs_dqn.png>] [77 <./figures/report_ppo_statistical.pn
 g>]
 Appendix C.
-[81
+[78
 
-] [82] [83] [84]
+] [79] [80] [81]
 Appendix D.
-[85
+[82
 
-] [86]
+] [83]
 Appendix E.
-<figures/experiment_1_layer2_ablation.png, id=1577, 1436.7276pt x 521.7894pt>
+<figures/experiment_1_layer2_ablation.png, id=1614, 1436.7276pt x 521.7894pt>
 File: figures/experiment_1_layer2_ablation.png Graphic file (type png)
 <use figures/experiment_1_layer2_ablation.png>
 Package pdftex.def Info: figures/experiment_1_layer2_ablation.png  used on inpu
-t line 1942.
+t line 1907.
 (pdftex.def)             Requested size: 385.02547pt x 139.82608pt.
-<figures/experiment_2_full_system.png, id=1580, 1436.7276pt x 521.7894pt>
+<figures/experiment_2_full_system.png, id=1617, 1436.7276pt x 521.7894pt>
 File: figures/experiment_2_full_system.png Graphic file (type png)
 <use figures/experiment_2_full_system.png>
 Package pdftex.def Info: figures/experiment_2_full_system.png  used on input li
-ne 1949.
+ne 1914.
 (pdftex.def)             Requested size: 385.02547pt x 139.82608pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<figures/report_cost_executive_summary.png, id=1583, 858.3267pt x 425.1885pt>
+<figures/report_cost_executive_summary.png, id=1620, 858.3267pt x 425.1885pt>
 File: figures/report_cost_executive_summary.png Graphic file (type png)
 <use figures/report_cost_executive_summary.png>
 Package pdftex.def Info: figures/report_cost_executive_summary.png  used on inp
-ut line 1956.
+ut line 1921.
 (pdftex.def)             Requested size: 407.66833pt x 201.94716pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[87
+[84
 
  <./figures/experiment_1_layer2_ablation.png>]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[88 <./figures/experiment_2_full_system.png> <./figures/report_cost_executive_s
-ummary.png>] [89]
+[85 <./figures/experiment_2_full_system.png> <./figures/report_cost_executive_s
+ummary.png>] [86]
 Appendix F.
 
-Overfull \hbox (6.06432pt too wide) in paragraph at lines 2011--2025
+Overfull \hbox (6.06432pt too wide) in paragraph at lines 1976--1990
  [][] 
  []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[90
+[87
 
 ]
-<figures/report_test_results.png, id=1607, 927.465pt x 317.2653pt>
+<figures/report_test_results.png, id=1643, 927.465pt x 317.2653pt>
 File: figures/report_test_results.png Graphic file (type png)
 <use figures/report_test_results.png>
-Package pdftex.def Info: figures/report_test_results.png  used on input line 20
-31.
+Package pdftex.def Info: figures/report_test_results.png  used on input line 19
+96.
 (pdftex.def)             Requested size: 430.31812pt x 147.20248pt.
- [91 <./figures/report_test_results.png>] [92] [93]
-<figures/dashboard_01_sidebyside_top.png, id=1624, 1440.88312pt x 702.37407pt>
+ [88 <./figures/report_test_results.png>] [89] [90]
+<figures/dashboard_01_sidebyside_top.png, id=1661, 1440.88312pt x 702.37407pt>
 File: figures/dashboard_01_sidebyside_top.png Graphic file (type png)
 <use figures/dashboard_01_sidebyside_top.png>
 Package pdftex.def Info: figures/dashboard_01_sidebyside_top.png  used on input
- line 2104.
+ line 2069.
 (pdftex.def)             Requested size: 416.72963pt x 203.13667pt.
-<figures/dashboard_01_sidebyside_bot.png, id=1625, 1123.19624pt x 481.04718pt>
+<figures/dashboard_01_sidebyside_bot.png, id=1662, 1123.19624pt x 481.04718pt>
 File: figures/dashboard_01_sidebyside_bot.png Graphic file (type png)
 <use figures/dashboard_01_sidebyside_bot.png>
 Package pdftex.def Info: figures/dashboard_01_sidebyside_bot.png  used on input
- line 2105.
+ line 2070.
 (pdftex.def)             Requested size: 416.72963pt x 178.47646pt.
-<figures/dashboard_02_jackpot_top.png, id=1626, 1436.36626pt x 692.5875pt>
+<figures/dashboard_02_jackpot_top.png, id=1663, 1436.36626pt x 692.5875pt>
 File: figures/dashboard_02_jackpot_top.png Graphic file (type png)
 <use figures/dashboard_02_jackpot_top.png>
 Package pdftex.def Info: figures/dashboard_02_jackpot_top.png  used on input li
-ne 2112.
+ne 2077.
 (pdftex.def)             Requested size: 416.72963pt x 200.94034pt.
-<figures/dashboard_02_jackpot_bot.png, id=1627, 1160.83687pt x 437.38406pt>
+<figures/dashboard_02_jackpot_bot.png, id=1664, 1160.83687pt x 437.38406pt>
 File: figures/dashboard_02_jackpot_bot.png Graphic file (type png)
 <use figures/dashboard_02_jackpot_bot.png>
 Package pdftex.def Info: figures/dashboard_02_jackpot_bot.png  used on input li
-ne 2113.
+ne 2078.
 (pdftex.def)             Requested size: 416.72963pt x 157.01765pt.
-<figures/dashboard_03_override_top.png, id=1628, 1440.88312pt x 695.59875pt>
+<figures/dashboard_03_override_top.png, id=1665, 1440.88312pt x 695.59875pt>
 File: figures/dashboard_03_override_top.png Graphic file (type png)
 <use figures/dashboard_03_override_top.png>
 Package pdftex.def Info: figures/dashboard_03_override_top.png  used on input l
-ine 2120.
+ine 2085.
 (pdftex.def)             Requested size: 416.72963pt x 201.17715pt.
-<figures/dashboard_03_override_bot.png, id=1629, 1122.44344pt x 421.575pt>
+<figures/dashboard_03_override_bot.png, id=1666, 1122.44344pt x 421.575pt>
 File: figures/dashboard_03_override_bot.png Graphic file (type png)
 <use figures/dashboard_03_override_bot.png>
 Package pdftex.def Info: figures/dashboard_03_override_bot.png  used on input l
-ine 2121.
+ine 2086.
 (pdftex.def)             Requested size: 416.72963pt x 156.51422pt.
-<figures/dashboard_04_heavynoise_top.png, id=1630, 1142.01656pt x 420.06938pt>
+<figures/dashboard_04_heavynoise_top.png, id=1667, 1142.01656pt x 420.06938pt>
 File: figures/dashboard_04_heavynoise_top.png Graphic file (type png)
 <use figures/dashboard_04_heavynoise_top.png>
 Package pdftex.def Info: figures/dashboard_04_heavynoise_top.png  used on input
- line 2128.
+ line 2093.
 (pdftex.def)             Requested size: 416.72963pt x 153.28238pt.
-<figures/dashboard_04_heavynoise_bot.png, id=1631, 1434.10782pt x 703.12688pt>
+<figures/dashboard_04_heavynoise_bot.png, id=1668, 1434.10782pt x 703.12688pt>
 File: figures/dashboard_04_heavynoise_bot.png Graphic file (type png)
 <use figures/dashboard_04_heavynoise_bot.png>
 Package pdftex.def Info: figures/dashboard_04_heavynoise_bot.png  used on input
- line 2129.
+ line 2094.
 (pdftex.def)             Requested size: 416.72963pt x 204.30927pt.
- [94 <./figures/dashboard_01_sidebyside_top.png> <./figures/dashboard_01_sideby
-side_bot.png>] [95 <./figures/dashboard_02_jackpot_top.png> <./figures/dashboar
+ [91 <./figures/dashboard_01_sidebyside_top.png> <./figures/dashboard_01_sideby
+side_bot.png>] [92 <./figures/dashboard_02_jackpot_top.png> <./figures/dashboar
 d_02_jackpot_bot.png>]
-[96 <./figures/dashboard_03_override_top.png> <./figures/dashboard_03_override_
-bot.png>] [97 <./figures/dashboard_04_heavynoise_top.png> <./figures/dashboard_
-04_heavynoise_bot.png>] [98]
+[93 <./figures/dashboard_03_override_top.png> <./figures/dashboard_03_override_
+bot.png>] [94 <./figures/dashboard_04_heavynoise_top.png> <./figures/dashboard_
+04_heavynoise_bot.png>] [95]
 Appendix G.
-[99
+[96
 
-] [100]
-Overfull \hbox (49.48792pt too wide) in paragraph at lines 2190--2210
+] [97]
+Overfull \hbox (49.48792pt too wide) in paragraph at lines 2155--2175
  [][] 
  []
 
-[101] [102]
-Underfull \hbox (badness 10000) in paragraph at lines 2258--2259
+[98] [99]
+Underfull \hbox (badness 10000) in paragraph at lines 2223--2224
 []|\OT1/cmr/bx/n/10.95 Alternatives
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2260--2260
+Underfull \hbox (badness 10000) in paragraph at lines 2225--2225
 []|\OT1/cmr/m/n/10.95 Forecasting
  []
 
 
-Underfull \hbox (badness 2096) in paragraph at lines 2260--2260
+Underfull \hbox (badness 2096) in paragraph at lines 2225--2225
 \OT1/cmr/m/n/10.95 MAPSS with mod-er-ate com-pute
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2260--2261
+Underfull \hbox (badness 10000) in paragraph at lines 2225--2226
 []|\OT1/cmr/m/n/10.95 Transformer,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2260--2261
+Underfull \hbox (badness 10000) in paragraph at lines 2225--2226
 \OT1/cmr/m/n/10.95 CNN-LSTM,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2261--2261
+Underfull \hbox (badness 10000) in paragraph at lines 2226--2226
 []|\OT1/cmr/m/n/10.95 Uncertainty
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2261--2262
+Underfull \hbox (badness 10000) in paragraph at lines 2226--2227
 []|\OT1/cmr/m/n/10.95 MC Dropout,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2262--2262
+Underfull \hbox (badness 10000) in paragraph at lines 2227--2227
 []|\OT1/cmr/m/n/10.95 Control
  []
 
 
-Underfull \hbox (badness 1694) in paragraph at lines 2262--2262
+Underfull \hbox (badness 1694) in paragraph at lines 2227--2227
 []|\OT1/cmr/m/n/10.95 Direct op-ti-mi-sa-tion of se-quen-tial
  []
 
 
-Overfull \hbox (5.8234pt too wide) in paragraph at lines 2256--2266
+Overfull \hbox (5.8234pt too wide) in paragraph at lines 2221--2231
  [][] 
  []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[103] [104]
+[100] [101]
 Appendix H.
+[102
 
-Underfull \hbox (badness 10000) in paragraph at lines 2293--2293
+]
+<figures/calibration_diagram.png, id=1769, 674.0382pt x 313.17pt>
+File: figures/calibration_diagram.png Graphic file (type png)
+<use figures/calibration_diagram.png>
+Package pdftex.def Info: figures/calibration_diagram.png  used on input line 22
+54.
+(pdftex.def)             Requested size: 452.9679pt x 210.45834pt.
+ [103 <./figures/calibration_diagram.png>]
+<figures/decision_boundary.png, id=1779, 714.7503pt x 345.9324pt>
+File: figures/decision_boundary.png Graphic file (type png)
+<use figures/decision_boundary.png>
+Package pdftex.def Info: figures/decision_boundary.png  used on input line 2270
+.
+(pdftex.def)             Requested size: 452.9679pt x 219.23706pt.
+ [104 <./figures/decision_boundary.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 2287--2287
+[]|$\OML/cmm/m/it/10.95 ^^V[]$
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2287--2287
+[]|\OT1/cmr/bx/n/10.95 UA ac-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2289--2289
+[]|\OT1/cmr/m/n/10.95 0.20 ($\OMS/cmsy/m/n/10.95 ^^Y$\OT1/cmr/m/n/10.95 25
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2289--2290
+[]|\OT1/cmr/m/n/10.95 Confident mid-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2290--2290
+[]|\OT1/cmr/m/n/10.95 0.20 ($\OMS/cmsy/m/n/10.95 ^^Y$\OT1/cmr/m/n/10.95 25
+ []
+
+
+Overfull \hbox (6.57666pt too wide) in paragraph at lines 2290--2290
+[]|\OT1/cmr/m/n/10.95 MAINTAIN| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2291--2291
+[]|\OT1/cmr/m/n/10.95 0.08 ($\OMS/cmsy/m/n/10.95 ^^Y$\OT1/cmr/m/n/10.95 10
+ []
+
+
+Overfull \hbox (6.57666pt too wide) in paragraph at lines 2291--2291
+[]|\OT1/cmr/m/n/10.95 MAINTAIN| 
+ []
+
+
+Overfull \hbox (6.57666pt too wide) in paragraph at lines 2291--2291
+[]|\OT1/cmr/m/n/10.95 MAINTAIN| 
+ []
+
+
+Underfull \hbox (badness 1881) in paragraph at lines 2291--2292
+[]|\OT1/cmr/m/n/10.95 Both agents act
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2292--2292
+[]|\OT1/cmr/m/n/10.95 0.30 ($\OMS/cmsy/m/n/10.95 ^^Y$\OT1/cmr/m/n/10.95 37
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2292--2292
+[]|\OT1/cmr/m/n/10.95 0.80 (v.
+ []
+
+
+Overfull \hbox (6.57666pt too wide) in paragraph at lines 2292--2292
+[]|\OT1/cmr/m/n/10.95 MAINTAIN| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2292--2293
+[]|\OT1/cmr/m/n/10.95 UA re-fuses to
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2292--2293
+\OT1/cmr/m/n/10.95 mid-life pre-dic-
+ []
+
+
+Underfull \hbox (badness 2556) in paragraph at lines 2292--2293
+\OT1/cmr/m/n/10.95 tion; blind sees
+ []
+
+
+Underfull \hbox (badness 6236) in paragraph at lines 2292--2293
+\OT1/cmr/m/n/10.95 ``plenty of life''
+ []
+
+[105]
+<figures/training_curves.png, id=1793, 715.473pt x 316.0608pt>
+File: figures/training_curves.png Graphic file (type png)
+<use figures/training_curves.png>
+Package pdftex.def Info: figures/training_curves.png  used on input line 2306.
+(pdftex.def)             Requested size: 452.9679pt x 200.09836pt.
+ [106 <./figures/training_curves.png>] [107]
+Appendix I.
+
+Underfull \hbox (badness 10000) in paragraph at lines 2338--2338
 []|\OT1/cmr/m/n/10.95 DQN al-go-rithm (Stable-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2297--2297
+Underfull \hbox (badness 10000) in paragraph at lines 2342--2342
 []|\OT1/cmr/m/n/10.95 NASA C-MAPSS dataset
  []
 
 
-Underfull \hbox (badness 1033) in paragraph at lines 2297--2298
+Underfull \hbox (badness 1033) in paragraph at lines 2342--2343
 []|$\OML/cmm/m/it/10.95 ^^[$\OT1/cmr/m/n/10.95 -gated two-tier safety su-per-vi
 -sor: confidence-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2301--2302
+Underfull \hbox (badness 10000) in paragraph at lines 2346--2347
 []|\OT1/cmr/m/n/10.95 Four-dimensional ob-ser-va-tion de-sign:
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2301--2302
+Underfull \hbox (badness 10000) in paragraph at lines 2346--2347
 \OT1/cmr/m/n/10.95 [\OML/cmm/m/it/10.95 ^^V[]; ^^[[]; ^^[[]; []\OT1/cmr/m/n/10.
 95 ]$ sep-a-rat-ing in-stan-
  []
 
 
-Underfull \hbox (badness 3482) in paragraph at lines 2301--2302
+Underfull \hbox (badness 3482) in paragraph at lines 2346--2347
 \OT1/cmr/m/n/10.95 ta-neous vs. smoothed un-cer-tainty for ro-bust
  []
 
 
-Underfull \hbox (badness 7925) in paragraph at lines 2303--2303
+Underfull \hbox (badness 7925) in paragraph at lines 2348--2348
 []|\OT1/cmr/m/n/10.95 Welch's $\OML/cmm/m/it/10.95 t$\OT1/cmr/m/n/10.95 -test /
  Co-hen's $\OML/cmm/m/it/10.95 d$
  []
@@ -1448,58 +1574,59 @@ Underfull \hbox (badness 7925) in paragraph at lines 2303--2303
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[105
+[108
 
-] [106] [107] (main.aux)
+] [109] [110] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: F1367A9F691E62CD67D56032E738BA19;17239.
+(rerunfilecheck)             Checksum: E815572F5D3EFB7A6D993705056225CA;17612.
  ) 
 Here is how much of TeX's memory you used:
- 24757 strings out of 467872
- 468391 string characters out of 5414483
- 909495 words of memory out of 5000000
- 52859 multiletter control sequences out of 15000+600000
- 643831 words of font info for 101 fonts, out of 8000000 for 9000
+ 24819 strings out of 467872
+ 470115 string characters out of 5414483
+ 913323 words of memory out of 5000000
+ 52917 multiletter control sequences out of 15000+600000
+ 643739 words of font info for 99 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,15n,104p,1558b,863s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,15n,104p,1711b,863s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\Abhishek Soni\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi
 600\tcbx1095.pk> <C:\Users\Abhishek Soni\AppData\Local\MiKTeX\fonts/pk/ljfour/j
-knappen/ec/dpi600\tcrm1200.pk><C:/Users/Abhishek Soni/AppData/Local/Programs/Mi
-KTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/Abhishek Soni/AppData/
-Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/Abhis
-hek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbxti10.
-pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/am
-sfonts/cm/cmcsc10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fon
-ts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Abhishek Soni/AppData/Local/Pr
-ograms/MiKTeX/fonts/type1/public/amsfonts/cmextra/cmex8.pfb><C:/Users/Abhishek 
-Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C
+knappen/ec/dpi600\tcrm1095.pk> <C:\Users\Abhishek Soni\AppData\Local\MiKTeX\fon
+ts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk><C:/Users/Abhishek Soni/AppData/Loc
+al/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/Abhishek
+ Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><
+C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfont
+s/cm/cmbx8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type
+1/public/amsfonts/cm/cmbxti10.pfb><C:/Users/Abhishek Soni/AppData/Local/Program
+s/MiKTeX/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Users/Abhishek Soni/App
+Data/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/
+Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cmextra
+/cmex8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/pu
+blic/amsfonts/cm/cmmi10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKT
+eX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/Abhishek Soni/AppData/Lo
+cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Users/Abhishek
+ Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C
 :/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts
-/cm/cmmi12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type
-1/public/amsfonts/cm/cmmi6.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/M
-iKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/Abhishek Soni/AppData/
-Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/Abhish
-ek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb>
-<C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfon
-ts/cm/cmr6.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type
-1/public/amsfonts/cm/cmr8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/Mi
-KTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Abhishek Soni/AppData/
-Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/Abhish
-ek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
-<C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfon
-ts/cm/cmsy8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/typ
-e1/public/amsfonts/cm/cmti12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs
-/MiKTeX/fonts/type1/public/amsfonts/cm/cmti8.pfb><C:/Users/Abhishek Soni/AppDat
-a/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/Abh
-ishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.
-pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/am
-sfonts/symbols/msbm10.pfb>
-Output written on main.pdf (121 pages, 9403402 bytes).
+/cm/cmr10.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1
+/public/amsfonts/cm/cmr12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/Mi
+KTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/Abhishek Soni/AppData/Lo
+cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/Abhishek 
+Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C
+:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts
+/cm/cmsy6.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1
+/public/amsfonts/cm/cmsy8.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/Mi
+KTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/Abhishek Soni/AppData/
+Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti8.pfb><C:/Users/Abhish
+ek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb
+><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfo
+nts/cm/cmtt12.pfb><C:/Users/Abhishek Soni/AppData/Local/Programs/MiKTeX/fonts/t
+ype1/public/amsfonts/symbols/msbm10.pfb>
+Output written on main.pdf (124 pages, 10238515 bytes).
 PDF statistics:
- 1930 PDF objects out of 2073 (max. 8388607)
- 369 named destinations out of 1000 (max. 500000)
- 918 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 2012 PDF objects out of 2073 (max. 8388607)
+ 372 named destinations out of 1000 (max. 500000)
+ 941 words of extra memory for PDF output out of 10000 (max. 10000000)
 
