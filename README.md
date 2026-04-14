@@ -13,7 +13,7 @@ A **3-layer hybrid AI system** that combines deep ensemble uncertainty quantific
 
 > **Author** Abhishek Soni · **Module** COMP1682 (BSc Final Year Project) · **University of Greenwich** · **Supervisor** Yasmine Arafa
 
----
+--- 
 
 ## 📐 The 3-Layer Architecture
 
