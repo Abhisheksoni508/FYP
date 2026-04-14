@@ -9,63 +9,118 @@
 ![Tests](https://img.shields.io/badge/tests-29%2F29%20passing-brightgreen)
 ![Status](https://img.shields.io/badge/status-FYP%20submission%20ready-success)
 
-A **3-layer hybrid AI system** that combines deep ensemble uncertainty quantification, reinforcement learning, and rule-based safety to optimise turbofan engine maintenance scheduling under noisy sensor conditions.
+A **hybrid 3-layer AI framework** for turbofan predictive maintenance that combines:
+1. **Deep ensemble LSTM forecasting** for Remaining Useful Life (RUL),
+2. **Uncertainty-aware DQN decision-making** for maintenance timing,
+3. **Safety-rule supervision** for hard-fail protection.
 
-> **Author** Abhishek Soni · **Module** COMP1682 (BSc Final Year Project) · **University of Greenwich** · **Supervisor** Yasmine Arafa
+The system is designed to remain robust under noisy sensor conditions and demonstrates improved maintenance timing, lower avoidable failures, and lower annual fleet cost versus blind and fixed-threshold baselines.
 
---- 
+---
 
-## 📐 The 3-Layer Architecture
+## 📌 Table of Contents
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│  Layer 1 — LSTM Deep Ensemble        Prediction + Uncertainty (σ)    │
-│  5 × LSTMs (bootstrap)  ──►  μ_RUL ± σ                               │
-├──────────────────────────────────────────────────────────────────────┤
-│  Layer 2 — DQN Agent                 Uncertainty-Aware Decisions     │
-│  Obs: [μ, σ_now, σ_roll, trend]  ──►  WAIT  /  MAINTAIN              │
-├──────────────────────────────────────────────────────────────────────┤
-│  Layer 3 — Safety Supervisor         Hard Safety Override            │
-│  σ-gated 2-tier override  ──►  emergency MAINTAIN if confident       │
-└──────────────────────────────────────────────────────────────────────┘
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Architecture](#-architecture)
+- [Results](#-results)
+- [Dataset](#-dataset)
+- [MDP Formulation](#-mdp-formulation)
+- [Repository Structure](#-repository-structure)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Reproducibility](#-reproducibility)
+- [Interactive Dashboard](#-interactive-dashboard)
+- [Testing](#-testing)
+- [Tech Stack](#-tech-stack)
+- [Dissertation](#-dissertation)
+- [Citation](#-citation)
+- [License & Attribution](#-license--attribution)
+
+---
+
+## 🔍 Overview
+
+This project addresses predictive maintenance for turbofan engines using uncertainty-aware reinforcement learning.
+
+Instead of relying only on a single RUL forecast, the framework explicitly models uncertainty and feeds it into the RL policy. This allows the agent to adapt behavior under noisy conditions and defer to a safety supervisor when the system is confidently close to failure.
+
+**Author:** Abhishek Soni  
+**Module:** COMP1682 (BSc Final Year Project)  
+**Institution:** University of Greenwich  
+**Supervisor:** Yasmine Arafa
+
+---
+
+## ✨ Key Features
+
+- **Uncertainty-aware control:** RL agent observes both forecast and uncertainty.
+- **Deep ensemble forecasting:** 5 bootstrap-trained LSTMs provide mean prediction and disagreement-based uncertainty.
+- **Noise-robust policy learning:** 70% of RL training episodes include Gaussian sensor noise (σ ∈ [0.02, 0.20]).
+- **Safety override layer:** Two-tier σ-gated supervisor can force emergency maintenance under high-confidence failure risk.
+- **End-to-end evaluation:** Includes ablation, PPO comparison, statistical testing, and fleet-level cost analysis.
+- **Interactive dashboard:** Streamlit app for per-engine policy inspection and behavior comparison.
+
+---
+
+## 📐 Architecture
+
+```text
+Layer 1: LSTM Deep Ensemble (x5)
+  Input  -> sensor windows
+  Output -> μ_RUL and uncertainty σ (inter-model disagreement)
+
+Layer 2: DQN Agent
+  Observation -> [μ_RUL, σ_now, σ_rolling, sensor_trend]
+  Action      -> WAIT or MAINTAIN
+
+Layer 3: Safety Supervisor
+  Rule-based uncertainty-gated override
+  Can force MAINTAIN under confident imminent-failure conditions
 ```
 
 | Layer | Component | Role |
 |---|---|---|
-| **L1** | LSTM Deep Ensemble (×5) | Predicts Remaining Useful Life and quantifies uncertainty via inter-model disagreement (σ) |
-| **L2** | DQN RL Agent | Observes `[μ_RUL, σ_now, σ_rolling, sensor_trend]` and learns the optimal maintenance moment |
-| **L3** | Safety Supervisor | Two-tier σ-gated rule that forces MAINTAIN when the ensemble is confidently predicting imminent failure |
-
-### 🎯 Key Innovation
-The DQN is trained with **noise augmentation** — 70% of training episodes inject Gaussian sensor noise (σ ∈ [0.02, 0.20]). This forces ensemble disagreement to spike, teaching the agent that **high σ ⇒ unreliable predictions**. A **Blind** ablation agent (with σ zeroed out) is trained as the control to isolate the contribution of uncertainty awareness.
+| **L1** | LSTM Deep Ensemble (×5) | Predicts RUL and quantifies uncertainty via model disagreement (σ) |
+| **L2** | DQN Agent | Learns maintenance timing from `[μ_RUL, σ_now, σ_rolling, sensor_trend]` |
+| **L3** | Safety Supervisor | Applies hard override when uncertainty and risk satisfy safety criteria |
 
 ---
 
-## 📊 Headline Results
+## 📊 Results
 
 | Metric | UA Agent | Blind Agent | Fixed Threshold |
-|---|---|---|---|
+|---|---:|---:|---:|
 | **Crash rate (full system, σ=0.15)** | **0%** | 0% | — |
 | **Autonomous JACKPOT rate** | **70%** | 3% | — |
 | **Reward at σ=0.15 (Layer 2 isolated)** | **+136** | −113 | — |
-| **Supervisor overrides per 500 eps** | **7** | 215 | — |
+| **Supervisor overrides per 500 episodes** | **7** | 215 | — |
 | **Cohen's d (UA vs Blind)** | **0.65** *(p < 0.001)* | — | — |
 | **Annual cost (50-engine fleet)** | **£3.8M** | £5.2M | £6.1M |
-| **UA savings vs Blind baseline** | **£1.4M / year (27%)** | — | — |
+| **Savings vs Blind baseline** | **£1.4M/year (27%)** | — | — |
 
-> 📑 Full statistical analysis, ablation results, and PPO comparison available in the dissertation (`main.pdf`).
+**Evaluation notes**
+- Results are produced from the repository experiment scripts and summarised in `main.pdf`.
+- “Layer 2 isolated” refers to RL policy evaluation without safety-layer intervention.
+- “Full system” includes all 3 layers (forecasting + RL + safety supervisor).
 
 ---
 
-## 🧠 Dataset — NASA C-MAPSS Turbofan
+## 🧠 Dataset
 
-| Subset | Engines | Op. Conditions | Cycles |
-|---|---|---|---|
+NASA **C-MAPSS** turbofan degradation subsets used:
+
+| Subset | Engines | Operating Conditions | Cycles |
+|---|---:|---:|---:|
 | FD001 | 100 | 1 | 20,631 |
 | FD002 | 260 | 6 | 61,249 |
 | **Combined** | **360** | **Mixed** | **81,880** |
 
-24 features per cycle (21 sensors + 3 operational settings) · MinMaxScaler normalisation · RUL capped at 125 · 30-cycle sliding windows.
+Preprocessing:
+- 24 features/cycle (21 sensors + 3 operational settings)
+- MinMaxScaler normalization
+- RUL capped at 125
+- 30-cycle sliding windows
 
 ---
 
@@ -73,45 +128,65 @@ The DQN is trained with **noise augmentation** — 70% of training episodes inje
 
 | Element | Definition |
 |---|---|
-| **State** | `s = [μ_RUL, σ_now, σ_rolling, sensor_trend] ∈ [0,1]⁴` |
-| **Actions** | `A = {WAIT, MAINTAIN}` (binary) |
-| **Reward** | `+500` JACKPOT (RUL<20) · `+10` SAFE (RUL<50) · `−20` WASTEFUL · `−500` CRASH · shaped step reward with time-pressure and uncertainty-urgency terms |
-| **Transition** | Deterministic — advance one cycle |
-| **Termination** | MAINTAIN action OR true RUL = 0 |
+| **State** | `s = [μ_RUL, σ_now, σ_rolling, sensor_trend] ∈ [0,1]^4` |
+| **Actions** | `A = {WAIT, MAINTAIN}` |
+| **Reward** | `+500` JACKPOT (RUL < 20), `+10` SAFE (RUL < 50), `−20` WASTEFUL, `−500` CRASH, plus shaping terms |
+| **Transition** | Deterministic environment step (advance one cycle) |
+| **Termination** | MAINTAIN action or true RUL = 0 |
 | **Discount** | γ = 0.99 |
 
 ---
 
-## 📁 Project Structure
+## 📁 Repository Structure
 
-```
-FINAL_FYP/
+```text
+FYP/
 ├── src/
-│   ├── config.py                    # All hyperparameters
-│   ├── preprocessing.py             # C-MAPSS loader, RUL calc, windowing
-│   ├── lstm_model.py                # LSTM architecture (Layer 1)
-│   └── gym_env.py                   # Gymnasium env + Safety Supervisor (L2+L3)
-│
-├── main_train_ensemble.py           # Train 5 LSTM models (bootstrap)
-├── main_train_rl.py                 # Train UA DQN agent
-├── main_evaluate.py                 # Hybrid vs fixed-threshold baseline
-├── main_evaluate_ensemble.py        # LSTM prediction quality (RMSE, C-MAPSS)
-├── main_experiment_final.py         # Publication-grade ablation (3 × 8 × 500)
-├── main_experiment_ablation.py      # Architecture validation
-├── main_experiment_threshold.py     # DQN vs rule-based baselines
-├── main_experiment_ppo.py           # DQN vs PPO algorithm comparison
-├── main_cost_analysis.py            # 50-engine fleet financial impact
-├── main_visualize.py                # 3-panel engine lifecycle figures
-├── generate_charts.py               # PPO + test result charts
-├── dashboard.py                     # Streamlit interactive demo
-├── test_system.py                   # Pytest suite (29 tests, 6 classes)
-│
-├── main.tex / main.pdf              # Dissertation source + compiled report
-├── references.bib                   # Bibliography
-├── figures/                         # All 29 figures used in main.pdf
-├── data/                            # NASA C-MAPSS FD001 + FD002
-├── models/                          # Trained LSTM ensemble + DQN/Blind agents
-└── report_*.csv                     # Experiment + cost result tables
+│   ├── config.py
+│   ├── preprocessing.py
+│   ├── lstm_model.py
+│   └── gym_env.py
+├── main_train_ensemble.py
+├── main_train_rl.py
+├── main_evaluate.py
+├── main_evaluate_ensemble.py
+├── main_experiment_final.py
+├── main_experiment_ablation.py
+├── main_experiment_threshold.py
+├── main_experiment_ppo.py
+├── main_cost_analysis.py
+├── main_visualize.py
+├── generate_charts.py
+├── dashboard.py
+├── test_system.py
+├── main.tex / main.pdf
+├── references.bib
+├── figures/
+├── data/
+├── models/
+└── report_*.csv
+```
+
+---
+
+## ⚙️ Installation
+
+```bash
+# 1) Clone repository
+git clone https://github.com/Abhisheksoni508/FYP.git
+cd FYP
+
+# 2) (Recommended) create virtual environment
+python -m venv .venv
+
+# Linux/macOS
+source .venv/bin/activate
+
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+
+# 3) Install dependencies
+pip install -r requirements.txt
 ```
 
 ---
@@ -119,46 +194,49 @@ FINAL_FYP/
 ## 🚀 Quick Start
 
 ```bash
-# 1. Install dependencies
-pip install -r requirements.txt
-
-# 2. Run the test suite (sanity check — should be 29/29 ✓)
+# Run tests first (expected: 29 passed)
 pytest test_system.py -v
 
-# 3. Launch the interactive dashboard (no training required — uses bundled models)
+# Launch interactive dashboard
 streamlit run dashboard.py
 ```
 
-That's it for inspecting the work. To **reproduce the full results** from scratch:
+---
+
+## 🔁 Reproducibility
+
+To reproduce the full experimental pipeline from scratch:
 
 ```bash
-# Train Layer 1 (5 LSTM models, ~25 min on GPU)
+# Layer 1: train 5-model LSTM ensemble (~25 min on GPU)
 python main_train_ensemble.py
 
-# Train Layer 2 (UA DQN agent, ~40 min on CPU)
+# Layer 2: train UA DQN (~40 min on CPU)
 python main_train_rl.py
 
-# Reproduce all dissertation experiments + figures
-python main_experiment_final.py        # Full ablation (3 × 8 × 500 episodes)
-python main_experiment_ppo.py          # DQN vs PPO comparison
-python main_cost_analysis.py           # Financial impact analysis
-python main_evaluate_ensemble.py       # LSTM prediction quality
-python main_visualize.py               # Engine lifecycle figures
-python generate_charts.py              # PPO + test result charts
+# Reproduce core experiments and outputs
+python main_experiment_final.py
+python main_experiment_ppo.py
+python main_cost_analysis.py
+python main_evaluate_ensemble.py
+python main_visualize.py
+python generate_charts.py
 ```
 
 ---
 
 ## 🖥️ Interactive Dashboard
 
-A real-time Streamlit dashboard visualises every layer of the system as it makes decisions on individual engines:
+The Streamlit dashboard enables step-by-step inspection of system behavior on individual engines:
 
-- **Engine selector** for any FD001 or FD002 unit
-- **UA / Blind toggle** to live-compare uncertainty-aware vs ablation agents
-- **Safety supervisor toggle** to show / hide Layer 3 interventions
-- **Sensor noise injection slider** (σ ∈ [0, 0.20]) — watch ensemble disagreement react in real time
-- **Side-by-side mode** runs both agents on the same engine simultaneously
-- Live plots: RUL prediction with ±σ band, ensemble uncertainty trace, DQN Q-value pressure, event log, decision badges (`JACKPOT` / `SAFE` / `EARLY` / `OVERRIDE`)
+- Engine selector (FD001/FD002)
+- UA vs Blind policy comparison
+- Safety supervisor toggle
+- Sensor-noise injection slider (σ ∈ [0, 0.20])
+- Side-by-side policy simulation
+- Live plots for RUL ±σ, uncertainty trace, Q-values, and event logs
+
+Run with:
 
 ```bash
 streamlit run dashboard.py
@@ -166,39 +244,49 @@ streamlit run dashboard.py
 
 ---
 
-## 🧪 Test Suite
+## 🧪 Testing
 
-A 29-test pytest suite (`test_system.py`) verifies the integrity of every layer:
+A 29-test `pytest` suite validates core components:
 
-| Test class | Coverage |
+| Test Class | Coverage |
 |---|---|
-| `TestDataPipeline` | Data loading, RUL capping, windowing, scaler integrity |
-| `TestLSTMEnsemble` | Architecture, forward pass, ensemble disagreement |
-| `TestRLEnvironment` | Observation/action space, reward correctness, episode termination |
-| `TestSafetySupervisor` | Tier 1/Tier 2 override logic, σ-gating |
-| `TestTrainedModels` | Model loading, inference shapes |
-| `TestEndToEnd` | Full prediction → decision pipeline |
+| `TestDataPipeline` | Data loading, RUL capping, windowing, scaling |
+| `TestLSTMEnsemble` | Model architecture, forward pass, uncertainty behavior |
+| `TestRLEnvironment` | Observation/action space, reward correctness, termination |
+| `TestSafetySupervisor` | Tiered override logic and σ-gating |
+| `TestTrainedModels` | Model loading and inference shape checks |
+| `TestEndToEnd` | Full pipeline from prediction to decision |
 
 ```bash
-pytest test_system.py -v   # Expected: 29 passed in ~15s
+pytest test_system.py -v
 ```
+
+---
+
+## 🛠 Tech Stack
+
+| Area | Technology |
+|---|---|
+| Deep Learning | PyTorch (LSTM ensemble) |
+| Reinforcement Learning | Stable-Baselines3 (DQN, PPO), Gymnasium |
+| Data | NumPy, pandas, scikit-learn |
+| Statistics | SciPy (Welch’s t-test, Cohen’s d) |
+| Visualization | Matplotlib, Plotly |
+| Dashboard | Streamlit |
+| Testing | pytest |
+| Documentation | LaTeX, BibTeX |
 
 ---
 
 ## 📚 Dissertation
 
-The full report (`main.pdf`, **119 pages**) contains:
+The full report is available as `main.pdf` (119 pages), including:
+- Methodology and implementation details
+- Statistical analysis and ablation studies
+- PPO comparison and cost modeling
+- Validation, ethics, and risk documentation
 
-1. **Chapters 1–7** — Introduction, literature review, methodology, implementation, results, discussion, conclusion (~12,500 words)
-2. **Appendix A** — Original project proposal
-3. **Appendix B** — Extended methodology (incl. PPO comparison study)
-4. **Appendix C** — Ethics
-5. **Appendix D** — Risk register
-6. **Appendix E** — Statistical methods
-7. **Appendix F** — Testing & validation (incl. dashboard usability evidence)
-8. **Appendix G** — Extended implementation details
-
-To rebuild from source:
+Build from source:
 
 ```bash
 pdflatex main.tex
@@ -209,27 +297,26 @@ pdflatex main.tex
 
 ---
 
-## 🛠 Tech Stack
+## 📖 Citation
 
-| Layer | Technology |
-|---|---|
-| Deep Learning | PyTorch (LSTM ensemble) |
-| Reinforcement Learning | Stable-Baselines3 (DQN, PPO) · Gymnasium |
-| Data | NumPy · pandas · scikit-learn (MinMaxScaler) |
-| Statistics | SciPy (Welch's t-test, Cohen's d) |
-| Visualisation | Matplotlib (300 DPI figures) · Plotly (interactive) |
-| Dashboard | Streamlit |
-| Testing | pytest |
-| Report | LaTeX (TikZ diagrams, BibTeX) |
+If you use this work, please cite:
 
----
-
-## 📋 Requirements
-
-Python 3.9+ · See [`requirements.txt`](requirements.txt) for the full pinned dependency list. CUDA-capable GPU recommended for LSTM training (CPU works but slower); DQN training is CPU-friendly.
+```bibtex
+@misc{soni2026uncertaintyaware,
+  title        = {Uncertainty-Aware Reinforcement Learning for Predictive Maintenance},
+  author       = {Soni, Abhishek},
+  year         = {2026},
+  howpublished = {BSc Final Year Project, University of Greenwich},
+  note         = {COMP1682 dissertation and code repository}
+}
+```
 
 ---
 
-## 📜 Licence & Attribution
+## 📜 License & Attribution
 
-Academic work submitted in partial fulfilment of the BSc(Hons) Computer Science degree at the University of Greenwich. NASA C-MAPSS dataset © NASA Prognostics Center of Excellence.
+Academic work submitted in partial fulfilment of the BSc(Hons) Computer Science degree at the University of Greenwich.
+
+NASA C-MAPSS dataset © NASA Prognostics Center of Excellence.
+
+> If you want this repository to be open for reuse, add an explicit `LICENSE` file (e.g., MIT). Without a license, reuse rights are restricted by default.
