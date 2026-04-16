@@ -6,7 +6,13 @@ venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Local AI / audit tooling
+CLAUDE.md
 .claude/
+audit/
+audit_tools/
+scratch/
 
 # Environment files
 .env
@@ -30,3 +36,9 @@ Thumbs.db
 *.toc
 *.synctex.gz
 *.synctex(busy)
+
+# Alternate local builds / logs
+main_final.pdf
+streamlit.out.log
+streamlit.err.log
+_c.log

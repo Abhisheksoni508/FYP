@@ -2,7 +2,8 @@
 Improved LSTM Ensemble Training for Predictive Maintenance.
 
 Key improvements over original:
-  1. Bootstrap sampling: Each model trains on a different 80% random subset,
+  1. Random subset sampling: Each model trains on a different 80% subset
+     drawn without replacement,
      creating genuine ensemble diversity (critical for meaningful uncertainty).
   2. Learning rate scheduler: ReduceLROnPlateau halves LR when validation loss plateaus.
   3. Early stopping: Stops training when validation loss hasn't improved for PATIENCE epochs.
@@ -29,7 +30,8 @@ from src.lstm_model import RUL_LSTM
 
 def bootstrap_split(dataset, ratio, seed):
     """
-    Create a bootstrap sample: randomly select `ratio` fraction of the dataset.
+    Create a random subset split: select `ratio` fraction of the dataset
+    without replacement.
     Each ensemble member gets a DIFFERENT subset, driving model disagreement
     on ambiguous inputs (which is exactly what we want for uncertainty).
     """
@@ -47,7 +49,7 @@ def bootstrap_split(dataset, ratio, seed):
 
 
 def train_one_model(model_idx, full_dataset, save_dir='models'):
-    """Train a single ensemble member with bootstrap sampling and early stopping."""
+    """Train a single ensemble member with random subset sampling and early stopping."""
     
     seed = 42 + model_idx * 17  # Deterministic but different seed per model
     torch.manual_seed(seed)
@@ -57,9 +59,9 @@ def train_one_model(model_idx, full_dataset, save_dir='models'):
     print(f"  Training Model {model_idx + 1}/{ENSEMBLE_SIZE}  (seed={seed})")
     print(f"{'='*60}")
     
-    # --- Bootstrap Split ---
+    # --- Random Subset Split ---
     train_subset, val_subset = bootstrap_split(full_dataset, BOOTSTRAP_RATIO, seed)
-    print(f"  Bootstrap: {len(train_subset)} train / {len(val_subset)} val samples")
+    print(f"  Random subset: {len(train_subset)} train / {len(val_subset)} val samples")
     
     train_loader = DataLoader(train_subset, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_subset, batch_size=BATCH_SIZE, shuffle=False)
@@ -148,7 +150,7 @@ if __name__ == "__main__":
     print(f"\nDevice: {DEVICE}")
     print(f"Config: {ENSEMBLE_SIZE} models, {EPOCHS} max epochs, "
           f"LR={LEARNING_RATE}, patience={PATIENCE}")
-    print(f"Bootstrap ratio: {BOOTSTRAP_RATIO} (each model sees {int(BOOTSTRAP_RATIO*100)}% of data)\n")
+    print(f"Subset ratio: {BOOTSTRAP_RATIO} (each model sees {int(BOOTSTRAP_RATIO*100)}% of data)\n")
     
     print("--- Loading Combined Data (FD001 + FD002) ---")
     df = load_combined_data()
@@ -161,7 +163,7 @@ if __name__ == "__main__":
     X, y = create_sequences(df_clean, WINDOW_SIZE, features)
     print(f"Total sequences: {len(X)}")
     
-    # Create full dataset (bootstrap splitting happens per model)
+    # Create full dataset (random subset splitting happens per model)
     full_dataset = CMAPSSDataset(X, y)
     
     # 2. Train Ensemble

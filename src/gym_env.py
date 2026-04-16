@@ -11,8 +11,8 @@ class PdMEnvironment(gym.Env):
     """
     Predictive Maintenance Gymnasium Environment.
     
-    The agent observes [mean_rul, uncertainty, sensor_trend] and decides
-    whether to WAIT (0) or MAINTAIN (1).
+    The agent observes [mean_rul, sigma_now, sigma_rolling, aggregate_sensor_health]
+    and decides whether to WAIT (0) or MAINTAIN (1).
     
     Noise augmentation (noise_prob > 0) injects Gaussian noise into sensor
     readings before the ensemble sees them. This causes ensemble disagreement
@@ -39,7 +39,7 @@ class PdMEnvironment(gym.Env):
         self.episode_noisy = False
         self.episode_noise_level = noise_level    # Set each episode in reset()
         
-        # Spaces — 4D obs: [mean_rul, sigma_now, sigma_rolling_avg, sensor_trend]
+        # Spaces: [mean_rul, sigma_now, sigma_rolling_avg, aggregate_sensor_health]
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(low=0, high=1, shape=(4,), dtype=np.float32)
         
@@ -54,7 +54,7 @@ class PdMEnvironment(gym.Env):
         for i in range(ENSEMBLE_SIZE):
             path = f"{models_dir}/ensemble_model_{i}.pth"
             m = RUL_LSTM(INPUT_DIM, HIDDEN_DIM, NUM_LAYERS, dropout=DROPOUT)
-            m.load_state_dict(torch.load(path, map_location=DEVICE))
+            m.load_state_dict(torch.load(path, map_location=DEVICE, weights_only=True))
             m.to(DEVICE)
             m.eval()
             models.append(m)
@@ -118,10 +118,10 @@ class PdMEnvironment(gym.Env):
         mean_pred = np.mean(preds)
         std_pred = np.std(preds)
         
-        # Build 4D observation: [mean_rul, sigma_now, sigma_rolling_avg, sensor_trend]
+        # Build 4D observation: [mean_rul, sigma_now, sigma_rolling_avg, aggregate_sensor_health]
         norm_mean = np.clip(mean_pred, 0, 1)
         norm_std = np.clip(std_pred * UNCERTAINTY_SCALE, 0, 1)
-        sensor_trend = np.clip(np.mean(seq[-1, :]), 0, 1)
+        sensor_health = np.clip(np.mean(seq[-1, :]), 0, 1)
 
         # Option 3: Rolling sigma average (last 3 steps)
         self.sigma_history.pop(0)
@@ -131,7 +131,7 @@ class PdMEnvironment(gym.Env):
         # Store sigma for uncertainty-aware reward shaping
         self._current_sigma = float(norm_std)
 
-        return np.array([norm_mean, norm_std, rolling_sigma, sensor_trend], dtype=np.float32)
+        return np.array([norm_mean, norm_std, rolling_sigma, sensor_health], dtype=np.float32)
 
     def step(self, action):
         terminated = False
@@ -234,7 +234,7 @@ def safety_override(action, obs):
 
     Args:
         action (int): DQN's chosen action (0=WAIT, 1=MAINTAIN)
-        obs (np.array): [mean_rul_norm, sigma_now, rolling_sigma, sensor_trend]
+        obs (np.array): [mean_rul_norm, sigma_now, rolling_sigma, aggregate_sensor_health]
 
     Returns:
         final_action (int): Possibly overridden action

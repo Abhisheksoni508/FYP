@@ -109,7 +109,7 @@ class TestLSTMModel:
         for i in range(ENSEMBLE_SIZE):
             path = f"models/ensemble_model_{i}.pth"
             m = RUL_LSTM(INPUT_DIM, HIDDEN_DIM, NUM_LAYERS, dropout=DROPOUT)
-            m.load_state_dict(torch.load(path, map_location=DEVICE))
+            m.load_state_dict(torch.load(path, map_location=DEVICE, weights_only=True))
             assert m is not None
 
     def test_ensemble_diversity(self):
@@ -117,7 +117,7 @@ class TestLSTMModel:
         models = []
         for i in range(ENSEMBLE_SIZE):
             m = RUL_LSTM(INPUT_DIM, HIDDEN_DIM, NUM_LAYERS, dropout=DROPOUT)
-            m.load_state_dict(torch.load(f"models/ensemble_model_{i}.pth", map_location=DEVICE))
+            m.load_state_dict(torch.load(f"models/ensemble_model_{i}.pth", map_location=DEVICE, weights_only=True))
             m.eval()
             models.append(m)
 

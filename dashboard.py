@@ -42,21 +42,33 @@ from src.gym_env import safety_override
 @st.cache_resource
 def load_all_models():
     lstm_models = []
+    missing_ensemble = []
     for i in range(ENSEMBLE_SIZE):
         path = f"models/ensemble_model_{i}.pth"
-        if os.path.exists(path):
-            model = RUL_LSTM(INPUT_DIM, HIDDEN_DIM, NUM_LAYERS, dropout=DROPOUT)
-            model.load_state_dict(torch.load(path, map_location=DEVICE))
-            model.to(DEVICE)
-            model.eval()
-            lstm_models.append(model)
+        if not os.path.exists(path):
+            missing_ensemble.append(path)
+            continue
+        model = RUL_LSTM(INPUT_DIM, HIDDEN_DIM, NUM_LAYERS, dropout=DROPOUT)
+        model.load_state_dict(torch.load(path, map_location=DEVICE, weights_only=True))
+        model.to(DEVICE)
+        model.eval()
+        lstm_models.append(model)
+
+    if missing_ensemble:
+        raise FileNotFoundError(
+            "Missing ensemble checkpoints: " + ", ".join(missing_ensemble)
+        )
 
     from stable_baselines3 import DQN
-    dqn_agent = DQN.load("models/dqn_pdm_agent")
+    dqn_path = "models/dqn_pdm_agent.zip"
+    if not os.path.exists(dqn_path):
+        raise FileNotFoundError(f"Missing DQN checkpoint: {dqn_path}")
+    dqn_agent = DQN.load(dqn_path)
 
     blind_agent = None
-    if os.path.exists("models/dqn_blind_agent.zip"):
-        blind_agent = DQN.load("models/dqn_blind_agent")
+    blind_path = "models/dqn_blind_agent.zip"
+    if os.path.exists(blind_path):
+        blind_agent = DQN.load(blind_path)
 
     df = load_combined_data()
     df = calculate_rul(df)
@@ -82,6 +94,18 @@ def get_q_values(agent, obs):
     return float(q_values[0]), float(q_values[1])
 
 
+def build_dashboard_observation(norm_mean, norm_std, sensor_health, sigma_history=None):
+    """Mirror the environment's rolling-sigma logic so the demo matches training."""
+    history = list(sigma_history or [0.0, 0.0, 0.0])
+    if len(history) < 3:
+        history = ([0.0] * (3 - len(history))) + history
+    history = history[-3:]
+    next_history = history[1:] + [float(norm_std)]
+    rolling_sigma = float(np.mean(next_history))
+    obs = np.array([norm_mean, norm_std, rolling_sigma, sensor_health], dtype=np.float32)
+    return obs, next_history
+
+
 # =================================================================
 # 2. SIMULATION STEP
 # =================================================================
@@ -101,13 +125,11 @@ def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
 
     norm_mean = np.clip(mean_pred, 0, 1)
     norm_std = np.clip(std_pred * UNCERTAINTY_SCALE, 0, 1)
-    sensor_trend = np.clip(np.mean(seq[-1, :]), 0, 1)
-
-    if sigma_history is None:
-        sigma_history = [0.0, 0.0, 0.0]
-    rolling_sigma = float(np.mean(sigma_history))
-
-    obs = np.array([norm_mean, norm_std, rolling_sigma, sensor_trend], dtype=np.float32)
+    sensor_health = np.clip(np.mean(seq[-1, :]), 0, 1)
+    obs, sigma_history_next = build_dashboard_observation(
+        norm_mean, norm_std, sensor_health, sigma_history
+    )
+    rolling_sigma = float(obs[2])
 
     if is_blind:
         obs_for_agent = obs.copy()
@@ -133,8 +155,9 @@ def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
         'uncertainty': std_pred * 125.0,
         'norm_std': norm_std,
         'rolling_sigma': rolling_sigma,
+        'sigma_history_next': sigma_history_next,
         'individual_preds': [max(0, p * 125.0) for p in individual_preds],
-        'sensor_trend': sensor_trend,
+        'sensor_health': sensor_health,
         'dqn_action': dqn_action,
         'final_action': final_action,
         'was_overridden': was_overridden,
@@ -151,15 +174,12 @@ def run_one_cycle(engine_data, engine_raw, cycle_idx, lstm_models, agent,
 def main():
     st.set_page_config(
         page_title="Engine Health Monitor",
-        page_icon="⚙️",
         layout="wide"
     )
 
-    # ── CSS ──
+    # CSS
     st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
-
         /* Global */
         .stApp { background: #0a0e1a; }
         .block-container { padding-top: 1.5rem; }
@@ -182,7 +202,7 @@ def main():
             background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
         }
         .dash-title {
-            font-family: 'Inter', sans-serif;
+            font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             font-size: 1.8rem;
             font-weight: 800;
             background: linear-gradient(135deg, #60a5fa, #a78bfa);
@@ -192,7 +212,7 @@ def main():
             letter-spacing: -0.5px;
         }
         .dash-subtitle {
-            font-family: 'Inter', sans-serif;
+            font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             font-size: 0.85rem;
             color: #64748b;
             margin-top: 2px;
@@ -206,7 +226,7 @@ def main():
             flex-wrap: wrap;
         }
         .layer-chip {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: "Cascadia Code", Consolas, "Liberation Mono", monospace;
             font-size: 0.7rem;
             font-weight: 600;
             padding: 4px 12px;
@@ -415,22 +435,26 @@ def main():
     </style>
     """, unsafe_allow_html=True)
 
-    # ── Header ──
+    # Header
     st.markdown("""
     <div class="dash-header">
-        <p class="dash-title">⚙️ Engine Health Monitoring Dashboard</p>
+        <p class="dash-title">Engine Health Monitoring Dashboard</p>
         <p class="dash-subtitle">Uncertainty-Aware Reinforcement Learning for Predictive Maintenance &nbsp;|&nbsp; 3-Layer Hybrid AI System</p>
         <div class="layer-strip">
-            <span class="layer-chip chip-l1">L1 · LSTM Ensemble</span>
-            <span class="layer-chip chip-l2">L2 · DQN Agent</span>
-            <span class="layer-chip chip-l3">L3 · Safety Supervisor</span>
+            <span class="layer-chip chip-l1">L1 | LSTM Ensemble</span>
+            <span class="layer-chip chip-l2">L2 | DQN Agent</span>
+            <span class="layer-chip chip-l3">L3 | Safety Supervisor</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # ── Load Models ──
-    with st.spinner("Loading trained models..."):
-        lstm_models, dqn_agent, blind_agent, df_clean, df_raw = load_all_models()
+    # Load models
+    try:
+        with st.spinner("Loading trained models..."):
+            lstm_models, dqn_agent, blind_agent, df_clean, df_raw = load_all_models()
+    except Exception as exc:
+        st.error(f"Dashboard startup failed: {exc}")
+        st.stop()
 
     # =============================================================
     # SIDEBAR
@@ -441,6 +465,10 @@ def main():
     unit_lengths = {u: len(df_clean[df_clean['unit'] == u]) for u in all_units}
 
     st.sidebar.markdown("**Engine Selection**")
+    st.sidebar.caption(
+        "Recommended demos: Engine 134 (clean autonomy), Engine 200 (noise stress), "
+        "Engine 50 (safety intervention)."
+    )
     engine_id = st.sidebar.selectbox(
         "Engine Unit",
         all_units,
@@ -452,9 +480,9 @@ def main():
     st.sidebar.markdown("**Layer Controls**")
 
     agent_type = st.sidebar.radio(
-        "Layer 2: Agent Type",
-        ["Uncertainty-Aware (UA)", "Blind (No σ)"],
-        help="UA agent uses uncertainty in decisions. Blind agent ignores it."
+        "Layer 2: Agent",
+        ["Uncertainty-Aware (UA)", "Blind baseline"],
+        help="The uncertainty-aware agent observes uncertainty. The blind baseline does not."
     )
 
     use_safety = st.sidebar.checkbox(
@@ -467,9 +495,9 @@ def main():
     st.sidebar.markdown("**Sensor Noise**")
     inject_noise = st.sidebar.checkbox("Inject Sensor Noise", value=False)
     noise_level = st.sidebar.slider(
-        "Noise Level (σ)", 0.01, 0.10, 0.05, 0.01,
+        "Noise Level (sigma)", 0.01, 0.20, 0.08, 0.01,
         disabled=not inject_noise,
-        help="Simulates sensor degradation. Watch uncertainty spike!"
+        help="Simulates sensor degradation in the live demo."
     )
 
     st.sidebar.divider()
@@ -485,13 +513,17 @@ def main():
     )
 
     # Select agent
-    is_blind = agent_type == "Blind (No σ)"
+    is_blind = "Blind" in agent_type
     if is_blind and blind_agent is not None:
         active_agent = blind_agent
     else:
         active_agent = dqn_agent
-        if is_blind and blind_agent is None:
-            st.sidebar.warning("Blind agent not found.")
+        if is_blind:
+            st.sidebar.warning("Blind agent checkpoint not found. Using the UA agent instead.")
+
+    if comparison_mode and blind_agent is None:
+        st.sidebar.warning("Comparison mode is unavailable because the blind agent checkpoint is missing.")
+        comparison_mode = False
 
     # =============================================================
     # SESSION STATE
@@ -533,11 +565,11 @@ def main():
     # ── Buttons ──
     col_b1, col_b2, col_b3 = st.columns(3)
     with col_b1:
-        start = st.button("▶  Start Simulation", use_container_width=True, type="primary")
+        start = st.button("Start simulation", use_container_width=True, type="primary")
     with col_b2:
-        stop = st.button("⏹  Stop", use_container_width=True)
+        stop = st.button("Stop", use_container_width=True)
     with col_b3:
-        reset = st.button("↺  Reset", use_container_width=True)
+        reset = st.button("Reset", use_container_width=True)
 
     if start:
         st.session_state.running = True
@@ -605,8 +637,7 @@ def main():
                     sigma_history=list(st.session_state.sigma_history),
                     is_blind=is_blind
                 )
-                st.session_state.sigma_history.pop(0)
-                st.session_state.sigma_history.append(result['norm_std'])
+                st.session_state.sigma_history = list(result['sigma_history_next'])
                 st.session_state.history.append(result)
             else:
                 # Primary is done but we're still running for blind agent
@@ -627,8 +658,7 @@ def main():
                     sigma_history=list(st.session_state.sigma_history_blind),
                     is_blind=True
                 )
-                st.session_state.sigma_history_blind.pop(0)
-                st.session_state.sigma_history_blind.append(result_b['norm_std'])
+                st.session_state.sigma_history_blind = list(result_b['sigma_history_next'])
                 st.session_state.history_blind.append(result_b)
 
                 # Log blind events
@@ -658,7 +688,7 @@ def main():
 
                 if result['was_overridden']:
                     st.session_state.events.append(
-                        ('override', f"Cycle {cycle_num}: SAFETY OVERRIDE — Forced maintenance "
+                        ('override', f"Cycle {cycle_num}: SAFETY OVERRIDE - forced maintenance "
                          f"(pred={result['pred_rul']:.0f}, true={true_rul:.0f})")
                     )
                     st.session_state.outcome = 'safety_override'
@@ -672,7 +702,7 @@ def main():
                     else:
                         label, etype = "EARLY (wasteful)", 'early'
                     st.session_state.events.append(
-                        (etype, f"Cycle {cycle_num}: {label} — DQN triggered "
+                        (etype, f"Cycle {cycle_num}: {label} - DQN triggered "
                          f"(pred={result['pred_rul']:.0f}, true={true_rul:.0f})")
                     )
                     st.session_state.outcome = 'dqn_maintain'
@@ -680,7 +710,7 @@ def main():
                         st.session_state.running = False
                 elif cycle_idx >= max_cycles - 1:
                     st.session_state.events.append(
-                        ('crash', f"Cycle {cycle_num}: ENGINE FAILURE — No maintenance triggered!")
+                        ('crash', f"Cycle {cycle_num}: ENGINE FAILURE - no maintenance triggered")
                     )
                     st.session_state.outcome = 'crash'
                     st.session_state.running = False
@@ -716,9 +746,9 @@ def main():
         )
     elif not st.session_state.history:
         st.info(
-            f"⚙️ Engine {engine_id} loaded ({max_cycles} cycles, "
+            f"Engine {engine_id} loaded ({max_cycles} cycles, "
             f"{'FD001' if engine_id <= 100 else 'FD002'}). "
-            f"Press **Start Simulation** to begin."
+            f"Press **Start simulation** to begin."
         )
 
 
@@ -780,7 +810,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
             <span class="pipe-arrow">&rarr;</span>
             <div class="pipe-node pn-l1 {l1_active}">
                 L1: LSTM x5<br>
-                <span style="font-size:0.6rem;opacity:0.7">RUL={pred_val:.0f} sig={unc_val:.1f}</span>
+                <span style="font-size:0.6rem;opacity:0.7">RUL={pred_val:.0f} sigma={unc_val:.1f}</span>
             </div>
             <span class="pipe-arrow">&rarr;</span>
             <div class="pipe-node pn-l2 {l2_active}">
@@ -824,7 +854,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
     action_text = "MAINTAIN" if latest['dqn_action'] == 1 else "WAIT"
     dqn_card_class = "mc-warning" if latest['dqn_action'] == 1 else "mc-info"
     dqn_value_class = "mc-value-warning" if latest['dqn_action'] == 1 else "mc-value-info"
-    agent_label = "UA" if "UA" in agent_type else "Blind"
+    agent_label = "Blind" if "Blind" in agent_type else "UA"
 
     if outcome == 'safety_override':
         status, sc, sv = "OVERRIDE", "mc-purple", "mc-value-purple"
@@ -896,7 +926,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
         fig1.add_trace(go.Scatter(
             x=cycles, y=lower, mode='lines', line=dict(width=0),
             fill='tonexty', fillcolor='rgba(96,165,250,0.12)',
-            name='±2σ Band', hoverinfo='skip'
+            name='plus/minus 2 sigma band', hoverinfo='skip'
         ))
 
         # Individual model predictions (ghost lines)
@@ -961,7 +991,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
             font=dict(size=9, color="rgba(168,85,247,0.8)"))
 
         fig1.update_layout(
-            title=dict(text="Layer 1 — RUL Prediction with Uncertainty Band",
+            title=dict(text="Layer 1 | RUL Prediction with Uncertainty Band",
                        x=0.5, xanchor="center", font=dict(size=14, color='#94a3b8')),
             height=380,
             template="plotly_dark",
@@ -985,23 +1015,23 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
             fig2.add_trace(go.Scatter(
                 x=cycles, y=sigmas, mode='lines',
                 line=dict(color='#f59e0b', width=2),
-                name='σ (instantaneous)',
+                name='sigma (instantaneous)',
                 fill='tozeroy', fillcolor='rgba(245,158,11,0.08)'
             ))
             fig2.add_trace(go.Scatter(
                 x=cycles, y=rolling_sigmas, mode='lines',
                 line=dict(color='#ef4444', width=2, dash='dash'),
-                name='σ (rolling avg)'
+                name='sigma (rolling avg)'
             ))
             fig2.add_hline(y=0.55, line_dash="dot",
                            line_color="rgba(168,85,247,0.5)", line_width=1)
             fig2.add_annotation(xref="paper", x=0.99, y=0.56, yref="y",
-                text="Supervisor σ threshold (0.55)", showarrow=False,
+                text="Supervisor sigma threshold (0.55)", showarrow=False,
                 xanchor="right", yanchor="bottom",
                 font=dict(size=8, color="rgba(168,85,247,0.7)"))
 
             fig2.update_layout(
-                title=dict(text="Ensemble Uncertainty (σ)",
+                title=dict(text="Ensemble Uncertainty (sigma)",
                            x=0.5, xanchor="center", font=dict(size=13, color='#94a3b8')),
                 height=250,
                 template="plotly_dark",
@@ -1009,7 +1039,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
                             bgcolor="rgba(0,0,0,0)", font=dict(size=10)),
                 margin=dict(l=50, r=15, t=45, b=55),
                 xaxis=dict(title="Cycle", gridcolor="rgba(255,255,255,0.03)"),
-                yaxis=dict(title="σ (scaled)", range=[0, 1.05], gridcolor="rgba(255,255,255,0.03)"),
+                yaxis=dict(title="sigma (scaled)", range=[0, 1.05], gridcolor="rgba(255,255,255,0.03)"),
                 paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             )
             st.plotly_chart(fig2, use_container_width=True, key=f"chart_sigma_{_k}")
@@ -1028,7 +1058,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
             fig3.add_trace(go.Scatter(
                 x=cycles, y=q_diff, mode='lines',
                 line=dict(color='#22d3ee', width=2),
-                name='Q(MAINTAIN) − Q(WAIT)',
+                name='Q(MAINTAIN) - Q(WAIT)',
             ))
             fig3.add_trace(go.Scatter(
                 x=cycles, y=pos_fill, mode='lines',
@@ -1045,7 +1075,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
             fig3.add_hline(y=0, line_color="rgba(255,255,255,0.15)")
 
             fig3.update_layout(
-                title=dict(text="Layer 2 — DQN Decision Pressure",
+                title=dict(text="Layer 2 | DQN Decision Pressure",
                            x=0.5, xanchor="center", font=dict(size=13, color='#94a3b8')),
                 height=250,
                 template="plotly_dark",
@@ -1073,8 +1103,8 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
                 log_html = "<div class='event-log'>"
                 for etype, msg in reversed(events[-8:]):
                     css = f"ev-{etype}"
-                    icon = {'jackpot': '◆', 'safe': '●', 'override': '▲',
-                            'crash': '✕', 'early': '◇', 'info': '·'}.get(etype, '·')
+                    icon = {'jackpot': '[J]', 'safe': '[S]', 'override': '[!]',
+                            'crash': '[X]', 'early': '[-]', 'info': '[i]'}.get(etype, '[i]')
                     log_html += f"<span class='{css}'>{icon} {msg}</span><br>"
                 log_html += "</div>"
                 st.markdown(log_html, unsafe_allow_html=True)
@@ -1090,8 +1120,8 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
                     log_html = "<div class='event-log'>"
                     for etype, msg in reversed(events_blind[-8:]):
                         css = f"ev-{etype}"
-                        icon = {'jackpot': '◆', 'safe': '●', 'override': '▲',
-                                'crash': '✕', 'early': '◇'}.get(etype, '·')
+                        icon = {'jackpot': '[J]', 'safe': '[S]', 'override': '[!]',
+                                'crash': '[X]', 'early': '[-]'}.get(etype, '[i]')
                         log_html += f"<span class='{css}'>{icon} {msg}</span><br>"
                     log_html += "</div>"
                     st.markdown(log_html, unsafe_allow_html=True)
@@ -1115,11 +1145,11 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
                         <div class="stat-val">{avg_err:.1f}</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-label">Avg σ</div>
+                        <div class="stat-label">Avg Sigma</div>
                         <div class="stat-val">{avg_sigma:.1f}</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-label">Peak σ</div>
+                        <div class="stat-label">Peak Sigma</div>
                         <div class="stat-val">{max_sigma:.1f}</div>
                     </div>
                     <div class="stat-item">
@@ -1148,7 +1178,7 @@ def render_dashboard(history, events, outcome, history_blind, events_blind,
                         ob_detail = f"Acceptable timing at true RUL = {true_at_end:.0f}"
                     else:
                         ob_class, ob_title_text = "ob-early", "EARLY REPAIR"
-                        ob_detail = f"Wasteful — true RUL was still {true_at_end:.0f}"
+                        ob_detail = f"Wasteful - true RUL was still {true_at_end:.0f}"
                 else:
                     ob_class, ob_title_text = "ob-safe", "COMPLETED"
                     ob_detail = ""

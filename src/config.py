@@ -32,6 +32,8 @@ EPOCHS = 80
 LEARNING_RATE = 0.0005
 PATIENCE = 15
 GRAD_CLIP = 1.0
+# Historical name kept for compatibility: this is a per-member random subset
+# fraction drawn without replacement, not classical bootstrap resampling.
 BOOTSTRAP_RATIO = 0.8
 
 # ============================================================

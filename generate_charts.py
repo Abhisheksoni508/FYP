@@ -145,7 +145,7 @@ ax.legend()
 fig.suptitle('Algorithm Comparison: DQN vs PPO\nDQN Produces a Safer, More Reliable Policy',
              fontsize=14, fontweight='bold', y=1.01)
 plt.tight_layout()
-plt.savefig('report_ppo_vs_dqn.png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/report_ppo_vs_dqn.png', dpi=300, bbox_inches='tight')
 print("Saved report_ppo_vs_dqn.png")
 plt.close()
 
@@ -156,7 +156,7 @@ plt.close()
 
 fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
 
-# Panel 1: Risk-adjusted delta (DQN - PPO) — DQN wins everywhere
+# Panel 1: Risk-adjusted delta (DQN - PPO) across noise levels
 ax = axes[0]
 dqn_risk_adj = df['dqn_mean'] - (df['dqn_fail'] / 100) * 500
 ppo_risk_adj = df['ppo_mean'] - (df['ppo_fail'] / 100) * 500
@@ -268,7 +268,7 @@ ax.set_title('Head-to-Head Scorecard\nDQN wins 3/5 metrics', fontweight='bold', 
 fig.suptitle('Algorithm Comparison: DQN vs PPO — Statistical Analysis',
              fontsize=14, fontweight='bold', y=1.02)
 plt.tight_layout()
-plt.savefig('report_ppo_statistical.png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/report_ppo_statistical.png', dpi=300, bbox_inches='tight')
 print("Saved report_ppo_statistical.png")
 plt.close()
 
@@ -285,7 +285,7 @@ test_classes = [
     'SafetySupervisor',
     'Integration',
 ]
-test_counts = [5, 4, 7, 4, 6, 3]
+test_counts = [5, 4, 6, 4, 6, 4]
 test_types = ['Unit', 'Unit', 'Unit', 'Unit', 'Unit', 'Integration']
 
 colors = ['#2e86de' if t == 'Unit' else '#10ac84' for t in test_types]
@@ -305,27 +305,27 @@ ax.set_title('Automated Test Suite: 29/29 Passing', fontweight='bold')
 ax.set_xlim(0, 8)
 ax.invert_yaxis()
 
-unit_patch = mpatches.Patch(color='#2e86de', label='Unit Tests (26)')
-integ_patch = mpatches.Patch(color='#10ac84', label='Integration Tests (3)')
+unit_patch = mpatches.Patch(color='#2e86de', label='Unit Tests (25)')
+integ_patch = mpatches.Patch(color='#10ac84', label='Integration Tests (4)')
 ax.legend(handles=[unit_patch, integ_patch], loc='lower right')
 
 ax2 = axes[1]
-layer_labels = ['Layer 1\n(LSTM)', 'Layer 2\n(DQN Env)', 'Layer 3\n(Safety)', 'Data\nPipeline', 'Integration']
-layer_counts = [4, 7, 6, 5, 3]
-layer_colors = ['#54a0ff', '#ff6b6b', '#feca57', '#1dd1a1', '#10ac84']
+type_labels = ['Unit-style\nchecks', 'Integration/config\nchecks']
+type_counts = [25, 4]
+type_colors = ['#2e86de', '#10ac84']
 
 wedges, texts, autotexts = ax2.pie(
-    layer_counts, labels=layer_labels, autopct='%1.0f%%',
-    colors=layer_colors, startangle=90, pctdistance=0.75,
+    type_counts, labels=type_labels, autopct='%1.0f%%',
+    colors=type_colors, startangle=90, pctdistance=0.75,
     wedgeprops=dict(width=0.45, edgecolor='white', linewidth=1.5)
 )
 for t in autotexts:
     t.set_fontsize(9)
     t.set_fontweight('bold')
-ax2.set_title('Coverage by Component', fontweight='bold')
+ax2.set_title('Test Type Split', fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('report_test_results.png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/report_test_results.png', dpi=300, bbox_inches='tight')
 print("Saved report_test_results.png")
 plt.close()
 
