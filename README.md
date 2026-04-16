@@ -1,6 +1,6 @@
-# Uncertainty-Aware RL for Predictive Maintenance
+# Uncertainty-Aware Reinforcement Learning for Predictive Maintenance
 
-> A three-layer predictive-maintenance framework that combines LSTM deep ensembles, a DQN maintenance policy, and a deterministic safety supervisor.
+> Final-year project on predictive maintenance for turbofan engines using LSTM deep ensembles, a DQN maintenance policy, and a deterministic safety supervisor.
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.x-red?logo=pytorch&logoColor=white)
@@ -8,26 +8,43 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-ff4b4b?logo=streamlit&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-29%2F29%20passing-brightgreen)
 
-## Overview
+## Project Summary
 
-This repository contains a final-year project on predictive maintenance for turbofan engines using the NASA C-MAPSS benchmark.
+This repository contains my BSc final-year project at the University of Greenwich. The project studies a focused question:
 
-The system has three layers:
+Can a maintenance policy make better decisions under sensor degradation if it can see when its own prediction is unreliable?
 
-1. Layer 1: a five-member LSTM ensemble predicts remaining useful life (RUL) and produces a disagreement-based uncertainty signal.
-2. Layer 2: a DQN agent decides whether to `WAIT` or `MAINTAIN` using both prediction and uncertainty.
-3. Layer 3: a deterministic safety supervisor can override the agent when predicted failure risk is sufficiently high.
+To answer that, the system combines three layers:
 
-The central idea is simple: maintenance policies should not treat noisy predictions as if they were equally reliable.
+1. `Layer 1 - Prediction`: a five-model LSTM ensemble predicts remaining useful life (RUL).
+2. `Layer 2 - Decision`: a DQN agent decides whether to `WAIT` or `MAINTAIN`.
+3. `Layer 3 - Safety`: a deterministic supervisor can override unsafe low-RUL decisions.
 
-## Key Result
+The key idea is that maintenance decisions should depend not only on the predicted RUL, but also on how trustworthy that prediction is.
 
-Two findings matter most:
+![Dashboard](figures/report_summary_dashboard.png)
 
-- In the no-supervisor comparison, the uncertainty-aware agent stayed positive at every tested noise level, while the blind baseline collapsed into negative reward under heavy noise.
-- In the full three-layer system, both agents were kept near zero failure, but the uncertainty-aware agent was far more autonomous and much less dependent on supervisor intervention.
+## System Overview
 
-Clean-data headline numbers:
+The full pipeline operates as follows:
+
+- raw C-MAPSS sensor windows are normalised and passed to a five-member LSTM ensemble
+- the ensemble outputs a mean RUL prediction and a disagreement-based uncertainty signal
+- the RL agent observes `[mu_RUL, sigma_now, sigma_rolling, sensor_health]`
+- the agent chooses `WAIT` or `MAINTAIN`
+- the safety supervisor can intervene in critical low-RUL conditions
+
+This gives a clean separation between prediction, control, and safety logic.
+
+## Main Findings
+
+Two results matter most.
+
+First, in the no-supervisor comparison, the uncertainty-aware agent stayed positive at every tested noise level, while the blind baseline collapsed into negative reward under heavy noise.
+
+Second, in the full three-layer system, both agents were kept near zero failure, but the uncertainty-aware agent was substantially more autonomous and far less dependent on supervisor intervention.
+
+### Clean-data headline numbers
 
 | Metric | Uncertainty-Aware | Blind Baseline |
 |---|---:|---:|
@@ -36,9 +53,11 @@ Clean-data headline numbers:
 | Autonomy | 97.4% | 59.8% |
 | Autonomous jackpots | 353 / 500 | 214 / 500 |
 
-Financial headline:
+### Other headline numbers
 
-- Average annual saving: GBP 556,950 for a representative 50-engine fleet.
+- Heaviest tested noise level (`sigma = 0.175`): UA `135.6`, Blind `-112.8`
+- Average annual saving: `GBP 556,950` for a representative 50-engine fleet
+- Uncertainty calibration: `PICP 0.61` at nominal `0.95`, so sigma is treated as a relative reliability signal rather than a calibrated probability
 
 ## Dataset
 
@@ -50,37 +69,45 @@ The project uses NASA C-MAPSS FD001 and FD002.
 | FD002 | 260 | 53,759 |
 | Combined | 360 | 74,390 |
 
-After 30-cycle windowing, the combined dataset yields 63,590 windows.
+After 30-cycle windowing, the combined dataset yields `63,590` training windows.
 
 Preprocessing choices:
 
-- 24 features per cycle (21 sensors + 3 operating settings)
+- 24 input features per cycle (`21` sensors + `3` operating settings)
 - MinMax scaling
-- RUL capped at 125
-- 30-cycle sliding windows
+- RUL cap of `125`
+- sliding window length of `30`
 
-## Observation and Action Space
+## Experimental Setup
 
-The DQN observation is:
+The main evaluation is a controlled ablation study:
 
-```text
-[mu_RUL, sigma_now, sigma_rolling, sensor_health]
-```
+- two agent types: uncertainty-aware and blind
+- eight noise levels
+- `500` episodes per condition
+- two primary experiments: without supervisor and with supervisor
+- Welch's t-test and Cohen's d for statistical comparison
 
-where:
+This design isolates whether the uncertainty signal helps the policy itself, rather than letting the safety layer hide a weak controller.
 
-- `mu_RUL` is the ensemble mean prediction
-- `sigma_now` is the current scaled ensemble disagreement
-- `sigma_rolling` is a short rolling average of disagreement
-- `sensor_health` is an aggregate term derived from the current normalized sensor vector
+## Repository Guide
 
-The action space is binary:
+The most important files are:
 
-```text
-WAIT or MAINTAIN
-```
+| Path | Purpose |
+|---|---|
+| [`dashboard.py`](dashboard.py) | Streamlit interface for the live demo |
+| [`main_train_ensemble.py`](main_train_ensemble.py) | trains the five-model LSTM ensemble |
+| [`main_train_rl.py`](main_train_rl.py) | trains the DQN maintenance policy |
+| [`main_experiment_final.py`](main_experiment_final.py) | runs the main ablation experiments |
+| [`main_experiment_ppo.py`](main_experiment_ppo.py) | supplementary PPO vs DQN comparison |
+| [`main_cost_analysis.py`](main_cost_analysis.py) | fleet-level financial analysis |
+| [`generate_charts.py`](generate_charts.py) | regenerates key report charts |
+| [`test_system.py`](test_system.py) | automated `pytest` suite |
+| [`main.tex`](main.tex) | dissertation source |
+| [`main.pdf`](main.pdf) | dissertation PDF |
 
-## Repository Structure
+Core package modules:
 
 ```text
 src/
@@ -88,24 +115,11 @@ src/
   preprocessing.py
   lstm_model.py
   gym_env.py
-
-dashboard.py
-main_train_ensemble.py
-main_train_rl.py
-main_experiment_final.py
-main_experiment_ppo.py
-main_cost_analysis.py
-main_visualize.py
-generate_charts.py
-test_system.py
-main.tex
-references.bib
-figures/
-data/
-models/
 ```
 
-## Installation
+## Setup
+
+Create a virtual environment and install dependencies:
 
 ```bash
 python -m venv .venv
@@ -118,85 +132,90 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-Run the tests:
+Run the test suite:
 
 ```bash
 pytest test_system.py -v
 ```
 
-Launch the Streamlit dashboard:
+Launch the dashboard:
 
 ```bash
 streamlit run dashboard.py
 ```
 
-## Reproducing the Core Pipeline
+The dashboard is the fastest way to inspect the full system end to end.
+
+## Reproducing the Main Pipeline
+
+Train the ensemble:
 
 ```bash
-# Train the five-model ensemble
 python main_train_ensemble.py
+```
 
-# Train the uncertainty-aware DQN
+Train the DQN policy:
+
+```bash
 python main_train_rl.py
+```
 
-# Run the main experiments
+Run the main experiments:
+
+```bash
 python main_experiment_final.py
 python main_experiment_ppo.py
 python main_cost_analysis.py
+```
 
-# Regenerate evaluation figures
+Regenerate figures:
+
+```bash
 python main_evaluate_ensemble.py
 python main_visualize.py
 python generate_charts.py
 ```
 
-## Interactive Dashboard
+## Demo Sequence
 
-The dashboard is meant for viva/demo use as well as inspection:
+For presentation or viva use, the cleanest sequence is:
 
-- step through an engine lifecycle cycle by cycle
-- compare uncertainty-aware and blind agents
-- toggle the safety supervisor
-- inject live sensor noise
-- inspect RUL prediction, uncertainty, Q-values, and event logs
+1. `Engine 134`, no extra noise
+2. `Engine 200`, moderate noise
+3. side-by-side uncertainty-aware vs blind comparison
+4. one safety-intervention case
 
-Recommended demo cases:
-
-1. Engine 134 without extra noise
-2. Engine 200 with moderate noise
-3. Side-by-side uncertainty-aware vs blind comparison
+That sequence makes it easy to explain the three layers without overloading the discussion.
 
 ## Testing
 
-The repository includes a 29-test `pytest` suite covering:
+The repository includes a `29`-test `pytest` suite covering:
 
 - data loading and preprocessing
-- LSTM model loading and diversity
-- Gymnasium environment behavior
+- LSTM model loading and ensemble diversity
+- Gymnasium environment behaviour
 - reward classification
 - safety supervisor logic
-- end-to-end integration checks
+- end-to-end integration behaviour
 
 ## Dissertation
 
-The audited and rebuilt dissertation PDF is here:
+The dissertation is included in the repository:
 
-- [main.pdf](main.pdf)
+- PDF: [`main.pdf`](main.pdf)
+- Source: [`main.tex`](main.tex)
 
-The main source file is:
-
-- [main.tex](main.tex)
-
-## Notes on Claims
+## Limitations
 
 This is a research prototype, not a deployment-ready aerospace product.
 
 Important limitations stated in the report:
 
-- calibration is imperfect (PICP 0.61 at nominal 0.95)
-- validation is on simulated C-MAPSS data, not live operator data
-- the action space is binary
+- validation is on simulated C-MAPSS data rather than live operator data
+- the uncertainty estimates are not fully calibrated
+- the action space is intentionally binary
 - DQN is the primary RL algorithm, with PPO included as a supplementary comparison
+- real deployment would require certification, explainability work, and operational validation
 
 ## Author
 
