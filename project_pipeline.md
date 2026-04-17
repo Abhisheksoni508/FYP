@@ -38,7 +38,7 @@ Engine 1:  [cycle 1-30] → RUL at cycle 31
            [cycle 161-190] → RUL at cycle 191
 ```
 
-Each window = a **30 × 24 matrix** (30 timesteps, 24 features). The label = the normalized RUL at the cycle right after the window ends. Across 360 engines, this gives you ~**81,880 sequences**.
+Each window = a **30 × 24 matrix** (30 timesteps, 24 features). The label = the normalized RUL at the cycle right after the window ends. Across the merged FD001+FD002 dataset used in this project, this gives **63,590 windows**.
 
 ---
 
@@ -46,7 +46,7 @@ Each window = a **30 × 24 matrix** (30 timesteps, 24 features). The label = the
 
 You train **5 separate LSTM models**, not one. Each model:
 
-1. Gets a **different random 80%** of the training data (bootstrap sampling)
+1. Gets a **different random 80%** of the training data (random subset sampling without replacement)
 2. Has a **different random seed** (42, 59, 76, 93, 110)
 3. Learns slightly **different patterns** because of this
 
@@ -124,7 +124,7 @@ obs = [
     0.35,    # mean_rul       → "how much life is left?"
     0.30,    # sigma_now      → "how much do models disagree RIGHT NOW?"
     0.25,    # sigma_rolling   → "average disagreement over last 3 cycles" (smoother)
-    0.48     # sensor_trend   → "what do raw sensors look like?"
+    0.48     # sensor_health  → aggregate current sensor-health cue
 ]
 ```
 

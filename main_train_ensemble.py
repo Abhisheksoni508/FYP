@@ -30,10 +30,11 @@ from src.lstm_model import RUL_LSTM
 
 def bootstrap_split(dataset, ratio, seed):
     """
-    Create a random subset split: select `ratio` fraction of the dataset
-    without replacement.
-    Each ensemble member gets a DIFFERENT subset, driving model disagreement
-    on ambiguous inputs (which is exactly what we want for uncertainty).
+    Historical name kept for compatibility.
+
+    This creates a random subset split by selecting `ratio` fraction of the
+    dataset without replacement. Each ensemble member therefore sees a
+    different training subset, driving model disagreement on ambiguous inputs.
     """
     rng = np.random.RandomState(seed)
     n = len(dataset)

@@ -69,8 +69,8 @@ def simulate_engine(unit_id, df, df_clean, lstm_models, agent):
         sigma_history.pop(0)
         sigma_history.append(float(norm_std))
         rolling_sigma = float(np.mean(sigma_history))
-        sensor_trend = float(np.mean(seq[0, -1, :]))
-        obs = np.array([mean_pred, norm_std, rolling_sigma, sensor_trend], dtype=np.float32)
+        sensor_health = float(np.mean(seq[0, -1, :]))
+        obs = np.array([mean_pred, norm_std, rolling_sigma, sensor_health], dtype=np.float32)
         
         # Layer 2: DQN decision + Q-value extraction
         dqn_action = 0

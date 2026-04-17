@@ -75,7 +75,7 @@ def draw_arrow(x1, y1, x2, y2, text="", rad=0.0, color=C_TEXT, ls='-', text_y_of
 draw_box(0.5, 4.0, 2.5, 2.0, C_DATA, C_DATA_BR, "NASA C-MAPSS\nSensors", "30-Cycle Sliding Window\n+ Noise Injection", fontsize=12)
 
 # 2. Layer 1 (Perception)
-draw_box(4.5, 3.5, 3.5, 3.0, C_L1, C_L1_BR, "LAYER 1: PERCEPTION", "LSTM Deep Ensemble (\u00d75)\nBootstrap Sampled\n\n\u2192 Extracts Epistemic\nUncertainty (\u03c3)")
+draw_box(4.5, 3.5, 3.5, 3.0, C_L1, C_L1_BR, "LAYER 1: PERCEPTION", "LSTM Deep Ensemble (\u00d75)\nSubset-Diverse Training\n\n\u2192 Extracts Epistemic\nUncertainty (\u03c3)")
 
 # 3. Layer 2 (Cognition)
 draw_box(10.0, 6.0, 4.0, 2.5, C_L2, C_L2_BR, "LAYER 2: COGNITION", "Uncertainty-Aware DQN\n\n\u2192 Reward Penalty on High \u03c3\nNear End-of-Life")
@@ -92,7 +92,7 @@ draw_box(15.5, 4.0, 1.8, 2.0, C_OUT, C_OUT_BR, "FINAL\nACTION", "WAIT or\nMAINTA
 draw_arrow(3.2, 5.0, 4.3, 5.0, "[24 Features]")
 
 # Layer 1 -> Layer 2
-draw_arrow(8.2, 5.5, 9.8, 7.25, "State [ \u03bc_RUL, \u03c3_now, \u03c3_roll, trend ]", rad=-0.15, text_y_offset=0.2)
+draw_arrow(8.2, 5.5, 9.8, 7.25, "State [ \u03bc_RUL, \u03c3_now, \u03c3_roll, sensor_health ]", rad=-0.15, text_y_offset=0.2)
 
 # Layer 1 -> Layer 3
 draw_arrow(8.2, 4.5, 9.8, 2.75, "Predictions [ \u03bc_RUL, \u03c3_roll ]", rad=0.15, text_y_offset=-0.3)
