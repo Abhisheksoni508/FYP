@@ -1,6 +1,6 @@
 # Uncertainty-Aware Reinforcement Learning for Predictive Maintenance
 
-> Final-year project on predictive maintenance for turbofan engines using LSTM deep ensembles, a DQN maintenance policy, and a deterministic safety supervisor.
+> Final-year project on predictive maintenance for IoT assets, validated on the NASA C-MAPSS turbofan benchmark using LSTM deep ensembles, a DQN maintenance policy, and a deterministic safety supervisor.
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.x-red?logo=pytorch&logoColor=white)

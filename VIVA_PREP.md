@@ -8,7 +8,7 @@ Use this as a speaking aid, not a script. The aim is simple: answer clearly, kee
 
 If you get asked to describe the project in your own words:
 
-> I built a three-layer predictive-maintenance system for turbofan engines using the NASA C-MAPSS benchmark. The first layer is a five-model LSTM ensemble that predicts remaining useful life and gives an uncertainty signal from model disagreement. The second layer is a DQN agent that uses both the prediction and the uncertainty to decide whether to keep running or schedule maintenance. The third layer is a deterministic safety supervisor that can override unsafe decisions in low-RUL conditions. The main result is that once the policy can see uncertainty, it stays much more robust under sensor noise and needs far less rescue from the supervisor.
+> I built a three-layer predictive-maintenance framework for IoT assets and validated it on the NASA C-MAPSS turbofan benchmark. The first layer is a five-model LSTM ensemble that predicts remaining useful life and gives an uncertainty signal from model disagreement. The second layer is a DQN agent that uses both the prediction and the uncertainty to decide whether to keep running or schedule maintenance. The third layer is a deterministic safety supervisor that can override unsafe decisions in low-RUL conditions. The main result is that once the policy can see uncertainty, it stays much more robust under sensor noise and needs far less rescue from the supervisor.
 
 That is enough for the first 20 to 30 seconds. Then expand only if asked.
 
@@ -116,7 +116,7 @@ Short answer:
 
 ### How does this generalise beyond C-MAPSS?
 
-> The integration pattern is the part that transfers. Layer 1 would need retraining on a new asset class, but Layers 2 and 3 operate on abstract health and uncertainty signals rather than on turbofan-specific raw channels.
+> The integration pattern is the part that transfers. I validated it on turbofan engines because C-MAPSS is the benchmark I had, but the framework itself is not turbofan-specific. Layer 1 would need retraining on a new asset class, while Layers 2 and 3 operate on abstract health and uncertainty signals rather than on turbofan-specific raw channels.
 
 ### Why not just use a fixed threshold policy?
 

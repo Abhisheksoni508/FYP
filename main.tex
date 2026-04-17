@@ -218,7 +218,7 @@ UQ      & Uncertainty Quantification \\
 Industrial IoT systems, from aircraft engines and wind turbines to CNC spindles, HVAC compressors, and pump fleets, all share the same core problem: timely maintenance prevents costly failure, but doing it too early wastes useful component life. A single unplanned failure can halt operations for weeks, cost hundreds of thousands of pounds in emergency repair, and in safety-critical domains endanger lives. Organisations have therefore invested heavily in Predictive Maintenance (PdM), systems that predict when an asset will fail so that intervention can be scheduled at the optimal moment. This study develops a PdM \emph{framework} with asset-agnostic interfaces; turbofan engines and the NASA C-MAPSS dataset are used as the validation case study because they provide a demanding and extensively benchmarked instance of the broader IoT problem.
 
 
-Recent advances in deep learning have made it possible to predict Remaining Useful Life (RUL) with reasonable accuracy by training neural networks on historical sensor data. However, a critical weakness persists in most deployed systems. They produce a single point prediction and treat it as certain, even when the underlying sensor data has been corrupted by noise, drift, or partial failure. In reality, sensors degrade throughout an engine's operational life, and a prediction made from corrupted data deserves far less confidence than one made from clean readings. Ignoring this distinction leads to a dangerous situation: maintenance decisions are made with equal conviction whether the prediction is trustworthy or unreliable.
+Recent advances in deep learning have made it possible to predict Remaining Useful Life (RUL) with reasonable accuracy by training neural networks on historical sensor data. However, a critical weakness persists in most deployed systems. They produce a single point prediction and treat it as certain, even when the underlying sensor data has been corrupted by noise, drift, or partial failure. In reality, sensors degrade throughout an asset's operational life, and a prediction made from corrupted data deserves far less confidence than one made from clean readings. Ignoring this distinction leads to a dangerous situation: maintenance decisions are made with equal conviction whether the prediction is trustworthy or unreliable.
 
 
 The work tackled that problem directly. Rather than building only another RUL predictor, it developed a decision-making framework that accounts for when its predictions are unreliable. The system comprised three cooperating layers: a deep learning ensemble that quantified prediction uncertainty, a reinforcement learning agent that learned to interpret that uncertainty signal when choosing whether to wait or perform maintenance, and a deterministic safety supervisor that provided a final safety backstop against late-stage failure. The result was a framework that performed comparably to conventional systems under ideal conditions, but degraded more gracefully when sensor noise was present, the scenario that is most consequential in deployment.
@@ -1126,7 +1126,7 @@ To verify that the DQN agent learned a non-trivial policy (FR9), the UA agent wa
 \subsection{Financial Impact Analysis}
 \label{sec:financial_analysis}
 
-The financial analysis translated simulation outcomes into real-world cost estimates for a fleet of 50 turbofan engines making 200 maintenance decisions annually (FR8). The cost model assigned realistic industry costs to each outcome category: \pounds18,000 for optimal timing (jackpot), \pounds35,000 for acceptable but early maintenance, \pounds52,000 for wasteful early maintenance, and \pounds275,000 for an unplanned failure event including emergency repair, flight cancellations, and passenger compensation.
+The financial analysis translated simulation outcomes into a representative aerospace case-study cost model for a fleet of 50 turbofan engines making 200 maintenance decisions annually (FR8). The cost model assigned realistic industry costs to each outcome category: \pounds18,000 for optimal timing (jackpot), \pounds35,000 for acceptable but early maintenance, \pounds52,000 for wasteful early maintenance, and \pounds275,000 for an unplanned failure event including emergency repair, flight cancellations, and passenger compensation.
 
 
 Because the full three-layer architecture can force safety overrides, the final cost model also included an override premium for supervisor-forced interventions. This reflects operational reality: even when failure is avoided, reactive supervisor-triggered maintenance is less efficient than agent-initiated planned maintenance due to urgent scheduling and logistics overhead.
@@ -1312,7 +1312,7 @@ The work was conducted in alignment with the British Computer Society (BCS) Code
 
 If deployed commercially, the system would require integration with fleet management, maintenance scheduling, and spare-parts systems. Data ownership and access rights would also need contractual clarity, because telemetry is often controlled by manufacturers while maintenance records are held by operators.
 
-The architecture may transfer beyond turbofan engines: Layer~1 would be retrained per asset class, while Layers~2 and~3 are built around abstract health and uncertainty signals rather than turbofan-specific features. Even so, broader deployment would require per-platform retraining, recalibration under sensor drift, and continuous compliance checks against evolving certification requirements.
+The architecture is intended to transfer beyond turbofan engines: Layer~1 would be retrained per asset class, while Layers~2 and~3 are built around abstract health and uncertainty signals rather than turbofan-specific features. Even so, broader deployment would require per-platform retraining, recalibration under sensor drift, and continuous compliance checks against evolving certification requirements.
 
 \section{Conclusion}
 
@@ -1377,7 +1377,7 @@ The main lesson I took from this project is that getting the technical pieces to
 
 The three layers were not designed all at once. Layer~1 came first because RUL prediction was the natural starting point. Layer~2 followed once it became clear that a prediction on its own does not answer the real question, namely when to act. Layer~3 was added after the agent occasionally made catastrophic decisions in edge cases, making it clear that those risks were better handled through an explicit deterministic safeguard than through further policy tuning alone. Each layer therefore exists in response to a concrete limitation of the previous one, and that iterative logic is the architectural aspect of the project that I value most.
 
-The unresolved question I leave is the gap between a prototype that performs well in simulation and a system that could be trusted on a real engine. The safety supervisor reduces the crash rate to zero across the evaluated simulated episodes, but a regulator would require formal verification rather than statistical evidence alone. Closing that gap would be the most important next step if this work were taken forward.
+The unresolved question I leave is the gap between a prototype that performs well in simulation and a system that could be trusted on a real monitored asset in operation. The safety supervisor reduces the crash rate to zero across the evaluated simulated episodes, but a regulator would require formal verification rather than statistical evidence alone. Closing that gap would be the most important next step if this work were taken forward.
 
 
 \newpage
@@ -1395,7 +1395,7 @@ The unresolved question I leave is the gap between a prototype that performs wel
 
 \section*{A.1 Original Project Aim}
 
-The original project aim was to develop a hybrid AI system that combines deep learning prognostics with reinforcement learning decision-making for predictive maintenance of turbofan engines, using the NASA C-MAPSS dataset as a benchmark. The system was intended to:
+The original project aim was to develop a hybrid AI system that combines deep learning prognostics with reinforcement learning decision-making for predictive maintenance in IoT settings, using the NASA C-MAPSS turbofan dataset as the benchmark validation case. The system was intended to:
 
 \begin{enumerate}
     \item Predict remaining useful life using an LSTM deep ensemble.
